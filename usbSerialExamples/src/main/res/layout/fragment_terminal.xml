@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical">
+
+<!-- Sección de líneas de control -->
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <ToggleButton
+        android:id="@+id/controlLineRts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48sp"
+        android:textOff="RTS"
+        android:textOn="RTS" />
+
+    <ToggleButton
+        android:id="@+id/controlLineCts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48sp"
+        android:clickable="false"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textOff="CTS"
+        android:textOn="CTS" />
+
+    <View
+        android:layout_width="6dp"
+        android:layout_height="match_parent" />
+
+    <ToggleButton
+        android:id="@+id/controlLineDtr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48sp"
+        android:textOff="DTR"
+        android:textOn="DTR" />
+
+    <ToggleButton
+        android:id="@+id/controlLineDsr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:minWidth="48sp"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textOff="DSR"
+        android:textOn="DSR" />
+
+    <View
+        android:layout_width="6dp"
+        android:layout_height="match_parent" />
+
+    <ToggleButton
+        android:id="@+id/controlLineCd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:minWidth="48sp"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textOff="CD"
+        android:textOn="CD" />
+
+    <ToggleButton
+        android:id="@+id/controlLineRi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48sp"
+        android:clickable="false"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textOff="RI"
+        android:textOn="RI" />
+
+</LinearLayout>
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="2dp"
+    android:background="?android:attr/listDivider" />
+
+<!-- Vista de recepción -->
+<TextView
+    android:id="@+id/receive_text"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:freezesText="true"
+    android:gravity="bottom"
+    android:scrollbars="vertical"
+    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+    android:typeface="monospace" />
+
+<Button
+    android:id="@+id/receive_btn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Read" />
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="2dp"
+    android:background="?android:attr/listDivider" />
+
+<!-- Campo de envío -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <EditText
+        android:id="@+id/send_text"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:inputType="text|textNoSuggestions"
+        android:singleLine="true" />
+
+    <ImageButton
+        android:id="@+id/send_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_send_white_24dp" />
+</LinearLayout>
+
+<!-- Botones predefinidos -->
+<LinearLayout
+    android:id="@+id/bottom_buttons"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <Button
+        android:id="@+id/btn_led_on"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Help"
+        android:layout_marginHorizontal="4dp"
+        android:padding="10dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        android:id="@+id/btn_led_off"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Info"
+        android:layout_marginHorizontal="4dp"
+        android:padding="10dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reboot"
+        android:layout_marginHorizontal="4dp"
+        android:padding="10dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="#FFFFFF"/>
+</LinearLayout>
+
+</LinearLayout>

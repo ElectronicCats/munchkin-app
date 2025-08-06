@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="baud_rates">
+        <item>2400</item>
+        <item>9600</item>
+        <item>19200</item>
+        <item>57600</item>
+        <item>115200</item>
+    </string-array>
+    <string-array name="read_modes">
+        <item>event: SerialInputOutputManager.onNewData()</item>
+        <item>direct: UsbSerialPort.read()</item>
+    </string-array>
+    <color name="colorAccent">#D76542</color>
+    <color name="colorPrimary">#F4673B</color>
+    <color name="colorPrimaryDark">#571A06</color>
+    <color name="colorRecieveText">#00FF00</color>
+    <color name="colorSendText">#82CAFF</color>
+    <color name="colorStatusText">#FFDB58</color>
+    <string name="app_name">Munchkin</string>
+    <string name="app_title">Munchkin App</string>
+    <string name="devices">USB Devices</string>
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+</resources>
