@@ -66,11 +66,9 @@ protobuf {
 }
 
 dependencies {
+    
+    implementation ("com.github.mik3y:usb-serial-for-android:3.9.0")
     implementation(libs.protobuf.kotlin)
-    // 🔥 DEPENDENCIAS ADICIONALES NECESARIAS
-    implementation("com.google.protobuf:protobuf-java-util:4.32.0")
-    implementation("com.google.protobuf:protobuf-kotlin-lite:4.32.0")
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

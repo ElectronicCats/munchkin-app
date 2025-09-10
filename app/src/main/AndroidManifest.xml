@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-feature android:name="android.hardware.usb.host" />
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <uses-sdk android:minSdkVersion="12"
+        tools:ignore="GradleOverrides" />
+
 
     <application
         android:allowBackup="true"
@@ -16,6 +21,14 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Munchkinapp">
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
