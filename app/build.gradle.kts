@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.protobuf") version "0.9.5"
 }
 
 android {
@@ -28,18 +29,47 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
 }
 
+// 🔥 CONFIGURACIÓN CORRECTA PARA ANDROID
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.1"
+    }
+
+    // 🔥 ESTO LE DICE DÓNDE BUSCAR LOS ARCHIVOS .proto
+    plugins {
+        // No necesitas plugins adicionales para Kotlin básico
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
 dependencies {
+    implementation(libs.protobuf.kotlin)
+    // 🔥 DEPENDENCIAS ADICIONALES NECESARIAS
+    implementation("com.google.protobuf:protobuf-java-util:4.32.0")
+    implementation("com.google.protobuf:protobuf-kotlin-lite:4.32.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
