@@ -39,47 +39,21 @@ import com.example.munchkin_app.ui.screens.HomeScreen
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import com.example.munchkin_app.ui.theme.UsbHelper
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
-    private val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
 
-    private var port: UsbSerialPort? = null
-    private var connection: UsbDeviceConnection? = null
-    private var ioManager: SerialInputOutputManager? = null
-
-
-    private lateinit var usbManager: UsbManager
-
-    private val usbReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (ACTION_USB_PERMISSION == intent.action) {
-                synchronized(this) {
-                    val device: UsbDevice? =
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        device?.let {
-                            Log.d(TAG, "Permiso concedido para $it")
-                            // Aquí podrías abrir el dispositivo directamente o notificar a la UI
-                        }
-                    } else {
-                        Log.d(TAG, "Permiso denegado para $device")
-                    }
-                }
-            }
-        }
-    }
+    val usbHelper = UsbHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
+        val usbManager = usbHelper.getManager()
 
-        // Registrar receiver una sola vez
-        val filter = IntentFilter(ACTION_USB_PERMISSION)
-        registerReceiver(usbReceiver, filter)
+        usbHelper.registerReceiver()
 
         enableEdgeToEdge()
         setContent {
@@ -88,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting(usbManager, ACTION_USB_PERMISSION, Modifier)
+                    Greeting(usbManager, usbHelper, Modifier)
                 }
             }
         }
@@ -96,13 +70,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(manager: UsbManager, actionUsbPermission: String, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+fun Greeting(manager: UsbManager, usbHelper: UsbHelper, modifier: Modifier = Modifier) {
     var inputText by remember { mutableStateOf("") }
     var statusText by remember { mutableStateOf("Esperando...") }
     var receivedText by remember { mutableStateOf("") }
-
-    val executor = remember { Executors.newSingleThreadExecutor() }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,26 +85,9 @@ fun Greeting(manager: UsbManager, actionUsbPermission: String, modifier: Modifie
 
         // Botón para pedir permiso y detectar dispositivos
         Button(onClick = {
-            val devices = manager.deviceList
-            val device = devices.values.firstOrNull()
-            if (device == null) {
-                statusText = "No hay dispositivos conectados"
-                return@Button
-            }
-
-            if (!manager.hasPermission(device)) {
-                // pedir permiso solo si no lo tenemos
-                val permissionIntent = PendingIntent.getBroadcast(
-                    context,
-                    0,
-                    Intent(actionUsbPermission),
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-                manager.requestPermission(device, permissionIntent)
-                statusText = "Pidiendo permiso..."
-            } else {
-                statusText = "Ya tienes permiso para ${device.deviceName}"
-            }
+           usbHelper.detectAndGetPermision {newStatus ->
+               statusText = newStatus
+           }
         }) {
             Text("Detectar / Pedir permiso")
         }
@@ -146,39 +100,8 @@ fun Greeting(manager: UsbManager, actionUsbPermission: String, modifier: Modifie
 
         //Boton para leer texto de dispositivo serial
         Button(onClick = {
-            val availableDrivers =
-                UsbSerialProber.getDefaultProber().findAllDrivers(manager)
-            if (availableDrivers.isEmpty()) {
-                statusText = "No hay drivers USB"
-                return@Button
-            }
-
-            val driver = availableDrivers[0]
-            val connection = manager.openDevice(driver.device)
-            if (connection == null) {
-                statusText = "No se pudo abrir el dispositivo. ¿Permiso concedido?"
-                return@Button
-            }
-
-            val port = driver.ports[0]
-
-            try {
-                port.open(connection)
-                port.setParameters(
-                    115200,
-                    8,
-                    UsbSerialPort.STOPBITS_1,
-                    UsbSerialPort.PARITY_NONE
-                )
-                val bytes = ByteArray(100)
-                port.read(bytes, 0)
-
-                statusText = "Serial recibido:${bytes.toString(Charsets.UTF_8)}"
-
-                port.close()
-                connection.close()
-            } catch (e: IOException) {
-                statusText = "Error: ${e.message}"
+            usbHelper.readSerial {newStatus ->
+                statusText = newStatus
             }
         }) {
             Text("Leer el dispositivo")
@@ -186,39 +109,9 @@ fun Greeting(manager: UsbManager, actionUsbPermission: String, modifier: Modifie
 
         // Botón para enviar texto al dispositivo vía serial
         Button(onClick = {
-            val availableDrivers =
-                UsbSerialProber.getDefaultProber().findAllDrivers(manager)
-            if (availableDrivers.isEmpty()) {
-                statusText = "No hay drivers USB"
-                return@Button
-            }
-
-            val driver = availableDrivers[0]
-            val connection = manager.openDevice(driver.device)
-            if (connection == null) {
-                statusText = "No se pudo abrir el dispositivo. ¿Permiso concedido?"
-                return@Button
-            }
-
-            val port = driver.ports[0]
-
-            try {
-                port.open(connection)
-                port.setParameters(
-                    115200,
-                    8,
-                    UsbSerialPort.STOPBITS_1,
-                    UsbSerialPort.PARITY_NONE
-                )
-                port.write(inputText.toByteArray(), 2000)
-
-                statusText = "Enviado: $inputText"
+            usbHelper.writeSerial(inputText) {newStatus ->
+                statusText = newStatus
                 inputText = ""
-
-                port.close()
-                connection.close()
-            } catch (e: IOException) {
-                statusText = "Error: ${e.message}"
             }
         }) {
             Text("Enviar al dispositivo")
