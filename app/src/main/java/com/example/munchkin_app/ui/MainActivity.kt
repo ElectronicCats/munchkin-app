@@ -74,6 +74,9 @@ fun Greeting(manager: UsbManager, usbHelper: UsbHelper, modifier: Modifier = Mod
     var inputText by remember { mutableStateOf("") }
     var statusText by remember { mutableStateOf("Esperando...") }
     var receivedText by remember { mutableStateOf("") }
+    var isButtonPressed by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -100,9 +103,7 @@ fun Greeting(manager: UsbManager, usbHelper: UsbHelper, modifier: Modifier = Mod
 
         //Boton para leer texto de dispositivo serial
         Button(onClick = {
-            usbHelper.readSerial {newStatus ->
-                statusText = newStatus
-            }
+            isButtonPressed = true
         }) {
             Text("Leer el dispositivo")
         }
@@ -115,6 +116,16 @@ fun Greeting(manager: UsbManager, usbHelper: UsbHelper, modifier: Modifier = Mod
             }
         }) {
             Text("Enviar al dispositivo")
+        }
+
+        if (isButtonPressed) {
+            // Lectura continua del serial
+            LaunchedEffect(Unit) {
+                usbHelper.readSerial { data ->
+                    val text = data
+                    receivedText = text  // esto actualizará automáticamente el Text de Compose
+                }
+            }
         }
     }
 }

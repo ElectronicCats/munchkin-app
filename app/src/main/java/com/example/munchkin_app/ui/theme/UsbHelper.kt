@@ -13,10 +13,17 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.registerReceiver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
+import simple.SimpleMessageKt
 import java.io.IOException
+import java.util.concurrent.Executors
+
+import simple.Simple.SimpleMessage
 
 class UsbHelper (private val context: Context) {
+
+
     val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
+
 
     private val usbManager: UsbManager by lazy {
         context.getSystemService(Context.USB_SERVICE) as UsbManager
@@ -95,29 +102,35 @@ class UsbHelper (private val context: Context) {
 
         val port = driver.ports[0]
 
-        try {
-            port.open(connection)
-            port.setParameters(
-                115200,
-                8,
-                UsbSerialPort.STOPBITS_1,
-                UsbSerialPort.PARITY_NONE
-            )
-            val bytes = ByteArray(100)
-            val len = port.read(bytes, 2000)
+        port.open(connection)
+        port.setParameters(
+            115200,
+            8,
+            UsbSerialPort.STOPBITS_1,
+            UsbSerialPort.PARITY_NONE
+        )
+            val executor = Executors.newSingleThreadExecutor()
+            executor.submit {
 
-            if (len > 0) {
-                val text = String(bytes, 0, len, Charsets.UTF_8)
-                onStatusChanged("Serial recibido: $text")
-            } else {
-                onStatusChanged("No llegaron datos del dispositivo")
-            }
+                val bytes = ByteArray(256)
 
-        } catch (e: IOException) {
-            onStatusChanged("Error: ${e.message}")
-        } finally {
-            try { port.close() } catch (_: Exception) {}
-            try { connection.close() } catch (_: Exception) {}
+                while (true) {
+                    try {
+                        val len = port.read(bytes, 1000)
+
+                        if (len > 0) {
+                            val receivedBytes = bytes.copyOf(len)
+                            val simpleMessage = SimpleMessage.parseFrom(receivedBytes)
+                            onStatusChanged("Serial recibido: $simpleMessage")
+                        } else {
+                            onStatusChanged("No llegaron datos del dispositivo")
+                        }
+
+                    } catch (e: IOException) {
+                        onStatusChanged("Error: ${e.message}")
+                    }
+                }
+
         }
     }
 
@@ -147,9 +160,16 @@ class UsbHelper (private val context: Context) {
                 UsbSerialPort.STOPBITS_1,
                 UsbSerialPort.PARITY_NONE
             )
-            port.write(inputText.toByteArray(), 2000)
 
-            onStatusChanged("Enviado: $inputText")
+            val message = SimpleMessage.newBuilder()
+                .setLuckyNumber(13)
+                .build()
+
+            val bytesToSend = message.toByteArray()
+
+            port.write(bytesToSend, 2000)
+
+            onStatusChanged("Enviado: $bytesToSend")
 
         } catch (e: IOException) {
             onStatusChanged("Error: ${e.message}")
