@@ -144,6 +144,46 @@ fun Greeting(manager: UsbManager, actionUsbPermission: String, modifier: Modifie
             label = { Text("Texto a enviar") }
         )
 
+        //Boton para leer texto de dispositivo serial
+        Button(onClick = {
+            val availableDrivers =
+                UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+            if (availableDrivers.isEmpty()) {
+                statusText = "No hay drivers USB"
+                return@Button
+            }
+
+            val driver = availableDrivers[0]
+            val connection = manager.openDevice(driver.device)
+            if (connection == null) {
+                statusText = "No se pudo abrir el dispositivo. ¿Permiso concedido?"
+                return@Button
+            }
+
+            val port = driver.ports[0]
+
+            try {
+                port.open(connection)
+                port.setParameters(
+                    115200,
+                    8,
+                    UsbSerialPort.STOPBITS_1,
+                    UsbSerialPort.PARITY_NONE
+                )
+                val bytes = ByteArray(100)
+                port.read(bytes, 0)
+
+                statusText = "Serial recibido:${bytes.toString(Charsets.UTF_8)}"
+
+                port.close()
+                connection.close()
+            } catch (e: IOException) {
+                statusText = "Error: ${e.message}"
+            }
+        }) {
+            Text("Leer el dispositivo")
+        }
+
         // Botón para enviar texto al dispositivo vía serial
         Button(onClick = {
             val availableDrivers =
