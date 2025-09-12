@@ -162,7 +162,7 @@ class UsbHelper (private val context: Context) {
             )
 
             val message = SimpleMessage.newBuilder()
-                .setLuckyNumber(13)
+                .setLuckyNumber(inputText.toInt())
                 .build()
 
             val bytesToSend = message.toByteArray()

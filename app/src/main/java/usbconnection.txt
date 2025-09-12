@@ -1,0 +1,66 @@
+Este el código que se usa en el ESP32 para poder hacer la conexión con el dispositivo Android
+
+#include <Arduino.h>
+#include <pb_encode.h>
+#include <pb_decode.h>
+#include "simple.pb.h"
+
+
+/* Buffer donde se almacenará el mensaje */
+uint8_t buffer[128];
+size_t message_length;
+bool status;
+int luckyNumber = 0;
+
+bool encodeLuckyNumber(int luckyNumber, uint8_t* outBuffer, size_t bufferSize, size_t *outLength) {
+    SimpleMessage message = SimpleMessage_init_zero;
+
+    message.lucky_number = luckyNumber;
+
+    pb_ostream_t stream = pb_ostream_from_buffer(outBuffer, bufferSize);
+    status = pb_encode(&stream, SimpleMessage_fields, &message);
+    *outLength = stream.bytes_written;
+
+    if (!status) {
+        Serial.print("Encoding failed: ");
+        Serial.println(PB_GET_ERROR(&stream));
+        return false;
+    }
+    return true;
+}
+
+int decodeLuckyNumber(uint8_t* outBuffer, size_t bufferSize, size_t *outLength) {
+    /* Decode immediately */
+
+    SimpleMessage message = SimpleMessage_init_zero;
+
+    pb_istream_t stream = pb_istream_from_buffer(outBuffer, *outLength);
+
+    status = pb_decode(&stream, SimpleMessage_fields, &message);
+
+    if (!status) {
+        Serial.print("Decoding failed: ");
+        Serial.println(PB_GET_ERROR(&stream));
+        return 0;
+    }
+
+
+    return (int)message.lucky_number;
+}
+
+
+void setup() {
+    Serial.begin(115200);
+    delay(200);  // 200 ms
+}
+
+void loop() {
+    if (encodeLuckyNumber(luckyNumber, buffer, sizeof(buffer), &message_length) && luckyNumber > 0) {
+        Serial.write(buffer, message_length);
+    }
+    delay(1000); // manda cada segundo
+    if (Serial.available() > 0) {
+        size_t len = Serial.readBytes(buffer, sizeof(buffer));
+        luckyNumber = decodeLuckyNumber(buffer, sizeof(buffer), &len);
+    }
+}
