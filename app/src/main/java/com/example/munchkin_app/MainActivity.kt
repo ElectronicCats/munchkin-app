@@ -1,18 +1,7 @@
-package com.example.munchkin_app.ui
+package com.example.munchkin_app
 
-import com.hoho.android.usbserial.util.SerialInputOutputManager
-import java.util.concurrent.Executors
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.ContentValues.TAG
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,24 +14,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.ui.screens.HomeScreen
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import com.example.munchkin_app.ui.theme.UsbHelper
-import com.hoho.android.usbserial.driver.UsbSerialPort
-import com.hoho.android.usbserial.driver.UsbSerialProber
-import java.io.IOException
 
 class MainActivity : ComponentActivity() {
 

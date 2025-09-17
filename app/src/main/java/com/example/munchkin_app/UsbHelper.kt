@@ -1,23 +1,19 @@
-package com.example.munchkin_app.ui.theme
+package com.example.munchkin_app
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
-import android.content.ContentValues.TAG
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.registerReceiver
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
-import simple.SimpleMessageKt
+import simple.Simple
 import java.io.IOException
 import java.util.concurrent.Executors
-
-import simple.Simple.SimpleMessage
 
 class UsbHelper (private val context: Context) {
 
@@ -37,11 +33,11 @@ class UsbHelper (private val context: Context) {
                         intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         device?.let {
-                            Log.d(TAG, "Permiso concedido para $it")
+                            Log.d(ContentValues.TAG, "Permiso concedido para $it")
                             // Aquí podrías abrir el dispositivo directamente o notificar a la UI
                         }
                     } else {
-                        Log.d(TAG, "Permiso denegado para $device")
+                        Log.d(ContentValues.TAG, "Permiso denegado para $device")
                     }
                 }
             }
@@ -120,7 +116,7 @@ class UsbHelper (private val context: Context) {
 
                         if (len > 0) {
                             val receivedBytes = bytes.copyOf(len)
-                            val simpleMessage = SimpleMessage.parseFrom(receivedBytes)
+                            val simpleMessage = Simple.SimpleMessage.parseFrom(receivedBytes)
                             onStatusChanged("Serial recibido: $simpleMessage")
                         } else {
                             onStatusChanged("No llegaron datos del dispositivo")
@@ -161,7 +157,7 @@ class UsbHelper (private val context: Context) {
                 UsbSerialPort.PARITY_NONE
             )
 
-            val message = SimpleMessage.newBuilder()
+            val message = Simple.SimpleMessage.newBuilder()
                 .setLuckyNumber(inputText.toInt())
                 .build()
 
