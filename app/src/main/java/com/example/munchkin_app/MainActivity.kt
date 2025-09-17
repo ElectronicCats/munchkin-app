@@ -1,13 +1,11 @@
-package com.example.munchkin_app.ui
+package com.example.munchkin_app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MunchkinappTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.Companion.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     //This is the navigation controller
@@ -49,7 +47,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun Greeting(name: String, modifier: Modifier = Modifier) {
+    fun Greeting(name: String, modifier: Modifier = Modifier.Companion) {
         Text(
             text = "Hello $name!",
             modifier = modifier
