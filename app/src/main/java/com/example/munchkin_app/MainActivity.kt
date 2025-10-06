@@ -1,7 +1,12 @@
 package com.example.munchkin_app
 
-import android.hardware.usb.UsbManager
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import android.os.Handler
+import android.os.Looper
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,24 +19,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
-import androidx.compose.runtime.*
 
 class MainActivity : ComponentActivity() {
 
-    val usbHelper = UsbHelper(this)
+    private lateinit var usbHelper: UsbHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val usbManager = usbHelper.getManager()
-
-        usbHelper.registerReceiver()
+        usbHelper = UsbHelper(this)
+        usbHelper.registerReceiver() // Escucha permisos USB
 
         enableEdgeToEdge()
         setContent {
@@ -40,35 +42,42 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting(usbManager, usbHelper, Modifier)
+                    UsbScreen(usbHelper)
                 }
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        usbHelper.stopReading()
+        usbHelper.unregisterUsbReceiver()
+    }
 }
 
 @Composable
-fun Greeting(manager: UsbManager, usbHelper: UsbHelper, modifier: Modifier = Modifier) {
+fun UsbScreen(usbHelper: UsbHelper) {
     var inputText by remember { mutableStateOf("") }
     var statusText by remember { mutableStateOf("Esperando...") }
     var receivedText by remember { mutableStateOf("") }
-    var isButtonPressed by remember { mutableStateOf(false) }
+    var isReading by remember { mutableStateOf(false) }
+
+    val mainHandler = Handler(Looper.getMainLooper())
 
     val scope = rememberCoroutineScope()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = statusText)
-        Text(text = "Recibido $receivedText")
+        Text(text = "Recibido: $receivedText")
 
-        // Botón para pedir permiso y detectar dispositivos
         Button(onClick = {
-           usbHelper.detectAndGetPermision {newStatus ->
-               statusText = newStatus
-           }
+            usbHelper.detectAndGetPermission { newStatus ->
+                statusText = newStatus
+            }
         }) {
             Text("Detectar / Pedir permiso")
         }
@@ -79,31 +88,54 @@ fun Greeting(manager: UsbManager, usbHelper: UsbHelper, modifier: Modifier = Mod
             label = { Text("Texto a enviar") }
         )
 
-        //Boton para leer texto de dispositivo serial
         Button(onClick = {
-            isButtonPressed = true
+            if (!isReading) {
+                usbHelper.detectAndGetPermission { status ->
+                    statusText = status
+                    if (status.startsWith("Ya tienes permiso")) {
+                        isReading = true
+                        // Aquí usamos un callback seguro para UI
+                        usbHelper.readSerial { msg ->
+                            scope.launch {
+                                receivedText = msg
+                            }
+                        }
+                        statusText = "Leyendo..."
+                    }
+                }
+            }
         }) {
-            Text("Leer el dispositivo")
+            Text("Leer dispositivo")
         }
 
-        // Botón para enviar texto al dispositivo vía serial
-        Button(onClick = {
-            usbHelper.writeSerial(inputText) {newStatus ->
-                statusText = newStatus
-                inputText = ""
+        Button( onClick = {
+            if (!isReading) {
+                isReading = true
+                usbHelper.readSerialDebug { msg ->
+                    mainHandler.post { receivedText = msg } // usando Handler
+                }
+                statusText = "Leyendo..."
             }
+        }) {
+            Text("Leer dispositivo (debug)")
+        }
+
+        Button(onClick = {
+            if (isReading) {
+                usbHelper.stopReading()
+                isReading = false
+                statusText = "Lectura detenida"
+            }
+        }) {
+            Text("Detener lectura")
+        }
+
+        Button(onClick = {
+            statusText = "Función de escritura aún no implementada"
         }) {
             Text("Enviar al dispositivo")
         }
-
-        if (isButtonPressed) {
-            // Lectura continua del serial
-            LaunchedEffect(Unit) {
-                usbHelper.readSerial { data ->
-                    val text = data
-                    receivedText = text  // esto actualizará automáticamente el Text de Compose
-                }
-            }
-        }
     }
 }
+
+

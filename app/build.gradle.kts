@@ -66,7 +66,8 @@ protobuf {
 }
 
 dependencies {
-    
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation ("com.github.mik3y:usb-serial-for-android:3.9.0")
     implementation(libs.protobuf.kotlin)
     implementation(libs.androidx.core.ktx)
