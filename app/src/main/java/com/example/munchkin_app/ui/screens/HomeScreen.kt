@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
-import com.example.munchkin_app.data.network.sendPerson
 import java.io.FileOutputStream
 
 @Composable

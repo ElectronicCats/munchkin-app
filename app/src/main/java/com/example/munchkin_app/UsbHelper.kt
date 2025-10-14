@@ -11,6 +11,7 @@ import android.hardware.usb.UsbManager
 import android.util.Log
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
+import munchkin.Munchkin
 import simple.Simple
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -22,10 +23,6 @@ class UsbHelper(private val context: Context) {
         SEARCHING_HEADER, // Buscando el inicio del patrón "LENGTH:"
         READING_LENGTH,   // Leyendo los dígitos de la longitud
         READING_DATA      // Leyendo los bytes binarios del Protobuf
-    }
-
-    companion object {
-        const val HEADER_MAX_SIZE = 64
     }
 
     val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
@@ -52,7 +49,7 @@ class UsbHelper(private val context: Context) {
         }
     }
 
-    fun readSerialDebug(onStatusChanged: (String) -> Unit) {
+    fun readSerial(onStatusChanged: (String) -> Unit) {
         val manager = usbManager
         val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
         if (availableDrivers.isEmpty()) {
@@ -71,6 +68,10 @@ class UsbHelper(private val context: Context) {
         try {
             port.open(connection)
             port.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+
+            // Asignar a variables de instancia para reutilizar en writeToSerial
+            this.port = port  // <-- Añade esta línea
+            this.connection = connection  // <-- Añade esta línea
 
             val executor = Executors.newSingleThreadExecutor()
             executor.submit {
@@ -232,88 +233,133 @@ class UsbHelper(private val context: Context) {
         }
     }
 
-    fun readSerial(onStatusChanged: (String) -> Unit) {
-        val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
-        if (availableDrivers.isEmpty()) {
-            onStatusChanged("No hay drivers USB")
-            return
-        }
-
-        val driver = availableDrivers[0]
-        connection = usbManager.openDevice(driver.device)
-        if (connection == null) {
-            onStatusChanged("No se pudo abrir el dispositivo. ¿Permiso concedido?")
-            return
-        }
-
-        port = driver.ports[0]
-        try {
-            port?.open(connection)
-            port?.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
-        } catch (e: Exception) {
-            onStatusChanged("Error abriendo puerto: ${e.message}")
-            return
-        }
-
-        isReading = true
-        val buffer = ByteArrayOutputStream()
-        val readBuffer = ByteArray(256)
-        val timeout = 1000
-
+    fun writeToSerial(packet: Munchkin.Packet, onStatusChanged: (String) -> Unit) {
         executor.submit {
-            while (isReading) {
-                try {
-                    val len = port?.read(readBuffer, timeout) ?: 0
-                    if (len <= 0) {
-                        Thread.sleep(10)
-                        continue
-                    }
-
-                    buffer.write(readBuffer, 0, len)
-                    val dataBytes = buffer.toByteArray()
-                    val dataString = String(dataBytes, Charsets.US_ASCII)
-
-                    val regex = Regex("LENGTH:(\\d+)\\n")
-                    val match = regex.find(dataString)
-
-                    if (match != null) {
-                        val msgLength = match.groupValues[1].toIntOrNull() ?: 0
-                        if (msgLength <= 0) {
-                            onStatusChanged("Longitud inválida en header: $msgLength")
-                            buffer.reset()
-                            continue
-                        }
-
-                        val headerEndIndex = match.range.last + 1
-                        val remainingData = dataBytes.copyOfRange(headerEndIndex, dataBytes.size)
-
-                        if (remainingData.size >= msgLength) {
-                            val messageBytes = remainingData.copyOfRange(0, msgLength)
-                            try {
-                                val simpleMessage = Simple.SimpleMessage.parseFrom(messageBytes)
-                                onStatusChanged("PROTOBUF DECODIFICADO: lucky_number = ${simpleMessage.luckyNumber}")
-                            } catch (e: Exception) {
-                                onStatusChanged("Error parsing protobuf: ${e.message}")
-                            }
-
-                            val extra = remainingData.copyOfRange(msgLength, remainingData.size)
-                            buffer.reset()
-                            buffer.write(extra)
-                        }
-                    }
-
-                    if (buffer.size() > 2048) {
-                        onStatusChanged("Buffer demasiado grande, reiniciando...")
-                        buffer.reset()
-                    }
-
-                } catch (e: IOException) {
-                    onStatusChanged("Error de lectura: ${e.message}")
-                    break
-                } catch (e: Exception) {
-                    onStatusChanged("Error inesperado: ${e.message}")
+            try {
+                // Verificar que el puerto esté abierto
+                if (port == null || connection == null) {
+                    onStatusChanged("❌ Puerto no inicializado. Llama readSerial() primero.")
+                    return@submit
                 }
+
+                // Serializar el Protobuf a bytes
+                val protobufBytes = packet.toByteArray()
+                val length = protobufBytes.size
+
+                // Construir el header: "LENGTH:<num>\n"
+                val header = "LENGTH:$length\n".toByteArray(Charsets.US_ASCII)
+
+                // Combinar header + datos binarios
+                val fullMessage = header + protobufBytes
+
+                // Enviar por el puerto serial
+                port?.write(fullMessage, 1000) // Timeout de 1 segundo
+
+                // Debug: mostrar lo que se envió
+                val dataHex = protobufBytes.joinToString(" ") { String.format("%02X", it) }
+                val headerStr = String(header, Charsets.US_ASCII)
+
+                // Log detallado
+                Log.d("UsbHelper", "═══ ENVIANDO MENSAJE ═══")
+                Log.d("UsbHelper", "Header: $headerStr (sin \\n visible)")
+                Log.d("UsbHelper", "Longitud: $length bytes")
+                Log.d("UsbHelper", "Data hex: $dataHex")
+                Log.d("UsbHelper", "Comando: ${packet.command}")
+
+                onStatusChanged("📤 Enviado: LENGTH:$length + $length bytes")
+                onStatusChanged("📦 Data hex: $dataHex")
+                onStatusChanged("✅ Comando: ${packet.command}")
+
+            } catch (e: IOException) {
+                onStatusChanged("❌ Error escribiendo al puerto: ${e.message}")
+            } catch (e: Exception) {
+                onStatusChanged("❌ Error inesperado: ${e.message}")
             }
         }
     }
+
+    /**
+     * Envía un comando PING al dispositivo
+     */
+    fun sendPing(onStatusChanged: (String) -> Unit) {
+        val packet = Munchkin.Packet.newBuilder()
+            .setCommand(Munchkin.Command.CMD_PING)
+            .build()
+
+        writeToSerial(packet, onStatusChanged)
+    }
+
+    /**
+     * Envía comando para encender el LED
+     */
+    fun sendLedOn(onStatusChanged: (String) -> Unit) {
+        val packet = Munchkin.Packet.newBuilder()
+            .setCommand(Munchkin.Command.CMD_LED_ON)
+            .build()
+
+        writeToSerial(packet, onStatusChanged)
+    }
+
+    /**
+     * Envía comando para apagar el LED
+     */
+    fun sendLedOff(onStatusChanged: (String) -> Unit) {
+        val packet = Munchkin.Packet.newBuilder()
+            .setCommand(Munchkin.Command.CMD_LED_OFF)
+            .build()
+
+        writeToSerial(packet, onStatusChanged)
+    }
+
+    /**
+     * Envía comando para toggle del LED
+     */
+    fun sendToggleLed(onStatusChanged: (String) -> Unit) {
+        val packet = Munchkin.Packet.newBuilder()
+            .setCommand(Munchkin.Command.CMD_TOGGLE_LED)
+            .build()
+
+        writeToSerial(packet, onStatusChanged)
+    }
+
+    /**
+     * Solicita el estado del dispositivo
+     */
+    fun requestStatus(onStatusChanged: (String) -> Unit) {
+        val packet = Munchkin.Packet.newBuilder()
+            .setCommand(Munchkin.Command.CMD_STATUS_REQUEST)
+            .build()
+
+        writeToSerial(packet, onStatusChanged)
+    }
+
+//    /**
+//     * Envía un comando personalizado con payload
+//     */
+//    fun sendCustomCommand(
+//        command: Munchkin.Command,
+//        luckyNumber: Int? = null,
+//        statusCode: Munchkin.StatusCode? = null,
+//        statusMessage: String? = null,
+//        onStatusChanged: (String) -> Unit
+//    ) {
+//        val packetBuilder = Munchkin.Packet.newBuilder()
+//            .setCommand(command)
+//
+//        // Añadir payload si se proporciona lucky_number
+//        if (luckyNumber != null) {
+//            val payload = Simple.SimpleMessage.newBuilder()
+//                .setLuckyNumber(luckyNumber)
+//                .build()
+//            packetBuilder.setPayload(payload)
+//        }
+//
+//        // Añadir status code si se proporciona
+//        statusCode?.let { packetBuilder.setStatusCode(it) }
+//
+//        // Añadir mensaje de estado si se proporciona
+//        statusMessage?.let { packetBuilder.setStatusMessage(it) }
+//
+//        writeToSerial(packetBuilder.build(), onStatusChanged)
+//    }
 }

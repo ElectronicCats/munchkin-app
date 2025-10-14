@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package munchkin;
+
+// Comandos RPC
+enum Command {
+  CMD_UNKNOWN = 0;
+  CMD_PING = 1;
+  CMD_LED_ON = 2;
+  CMD_LED_OFF = 3;
+  CMD_TOGGLE_LED = 4;
+  CMD_STATUS_REQUEST = 5;
+  CMD_STATUS_RESPONSE = 6; // → usada para responder estado
+}
+
+// Códigos de estado de respuesta
+enum StatusCode {
+  STATUS_UNKNOWN = 0;
+  STATUS_OK = 1;
+  STATUS_ERROR = 2;
+}
+
+// Mensaje simple de ejemplo
+message SimpleMessage {
+  int32 lucky_number = 1;
+}
+
+// Paquete genérico estilo Flipper RPC
+message Packet {
+  Command command = 1;             // Qué acción es (request o response)
+  SimpleMessage payload = 2;      // Datos opcionales ej: lucky_number...
+  StatusCode status_code = 3;     // Código de respuesta
+  string status_message = 4;      // Mensaje humano opcional (ej: "LED ON OK")
+}

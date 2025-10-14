@@ -82,42 +82,16 @@ fun UsbScreen(usbHelper: UsbHelper) {
             Text("Detectar / Pedir permiso")
         }
 
-        OutlinedTextField(
-            value = inputText,
-            onValueChange = { inputText = it },
-            label = { Text("Texto a enviar") }
-        )
-
-        Button(onClick = {
-            if (!isReading) {
-                usbHelper.detectAndGetPermission { status ->
-                    statusText = status
-                    if (status.startsWith("Ya tienes permiso")) {
-                        isReading = true
-                        // Aquí usamos un callback seguro para UI
-                        usbHelper.readSerial { msg ->
-                            scope.launch {
-                                receivedText = msg
-                            }
-                        }
-                        statusText = "Leyendo..."
-                    }
-                }
-            }
-        }) {
-            Text("Leer dispositivo")
-        }
-
         Button( onClick = {
             if (!isReading) {
                 isReading = true
-                usbHelper.readSerialDebug { msg ->
+                usbHelper.readSerial { msg ->
                     mainHandler.post { receivedText = msg } // usando Handler
                 }
                 statusText = "Leyendo..."
             }
         }) {
-            Text("Leer dispositivo (debug)")
+            Text("Leer dispositivo")
         }
 
         Button(onClick = {
@@ -130,10 +104,29 @@ fun UsbScreen(usbHelper: UsbHelper) {
             Text("Detener lectura")
         }
 
+
         Button(onClick = {
-            statusText = "Función de escritura aún no implementada"
+            if (isReading) {
+                usbHelper.sendPing{}
+            }
         }) {
-            Text("Enviar al dispositivo")
+            Text("Hacer ping")
+        }
+
+        Button(onClick = {
+            if (isReading) {
+                usbHelper.sendLedOn {}
+            }
+        }) {
+            Text("Encender LED")
+        }
+
+        Button(onClick = {
+            if (isReading) {
+                usbHelper.sendLedOff{}
+            }
+        }) {
+            Text("Apagar LED")
         }
     }
 }
