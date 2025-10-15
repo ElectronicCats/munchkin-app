@@ -1,34 +1,61 @@
 syntax = "proto3";
 
-package munchkin;
+// --- Estructura RPC Base ---
 
-// Comandos RPC
-enum Command {
-  CMD_UNKNOWN = 0;
-  CMD_PING = 1;
-  CMD_LED_ON = 2;
-  CMD_LED_OFF = 3;
-  CMD_TOGGLE_LED = 4;
-  CMD_STATUS_REQUEST = 5;
-  CMD_STATUS_RESPONSE = 6; // → usada para responder estado
+// Estado general de la respuesta
+enum Status {
+  STATUS_OK = 0;
+  STATUS_ERROR = 1;
 }
 
-// Códigos de estado de respuesta
-enum StatusCode {
-  STATUS_UNKNOWN = 0;
-  STATUS_OK = 1;
-  STATUS_ERROR = 2;
+// --- Solicitudes (App -> ESP32) ---
+
+// Mensaje contenedor principal para todas las solicitudes
+message MainRequest {
+  uint32 id = 1; // ID de solicitud único, para emparejar con la respuesta
+
+  // Usa 'oneof' para permitir solo un tipo de comando por mensaje
+  oneof content {
+    LedControlRequest led_control = 10;
+    CounterControlRequest counter_control = 11;
+  }
 }
 
-// Mensaje simple de ejemplo
-message SimpleMessage {
-  int32 lucky_number = 1;
+// 1. Control de LED (Prender/Apagar)
+message LedControlRequest {
+  bool enable = 1; // true = ON, false = OFF
 }
 
-// Paquete genérico estilo Flipper RPC
-message Packet {
-  Command command = 1;             // Qué acción es (request o response)
-  SimpleMessage payload = 2;      // Datos opcionales ej: lucky_number...
-  StatusCode status_code = 3;     // Código de respuesta
-  string status_message = 4;      // Mensaje humano opcional (ej: "LED ON OK")
+// 2. Control de Conteo (Iniciar/Detener/Obtener)
+message CounterControlRequest {
+  enum Action {
+    ACTION_START = 0; // Iniciar el envío periódico del contador
+    ACTION_STOP = 1;  // Detener el envío periódico del contador
+    ACTION_GET = 2;   // Obtener el valor actual una sola vez
+  }
+  Action action = 1;
+}
+
+// --- Respuestas (ESP32 -> App) ---
+
+// Mensaje contenedor principal para todas las respuestas
+message MainResponse {
+  uint32 id = 1; // ID que coincide con el MainRequest
+  Status status = 2;
+
+  // Usa 'oneof' para permitir solo un tipo de respuesta por mensaje
+  oneof content {
+    LedControlResponse led_control_response = 10;
+    CounterResponse counter_response = 11;
+  }
+}
+
+// 1. Respuesta de Control de LED (vacía, solo importa el status)
+message LedControlResponse {
+  // Un mensaje vacío funciona perfectamente en proto3 para confirmación.
+}
+
+// 2. Respuesta/Update de Conteo (contiene el valor)
+message CounterResponse {
+  int32 value = 1;
 }

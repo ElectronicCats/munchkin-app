@@ -11,7 +11,7 @@ import android.hardware.usb.UsbManager
 import android.util.Log
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
-import munchkin.Munchkin
+import Munchkin
 import simple.Simple
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -30,6 +30,8 @@ class UsbHelper(private val context: Context) {
     private val usbManager: UsbManager by lazy {
         context.getSystemService(Context.USB_SERVICE) as UsbManager
     }
+
+    private var requestIdCounter: Int = 0
 
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -150,8 +152,31 @@ class UsbHelper(private val context: Context) {
                                             onStatusChanged("📦 Recibido $expectedLength bytes: $dataHex")
 
                                             try {
-                                                val simpleMessage = Simple.SimpleMessage.parseFrom(protobufBytes)
-                                                onStatusChanged("✅ Protobuf decodificado: lucky_number = ${simpleMessage.luckyNumber}")
+                                                // Intentar decodificar como MainResponse
+                                                val mainResponse = Munchkin.MainResponse.parseFrom(protobufBytes)
+
+                                                onStatusChanged("✅ Protobuf decodificado:")
+                                                onStatusChanged("   🆔 Response ID: ${mainResponse.id}")
+                                                onStatusChanged("   📊 Status: ${mainResponse.status}")
+
+                                                // Procesar el contenido según el tipo
+                                                when {
+                                                    mainResponse.hasLedControlResponse() -> {
+                                                        onStatusChanged("   💡 Tipo: LED Control Response")
+                                                        onStatusChanged("   ✅ Comando LED ejecutado correctamente")
+                                                    }
+
+                                                    mainResponse.hasCounterResponse() -> {
+                                                        val counterValue = mainResponse.counterResponse.value
+                                                        onStatusChanged("   🔢 Tipo: Counter Response")
+                                                        onStatusChanged("   📈 Valor del contador: $counterValue")
+                                                    }
+
+                                                    else -> {
+                                                        onStatusChanged("   ⚠️ Respuesta sin contenido específico")
+                                                    }
+                                                }
+
                                             } catch (e: Exception) {
                                                 onStatusChanged("❌ Error decodificando Protobuf: ${e.message}")
                                             }
@@ -233,7 +258,7 @@ class UsbHelper(private val context: Context) {
         }
     }
 
-    fun writeToSerial(packet: Munchkin.Packet, onStatusChanged: (String) -> Unit) {
+    fun writeToSerial(request: Munchkin.MainRequest, onStatusChanged: (String) -> Unit) {
         executor.submit {
             try {
                 // Verificar que el puerto esté abierto
@@ -243,7 +268,7 @@ class UsbHelper(private val context: Context) {
                 }
 
                 // Serializar el Protobuf a bytes
-                val protobufBytes = packet.toByteArray()
+                val protobufBytes = request.toByteArray()
                 val length = protobufBytes.size
 
                 // Construir el header: "LENGTH:<num>\n"
@@ -257,18 +282,10 @@ class UsbHelper(private val context: Context) {
 
                 // Debug: mostrar lo que se envió
                 val dataHex = protobufBytes.joinToString(" ") { String.format("%02X", it) }
-                val headerStr = String(header, Charsets.US_ASCII)
 
-                // Log detallado
-                Log.d("UsbHelper", "═══ ENVIANDO MENSAJE ═══")
-                Log.d("UsbHelper", "Header: $headerStr (sin \\n visible)")
-                Log.d("UsbHelper", "Longitud: $length bytes")
-                Log.d("UsbHelper", "Data hex: $dataHex")
-                Log.d("UsbHelper", "Comando: ${packet.command}")
-
-                onStatusChanged("📤 Enviado: LENGTH:$length + $length bytes")
+                onStatusChanged("📤 Enviado: LENGTH:$length")
                 onStatusChanged("📦 Data hex: $dataHex")
-                onStatusChanged("✅ Comando: ${packet.command}")
+                onStatusChanged("🆔 Request ID: ${request.id}")
 
             } catch (e: IOException) {
                 onStatusChanged("❌ Error escribiendo al puerto: ${e.message}")
@@ -279,87 +296,111 @@ class UsbHelper(private val context: Context) {
     }
 
     /**
-     * Envía un comando PING al dispositivo
-     */
-    fun sendPing(onStatusChanged: (String) -> Unit) {
-        val packet = Munchkin.Packet.newBuilder()
-            .setCommand(Munchkin.Command.CMD_PING)
-            .build()
-
-        writeToSerial(packet, onStatusChanged)
-    }
-
-    /**
      * Envía comando para encender el LED
      */
     fun sendLedOn(onStatusChanged: (String) -> Unit) {
-        val packet = Munchkin.Packet.newBuilder()
-            .setCommand(Munchkin.Command.CMD_LED_ON)
+        val ledRequest = Munchkin.LedControlRequest.newBuilder()
+            .setEnable(true)
             .build()
 
-        writeToSerial(packet, onStatusChanged)
+        val mainRequest = Munchkin.MainRequest.newBuilder()
+            .setId(++requestIdCounter)
+            .setLedControl(ledRequest)
+            .build()
+
+        onStatusChanged("💡 Enviando: LED ON")
+        writeToSerial(mainRequest, onStatusChanged)
     }
 
     /**
      * Envía comando para apagar el LED
      */
     fun sendLedOff(onStatusChanged: (String) -> Unit) {
-        val packet = Munchkin.Packet.newBuilder()
-            .setCommand(Munchkin.Command.CMD_LED_OFF)
+        val ledRequest = Munchkin.LedControlRequest.newBuilder()
+            .setEnable(false)
             .build()
 
-        writeToSerial(packet, onStatusChanged)
+        val mainRequest = Munchkin.MainRequest.newBuilder()
+            .setId(++requestIdCounter)
+            .setLedControl(ledRequest)
+            .build()
+
+        onStatusChanged("🌑 Enviando: LED OFF")
+        writeToSerial(mainRequest, onStatusChanged)
     }
 
     /**
-     * Envía comando para toggle del LED
+     * Toggle LED (envía ON si está OFF, o OFF si está ON)
+     * Nota: Necesitarías mantener el estado actual para hacer un toggle real
+     * Por ahora, simplemente alternamos basándonos en el requestId
      */
     fun sendToggleLed(onStatusChanged: (String) -> Unit) {
-        val packet = Munchkin.Packet.newBuilder()
-            .setCommand(Munchkin.Command.CMD_TOGGLE_LED)
+        // Alternar basado en el número de request
+        val shouldEnable = (requestIdCounter % 2 == 0)
+
+        val ledRequest = Munchkin.LedControlRequest.newBuilder()
+            .setEnable(shouldEnable)
             .build()
 
-        writeToSerial(packet, onStatusChanged)
+        val mainRequest = Munchkin.MainRequest.newBuilder()
+            .setId(++requestIdCounter)
+            .setLedControl(ledRequest)
+            .build()
+
+        onStatusChanged("🔄 Enviando: LED ${if (shouldEnable) "ON" else "OFF"}")
+        writeToSerial(mainRequest, onStatusChanged)
+    }
+
+// --- Funciones para Control de Contador ---
+
+    /**
+     * Inicia el envío periódico del contador desde el ESP32
+     */
+    fun startCounter(onStatusChanged: (String) -> Unit) {
+        val counterRequest = Munchkin.CounterControlRequest.newBuilder()
+            .setAction(Munchkin.CounterControlRequest.Action.ACTION_START)
+            .build()
+
+        val mainRequest = Munchkin.MainRequest.newBuilder()
+            .setId(++requestIdCounter)
+            .setCounterControl(counterRequest)
+            .build()
+
+        onStatusChanged("▶️ Enviando: START Counter")
+        writeToSerial(mainRequest, onStatusChanged)
     }
 
     /**
-     * Solicita el estado del dispositivo
+     * Detiene el envío periódico del contador
      */
-    fun requestStatus(onStatusChanged: (String) -> Unit) {
-        val packet = Munchkin.Packet.newBuilder()
-            .setCommand(Munchkin.Command.CMD_STATUS_REQUEST)
+    fun stopCounter(onStatusChanged: (String) -> Unit) {
+        val counterRequest = Munchkin.CounterControlRequest.newBuilder()
+            .setAction(Munchkin.CounterControlRequest.Action.ACTION_STOP)
             .build()
 
-        writeToSerial(packet, onStatusChanged)
+        val mainRequest = Munchkin.MainRequest.newBuilder()
+            .setId(++requestIdCounter)
+            .setCounterControl(counterRequest)
+            .build()
+
+        onStatusChanged("⏹️ Enviando: STOP Counter")
+        writeToSerial(mainRequest, onStatusChanged)
     }
 
-//    /**
-//     * Envía un comando personalizado con payload
-//     */
-//    fun sendCustomCommand(
-//        command: Munchkin.Command,
-//        luckyNumber: Int? = null,
-//        statusCode: Munchkin.StatusCode? = null,
-//        statusMessage: String? = null,
-//        onStatusChanged: (String) -> Unit
-//    ) {
-//        val packetBuilder = Munchkin.Packet.newBuilder()
-//            .setCommand(command)
-//
-//        // Añadir payload si se proporciona lucky_number
-//        if (luckyNumber != null) {
-//            val payload = Simple.SimpleMessage.newBuilder()
-//                .setLuckyNumber(luckyNumber)
-//                .build()
-//            packetBuilder.setPayload(payload)
-//        }
-//
-//        // Añadir status code si se proporciona
-//        statusCode?.let { packetBuilder.setStatusCode(it) }
-//
-//        // Añadir mensaje de estado si se proporciona
-//        statusMessage?.let { packetBuilder.setStatusMessage(it) }
-//
-//        writeToSerial(packetBuilder.build(), onStatusChanged)
-//    }
+    /**
+     * Solicita el valor actual del contador (una sola vez)
+     */
+    fun getCounterValue(onStatusChanged: (String) -> Unit) {
+        val counterRequest = Munchkin.CounterControlRequest.newBuilder()
+            .setAction(Munchkin.CounterControlRequest.Action.ACTION_GET)
+            .build()
+
+        val mainRequest = Munchkin.MainRequest.newBuilder()
+            .setId(++requestIdCounter)
+            .setCounterControl(counterRequest)
+            .build()
+
+        onStatusChanged("📊 Enviando: GET Counter")
+        writeToSerial(mainRequest, onStatusChanged)
+    }
 }
