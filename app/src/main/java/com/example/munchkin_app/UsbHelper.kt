@@ -1,406 +1,313 @@
 package com.example.munchkin_app
 
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbDeviceConnection
-import android.hardware.usb.UsbManager
+import android.content.*
+import android.hardware.usb.*
 import android.util.Log
-import com.hoho.android.usbserial.driver.UsbSerialPort
-import com.hoho.android.usbserial.driver.UsbSerialProber
+import com.hoho.android.usbserial.driver.*
 import Munchkin
-import simple.Simple
-import java.io.ByteArrayOutputStream
+import androidx.core.content.ContextCompat
 import java.io.IOException
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class UsbHelper(private val context: Context) {
 
-    private enum class State {
-        SEARCHING_HEADER, // Buscando el inicio del patrón "LENGTH:"
-        READING_LENGTH,   // Leyendo los dígitos de la longitud
-        READING_DATA      // Leyendo los bytes binarios del Protobuf
-    }
+    private enum class State { SEARCHING_HEADER, READING_DATA }
 
+    private val TAG = "UsbHelper"
     val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
 
     private val usbManager: UsbManager by lazy {
         context.getSystemService(Context.USB_SERVICE) as UsbManager
     }
 
-    private var requestIdCounter: Int = 0
+    private var requestIdCounter = 0
 
+    // Puerto y conexión
+    private var port: UsbSerialPort? = null
+    private var connection: UsbDeviceConnection? = null
+    @Volatile private var isReading = false
+
+    // Executors
+    private var readExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+    private var writeExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+
+
+    // Receiver de permisos
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (ACTION_USB_PERMISSION == intent.action) {
                 synchronized(this) {
-                    val device: UsbDevice? =
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        device?.let {
-                            Log.d("UsbHelper", "Permiso concedido para $it")
-                        }
+                        device?.let { Log.d(TAG, "✅ Permiso concedido para $it") }
                     } else {
-                        Log.d("UsbHelper", "Permiso denegado para $device")
+                        Log.d(TAG, "❌ Permiso denegado para $device")
                     }
                 }
             }
         }
     }
-
-    fun readSerial(onStatusChanged: (String) -> Unit) {
-        val manager = usbManager
-        val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
-        if (availableDrivers.isEmpty()) {
-            onStatusChanged("No hay drivers USB")
-            return
-        }
-
-        val driver = availableDrivers[0]
-        val connection = manager.openDevice(driver.device)
-        if (connection == null) {
-            onStatusChanged("No se pudo abrir el dispositivo. ¿Permiso concedido?")
-            return
-        }
-
-        val port = driver.ports[0]
-        try {
-            port.open(connection)
-            port.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
-
-            // Asignar a variables de instancia para reutilizar en writeToSerial
-            this.port = port  // <-- Añade esta línea
-            this.connection = connection  // <-- Añade esta línea
-
-            val executor = Executors.newSingleThreadExecutor()
-            executor.submit {
-                val readBuffer = ByteArray(256)
-
-                // --- Variables de Framing y Estado ---
-                var state = State.SEARCHING_HEADER
-                var currentBuffer = mutableListOf<Byte>() // Buffer acumulativo de bytes recibidos
-                var expectedLength: Int = 0
-                val HEADER_START = "LENGTH:".toByteArray(Charsets.US_ASCII)
-                val HEADER_SEPARATOR = '\n'.toByte()
-
-                while (true) {
-                    try {
-                        // 1. Lectura del puerto USB
-                        val len = port.read(readBuffer, 100) // Timeout 100ms
-                        if (len > 0) {
-                            // 🔹 DEBUG: Mostrar los bytes leídos en hexadecimal
-                            val hex = readBuffer.take(len).joinToString(" ") { String.format("%02X", it) }
-                            onStatusChanged("🔹 Bytes leídos ($len): $hex")
-
-                            // Acumular bytes en el buffer actual
-                            currentBuffer.addAll(readBuffer.take(len))
-
-                            // 2. Procesamiento del buffer acumulado
-                            while (currentBuffer.isNotEmpty()) {
-                                when (state) {
-                                    State.SEARCHING_HEADER -> {
-                                        // Buscar el inicio de "LENGTH:"
-                                        val ascii = String(currentBuffer.toByteArray(), Charsets.US_ASCII)
-                                        val headerIndex = ascii.indexOf("LENGTH:")
-                                        if (headerIndex == -1) {
-                                            // No se encuentra el patrón
-                                            if (currentBuffer.size > 64) {
-                                                onStatusChanged("Descartando ${currentBuffer.size} bytes (sin header visible).")
-                                                currentBuffer.clear()
-                                            }
-                                            break
-                                        }
-
-                                        // Cortar todo lo anterior al header
-                                        if (headerIndex > 0) {
-                                            currentBuffer = currentBuffer.drop(headerIndex).toMutableList()
-                                        }
-
-                                        // Verificar si ya tenemos el header completo con '\n'
-                                        val newlineIndex = ascii.indexOf('\n', headerIndex)
-                                        if (newlineIndex != -1) {
-                                            val headerPart = ascii.substring(headerIndex, newlineIndex).trim()
-                                            val lengthText = headerPart.removePrefix("LENGTH:").trim()
-                                            expectedLength = lengthText.toIntOrNull() ?: 0
-
-                                            if (expectedLength > 0) {
-                                                onStatusChanged("📏 Longitud extraída: $expectedLength bytes.")
-                                                // Saltar los bytes del header + '\n'
-                                                val bytesToDrop = newlineIndex - headerIndex + 1
-                                                currentBuffer = currentBuffer.drop(bytesToDrop).toMutableList()
-                                                state = State.READING_DATA
-                                                currentBuffer.clear() // 🔧 limpiar cualquier residuo textual
-                                            } else {
-                                                onStatusChanged("❌ Longitud inválida en header: '$lengthText'")
-                                                currentBuffer.clear()
-                                            }
-                                        } else {
-                                            // Falta el salto de línea, esperar más bytes
-                                            break
-                                        }
-                                    }
-
-                                    State.READING_DATA -> {
-                                        if (currentBuffer.size >= expectedLength) {
-                                            val protobufBytes = currentBuffer.take(expectedLength).toByteArray()
-                                            currentBuffer = currentBuffer.drop(expectedLength).toMutableList()
-
-                                            val dataHex = protobufBytes.joinToString(" ") { String.format("%02X", it) }
-                                            onStatusChanged("📦 Recibido $expectedLength bytes: $dataHex")
-
-                                            try {
-                                                // Intentar decodificar como MainResponse
-                                                val mainResponse = Munchkin.MainResponse.parseFrom(protobufBytes)
-
-                                                onStatusChanged("✅ Protobuf decodificado:")
-                                                onStatusChanged("   🆔 Response ID: ${mainResponse.id}")
-                                                onStatusChanged("   📊 Status: ${mainResponse.status}")
-
-                                                // Procesar el contenido según el tipo
-                                                when {
-                                                    mainResponse.hasLedControlResponse() -> {
-                                                        onStatusChanged("   💡 Tipo: LED Control Response")
-                                                        onStatusChanged("   ✅ Comando LED ejecutado correctamente")
-                                                    }
-
-                                                    mainResponse.hasCounterResponse() -> {
-                                                        val counterValue = mainResponse.counterResponse.value
-                                                        onStatusChanged("   🔢 Tipo: Counter Response")
-                                                        onStatusChanged("   📈 Valor del contador: $counterValue")
-                                                    }
-
-                                                    else -> {
-                                                        onStatusChanged("   ⚠️ Respuesta sin contenido específico")
-                                                    }
-                                                }
-
-                                            } catch (e: Exception) {
-                                                onStatusChanged("❌ Error decodificando Protobuf: ${e.message}")
-                                            }
-
-                                            // Reiniciar estado para el siguiente mensaje
-                                            state = State.SEARCHING_HEADER
-                                            expectedLength = 0
-                                            currentBuffer.clear()
-                                        } else {
-                                            val faltan = expectedLength - currentBuffer.size
-                                            onStatusChanged("⏳ Esperando $faltan bytes más...")
-                                            break
-                                        }
-                                    }
-
-                                    State.READING_LENGTH -> TODO()
-                                }
-                            }
-                        }
-                    } catch (e: IOException) {
-                        onStatusChanged("Error de lectura: ${e.message}")
-                        break
-                    } catch (e: Exception) {
-                        onStatusChanged("Error inesperado en loop de lectura: ${e.message}")
-                    }
-                }
-
-            }
-        } catch (e: Exception) {
-            onStatusChanged("Error abriendo puerto: ${e.message}")
-        }
-    }
-
 
     fun registerReceiver() {
         val filter = IntentFilter(ACTION_USB_PERMISSION)
-        context.registerReceiver(usbReceiver, filter)
+        ContextCompat.registerReceiver(
+            context,
+            usbReceiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     fun unregisterUsbReceiver() {
         context.unregisterReceiver(usbReceiver)
     }
 
+    // --- Abrir puerto solo una vez ---
+    fun ensurePortOpen(onStatusChanged: (String) -> Unit): Boolean {
+        if (port != null && connection != null) return true
+
+        val driver = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager).firstOrNull()
+        if (driver == null) {
+            onStatusChanged("❌ No hay dispositivos USB")
+            return false
+        }
+
+        val device = driver.device
+        if (!usbManager.hasPermission(device)) {
+            onStatusChanged("❌ Sin permiso USB")
+            return false
+        }
+
+        val conn = usbManager.openDevice(device) ?: run {
+            onStatusChanged("❌ No se pudo abrir la conexión")
+            return false
+        }
+
+        val p = driver.ports[0]
+        try {
+            p.open(conn)
+            p.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            p.dtr = true
+            p.rts = true
+        } catch (e: IOException) {
+            onStatusChanged("❌ Error abriendo puerto: ${e.message}")
+            return false
+        }
+
+        port = p
+        connection = conn
+        onStatusChanged("✅ Puerto abierto y listo")
+        return true
+    }
+
     fun detectAndGetPermission(onStatusChanged: (String) -> Unit) {
-        val devices = usbManager.deviceList
-        val device = devices.values.firstOrNull()
-        if (device == null) {
-            onStatusChanged("No hay dispositivos conectados")
+        val driver = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager).firstOrNull()
+        if (driver == null) {
+            onStatusChanged("❌ No se encontraron dispositivos USB seriales.")
             return
         }
 
+        val device = driver.device
         if (!usbManager.hasPermission(device)) {
             val permissionIntent = PendingIntent.getBroadcast(
-                context,
-                0,
-                Intent(ACTION_USB_PERMISSION),
+                context, 0, Intent(ACTION_USB_PERMISSION),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
             usbManager.requestPermission(device, permissionIntent)
-            onStatusChanged("Pidiendo permiso...")
+            onStatusChanged("🔑 Solicitando permiso para dispositivo USB...")
         } else {
-            onStatusChanged("Ya tienes permiso para ${device.deviceName}")
+            onStatusChanged("✅ Permiso ya concedido para ${device.deviceName}")
         }
     }
 
-    private var port: UsbSerialPort? = null
-    private var connection: UsbDeviceConnection? = null
-    private var executor = Executors.newSingleThreadExecutor()
-    @Volatile private var isReading = false
-
-    fun stopReading() {
-        isReading = false
-        executor.shutdownNow()
-        try {
-            port?.close()
-            connection?.close()
-        } catch (e: Exception) {
-            Log.e("UsbHelper", "Error cerrando puerto: ${e.message}")
+    // --- Lectura serial ---
+    fun readSerial(onStatusChanged: (String) -> Unit) {
+        if (isReading) {
+            onStatusChanged("⚠️ Ya se está leyendo el puerto.")
+            return
         }
-    }
 
-    fun writeToSerial(request: Munchkin.MainRequest, onStatusChanged: (String) -> Unit) {
-        executor.submit {
+        val currentPort = port ?: run {
+            if (!ensurePortOpen(onStatusChanged)) return
+            port!!
+        }
+
+        isReading = true
+        onStatusChanged("✅ Lectura iniciada...")
+
+        readExecutor.submit {
+            val buffer = ByteArray(256)
+            var state = State.SEARCHING_HEADER
+            var currentBuffer = mutableListOf<Byte>()
+            var expectedLength = 0
+
             try {
-                // Verificar que el puerto esté abierto
-                if (port == null || connection == null) {
-                    onStatusChanged("❌ Puerto no inicializado. Llama readSerial() primero.")
-                    return@submit
+                while (isReading) {
+                    val len = try {
+                        currentPort.read(buffer, 100)
+                    } catch (e: IOException) {
+                        onStatusChanged("❌ Error de lectura: ${e.message}")
+                        break
+                    }
+
+                    if (len <= 0) continue
+
+                    // Agregamos datos recién leídos al buffer en software
+                    currentBuffer.addAll(buffer.take(len))
+
+                    // Procesamos tantos paquetes completos como sea posible
+                    while (true) {
+                        when (state) {
+                            State.SEARCHING_HEADER -> {
+                                val ascii = String(currentBuffer.toByteArray(), Charsets.US_ASCII)
+                                val idx = ascii.indexOf("LENGTH:")
+                                if (idx == -1) break // header incompleto
+
+                                if (idx > 0) {
+                                    // limpiar datos basura antes del header
+                                    currentBuffer = currentBuffer.drop(idx).toMutableList()
+                                }
+
+                                val newlineIdx = currentBuffer.indexOf('\n'.code.toByte())
+                                if (newlineIdx == -1) break // header incompleto
+
+                                val headerStr = String(currentBuffer.take(newlineIdx + 1).toByteArray()).trim()
+                                expectedLength = headerStr.removePrefix("LENGTH:").trim().toIntOrNull() ?: 0
+                                currentBuffer = currentBuffer.drop(newlineIdx + 1).toMutableList()
+                                state = State.READING_DATA
+                            }
+
+                            State.READING_DATA -> {
+                                if (currentBuffer.size >= expectedLength && expectedLength > 0) {
+                                    // Asegurarnos de no tomar más bytes de los que hay
+                                    val safeLength = minOf(expectedLength, currentBuffer.size)
+                                    val protobufBytes = currentBuffer.take(safeLength).toByteArray()
+                                    currentBuffer = currentBuffer.drop(safeLength).toMutableList()
+
+                                    // Log de los bytes que se van a parsear
+                                    val hexString = protobufBytes.joinToString(" ") { "%02X".format(it) }
+                                    Log.d("Protobuff", "Bytes a parsear (${protobufBytes.size} bytes): $hexString")
+
+                                    try {
+                                        val mainResponse = Munchkin.MainResponse.parseFrom(protobufBytes)
+                                        onStatusChanged(
+                                            "✅ Respuesta ID=${mainResponse.id}, Status=${mainResponse.status}, Counter=${mainResponse.counterResponse}"
+                                        )
+                                    } catch (e: Exception) {
+                                        Log.d("Protobuff", "${e.message}")
+                                        onStatusChanged("❌ Error parseando Protobuf: ${e.message}")
+                                    }
+
+                                    // resetear para buscar nuevo header
+                                    state = State.SEARCHING_HEADER
+                                    expectedLength = 0
+                                } else break // esperar más datos
+
+                            }
+                        }
+                    }
                 }
-
-                // Serializar el Protobuf a bytes
-                val protobufBytes = request.toByteArray()
-                val length = protobufBytes.size
-
-                // Construir el header: "LENGTH:<num>\n"
-                val header = "LENGTH:$length\n".toByteArray(Charsets.US_ASCII)
-
-                // Combinar header + datos binarios
-                val fullMessage = header + protobufBytes
-
-                // Enviar por el puerto serial
-                port?.write(fullMessage, 1000) // Timeout de 1 segundo
-
-                // Debug: mostrar lo que se envió
-                val dataHex = protobufBytes.joinToString(" ") { String.format("%02X", it) }
-
-                onStatusChanged("📤 Enviado: LENGTH:$length")
-                onStatusChanged("📦 Data hex: $dataHex")
-                onStatusChanged("🆔 Request ID: ${request.id}")
-
-            } catch (e: IOException) {
-                onStatusChanged("❌ Error escribiendo al puerto: ${e.message}")
-            } catch (e: Exception) {
-                onStatusChanged("❌ Error inesperado: ${e.message}")
+            } finally {
+                isReading = false
+                onStatusChanged("ℹ️ Lectura finalizada.")
             }
         }
     }
 
-    /**
-     * Envía comando para encender el LED
-     */
-    fun sendLedOn(onStatusChanged: (String) -> Unit) {
-        val ledRequest = Munchkin.LedControlRequest.newBuilder()
-            .setEnable(true)
-            .build()
 
-        val mainRequest = Munchkin.MainRequest.newBuilder()
-            .setId(++requestIdCounter)
-            .setLedControl(ledRequest)
-            .build()
+    // --- Escritura serial ---
+    fun writeToSerial(request: Munchkin.MainRequest, onStatusChanged: (String) -> Unit) {
+        writeExecutor.submit {
+            try {
+                if (port == null || connection == null) {
+                    onStatusChanged("❌ Puerto no inicializado")
+                    return@submit
+                }
 
-        onStatusChanged("💡 Enviando: LED ON")
-        writeToSerial(mainRequest, onStatusChanged)
+                val protobufBytes = request.toByteArray()
+                val header = "LENGTH:${protobufBytes.size}\n".toByteArray(Charsets.US_ASCII)
+                val fullMessage = header + protobufBytes
+
+                // 🔧 AUMENTAR TIMEOUT Y AGREGAR RETRY
+                var attempts = 0
+                var success = false
+
+                while (attempts < 3 && !success) {
+                    try {
+                        Thread.sleep(100) // Pequeña pausa entre intentos
+                        port?.write(fullMessage, 3000) // Timeout aumentado
+                        success = true
+
+                        val dataHex = protobufBytes.joinToString(" ") { String.format("%02X", it) }
+                        Log.d("UsbHelper", "✅ Enviado exitosamente en intento ${attempts + 1}")
+                        onStatusChanged("📤 Enviado OK (${protobufBytes.size} bytes)")
+
+                    } catch (e: IOException) {
+                        attempts++
+                        Log.w("UsbHelper", "⚠️ Intento $attempts falló: ${e.message}")
+                        if (attempts >= 3) throw e
+                    }
+                }
+
+            } catch (e: IOException) {
+                onStatusChanged("❌ Error: ${e.message} (Detalles: ${e.stackTraceToString()})")
+                Log.e("UsbHelper", "Error después de 3 intentos", e)
+            }
+        }
     }
 
-    /**
-     * Envía comando para apagar el LED
-     */
-    fun sendLedOff(onStatusChanged: (String) -> Unit) {
-        val ledRequest = Munchkin.LedControlRequest.newBuilder()
-            .setEnable(false)
-            .build()
-
-        val mainRequest = Munchkin.MainRequest.newBuilder()
-            .setId(++requestIdCounter)
-            .setLedControl(ledRequest)
-            .build()
-
-        onStatusChanged("🌑 Enviando: LED OFF")
-        writeToSerial(mainRequest, onStatusChanged)
+    fun stopReading() {
+        isReading = false
+        try {
+            readExecutor.shutdownNow()
+            writeExecutor.shutdownNow()
+            port?.close()
+            connection?.close()
+            Log.d(TAG, "🔌 Conexión cerrada.")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error cerrando conexión: ${e.message}")
+        }
+        port = null
+        connection = null
     }
 
-    /**
-     * Toggle LED (envía ON si está OFF, o OFF si está ON)
-     * Nota: Necesitarías mantener el estado actual para hacer un toggle real
-     * Por ahora, simplemente alternamos basándonos en el requestId
-     */
-    fun sendToggleLed(onStatusChanged: (String) -> Unit) {
-        // Alternar basado en el número de request
-        val shouldEnable = (requestIdCounter % 2 == 0)
+    // --- Funciones RPC ---
+    private fun nextId() = ++requestIdCounter
 
-        val ledRequest = Munchkin.LedControlRequest.newBuilder()
-            .setEnable(shouldEnable)
-            .build()
-
-        val mainRequest = Munchkin.MainRequest.newBuilder()
-            .setId(++requestIdCounter)
-            .setLedControl(ledRequest)
-            .build()
-
-        onStatusChanged("🔄 Enviando: LED ${if (shouldEnable) "ON" else "OFF"}")
-        writeToSerial(mainRequest, onStatusChanged)
-    }
-
-// --- Funciones para Control de Contador ---
-
-    /**
-     * Inicia el envío periódico del contador desde el ESP32
-     */
     fun startCounter(onStatusChanged: (String) -> Unit) {
-        val counterRequest = Munchkin.CounterControlRequest.newBuilder()
-            .setAction(Munchkin.CounterControlRequest.Action.ACTION_START)
-            .build()
-
-        val mainRequest = Munchkin.MainRequest.newBuilder()
-            .setId(++requestIdCounter)
-            .setCounterControl(counterRequest)
-            .build()
-
-        onStatusChanged("▶️ Enviando: START Counter")
-        writeToSerial(mainRequest, onStatusChanged)
+        val req = Munchkin.MainRequest.newBuilder()
+            .setId(nextId())
+            .setCounterControl(
+                Munchkin.CounterControlRequest.newBuilder()
+                    .setAction(Munchkin.CounterControlRequest.Action.ACTION_START)
+                    .build()
+            ).build()
+        onStatusChanged("▶️ Enviando START Counter")
+        writeToSerial(req, onStatusChanged)
     }
 
-    /**
-     * Detiene el envío periódico del contador
-     */
     fun stopCounter(onStatusChanged: (String) -> Unit) {
-        val counterRequest = Munchkin.CounterControlRequest.newBuilder()
-            .setAction(Munchkin.CounterControlRequest.Action.ACTION_STOP)
-            .build()
-
-        val mainRequest = Munchkin.MainRequest.newBuilder()
-            .setId(++requestIdCounter)
-            .setCounterControl(counterRequest)
-            .build()
-
-        onStatusChanged("⏹️ Enviando: STOP Counter")
-        writeToSerial(mainRequest, onStatusChanged)
+        val req = Munchkin.MainRequest.newBuilder()
+            .setId(nextId())
+            .setCounterControl(
+                Munchkin.CounterControlRequest.newBuilder()
+                    .setAction(Munchkin.CounterControlRequest.Action.ACTION_STOP)
+                    .build()
+            ).build()
+        onStatusChanged("⏹️ Enviando STOP Counter")
+        writeToSerial(req, onStatusChanged)
     }
 
-    /**
-     * Solicita el valor actual del contador (una sola vez)
-     */
-    fun getCounterValue(onStatusChanged: (String) -> Unit) {
-        val counterRequest = Munchkin.CounterControlRequest.newBuilder()
-            .setAction(Munchkin.CounterControlRequest.Action.ACTION_GET)
-            .build()
-
-        val mainRequest = Munchkin.MainRequest.newBuilder()
-            .setId(++requestIdCounter)
-            .setCounterControl(counterRequest)
-            .build()
-
-        onStatusChanged("📊 Enviando: GET Counter")
-        writeToSerial(mainRequest, onStatusChanged)
+    fun sendLedCommand(enable: Boolean, onStatusChanged: (String) -> Unit) {
+        val req = Munchkin.MainRequest.newBuilder()
+            .setId(nextId())
+            .setLedControl(
+                Munchkin.LedControlRequest.newBuilder().setEnable(enable).build()
+            ).build()
+        onStatusChanged("💡 Enviando LED ${if (enable) "ON" else "OFF"}")
+        writeToSerial(req, onStatusChanged)
     }
 }
