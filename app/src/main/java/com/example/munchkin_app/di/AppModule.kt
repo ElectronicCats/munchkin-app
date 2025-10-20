@@ -1,7 +1,7 @@
-package com.example.munchkin_app.ui.di
+package com.example.munchkin_app.di
 
 import android.content.Context
-import com.example.munchkin_app.UsbHelper
+import com.example.munchkin_app.data.usb.UsbHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

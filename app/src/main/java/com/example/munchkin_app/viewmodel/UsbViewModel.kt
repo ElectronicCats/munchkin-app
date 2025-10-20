@@ -1,7 +1,8 @@
-package com.example.munchkin_app
+package com.example.munchkin_app.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.example.munchkin_app.data.usb.UsbHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
