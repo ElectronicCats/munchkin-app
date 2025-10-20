@@ -3,6 +3,7 @@ package com.example.munchkin_app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,22 +11,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.munchkin_app.UsbHelper
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var usbHelper: UsbHelper
+    private val usbViewModel: UsbViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        usbHelper = UsbHelper(this)
-
-
-        usbHelper.registerReceiver()
-
+        usbViewModel.registerReceiver()
 
         setContent {
             UsbControlUI()
@@ -34,21 +34,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        usbHelper.unregisterUsbReceiver()
+        usbViewModel.unregisterReceiver()
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun UsbControlUI() {
-        var logs by remember { mutableStateOf(listOf<String>()) }
-        val scope = rememberCoroutineScope()
-
-        fun appendLog(text: String) {
-            scope.launch(Dispatchers.Main) {
-                logs = logs + text
-            }
-        }
-
+    fun UsbControlUI(viewModel: UsbViewModel = hiltViewModel()) {
+        val logs =viewModel.logs
         Scaffold(
             topBar = {
                 TopAppBar(title = { Text("Munchkin USB Control") })
@@ -62,28 +54,19 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { usbHelper.detectAndGetPermission(::appendLog) }) {
+                        Button(onClick = { usbViewModel.detectAndGetPermission() }) {
                             Text("Detectar USB")
                         }
-                        Button(onClick = { usbHelper.readSerial(::appendLog) }) {
+                        Button(onClick = { usbViewModel.readSerial() }) {
                             Text("Iniciar Lectura")
                         }
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { usbHelper.sendLedCommand(true, ::appendLog) }) {
-                            Text("LED ON")
-                        }
-                        Button(onClick = { usbHelper.sendLedCommand(false, ::appendLog) }) {
-                            Text("LED OFF")
-                        }
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { usbHelper.startCounter(::appendLog) }) {
+                        Button(onClick = { usbViewModel.startCounter() }) {
                             Text("Start Counter")
                         }
-                        Button(onClick = { usbHelper.stopCounter(::appendLog) }) {
+                        Button(onClick = { usbViewModel.stopCounter() }) {
                             Text("Stop Counter")
                         }
                     }

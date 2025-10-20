@@ -7,11 +7,13 @@ import android.util.Log
 import com.hoho.android.usbserial.driver.*
 import Munchkin
 import androidx.core.content.ContextCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class UsbHelper(private val context: Context) {
+class UsbHelper @Inject constructor(@ApplicationContext private val context: Context) {
 
     private enum class State { SEARCHING_HEADER, READING_DATA }
 
@@ -301,13 +303,4 @@ class UsbHelper(private val context: Context) {
         writeToSerial(req, onStatusChanged)
     }
 
-    fun sendLedCommand(enable: Boolean, onStatusChanged: (String) -> Unit) {
-        val req = Munchkin.MainRequest.newBuilder()
-            .setId(nextId())
-            .setLedControl(
-                Munchkin.LedControlRequest.newBuilder().setEnable(enable).build()
-            ).build()
-        onStatusChanged("💡 Enviando LED ${if (enable) "ON" else "OFF"}")
-        writeToSerial(req, onStatusChanged)
-    }
 }
