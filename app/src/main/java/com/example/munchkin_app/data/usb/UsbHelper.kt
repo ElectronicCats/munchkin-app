@@ -28,6 +28,8 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
     // Puerto y conexión
     private var port: UsbSerialPort? = null
     private var connection: UsbDeviceConnection? = null
+    private var usbDevice: UsbDevice? = null
+
 
     // Receiver de permisos
     private val usbReceiver = object : BroadcastReceiver() {
@@ -98,9 +100,13 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
 
     fun detectAndGetPermission(onStatusChanged: (String) -> Unit) {
         val driver = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager).firstOrNull()
+        val foundDevice = usbManager.deviceList.values.firstOrNull()
         if (driver == null) {
             onStatusChanged("❌ No se encontraron dispositivos USB seriales.")
             return
+        } else {
+            usbDevice = foundDevice
+            onStatusChanged("✅ Dispositivo detectado: ${usbDevice?.deviceName}")
         }
 
         val device = driver.device
@@ -118,9 +124,55 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
 
     // --- Lectura serial ---
     fun readSerial(onStatusChanged: (String) -> Unit) {
+        if (usbDevice == null) {
+            onStatusChanged("⚠️ No se ha detectado ningún dispositivo. Usa 'Detectar USB' primero.")
+            return
+        }
+
         if (serialManager == null) {
             val opened = ensurePortOpen(onStatusChanged)
             if (!opened) return // si no se pudo abrir, abortar
+        }
+
+        try {
+            // Si ya hay un serialManager anterior, se asegura de cerrarlo antes de reabrir
+            serialManager?.stop()
+
+            val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
+            val driver = availableDrivers.firstOrNull { it.device.deviceId == usbDevice?.deviceId }
+            if (driver == null) {
+                onStatusChanged("❌ No se encontró driver para el dispositivo.")
+                return
+            }
+
+            connection = usbManager.openDevice(driver.device)
+            if (connection == null) {
+                onStatusChanged("❌ No se pudo abrir la conexión. Asegúrate de tener permiso.")
+                return
+            }
+
+            port = driver.ports.firstOrNull()
+            if (port == null) {
+                onStatusChanged("❌ No se encontró puerto serial disponible.")
+                return
+            }
+
+            port!!.open(connection)
+            port!!.setParameters(
+                115200,
+                8,
+                UsbSerialPort.STOPBITS_1,
+                UsbSerialPort.PARITY_NONE
+            )
+
+            serialManager = UsbSerialManager(port!!, connection!!)
+            serialManager?.readSerial(onStatusChanged)
+
+            onStatusChanged("✅ Lectura inicializada correctamente.")
+
+        } catch (e: Exception) {
+            onStatusChanged("❌ Error iniciando lectura: ${e.message}")
+            Log.e(TAG, "Error en readSerial", e)
         }
         serialManager?.readSerial(onStatusChanged)
     }
