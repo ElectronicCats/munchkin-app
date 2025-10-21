@@ -1,3 +1,46 @@
 <resources>
     <string name="app_name">munchkin-app</string>
+    
+    //!--------------------------// Welcome Screen \\--------------------------!\\
+
+    <string name="Welcome_one_title">Welcome to Munchkin</string>
+    <string name="Welcome_one_text">
+        Munchkin is an open-source device which contains functional hardware that allows us to audit
+        different wireless networks, such as WiFi, BLE, and Zigbee. With this application, you can
+        communicate and execute commands with your Munchkin device through different ways of connection.
+    </string>
+    <string name="Welcome_one_buttons"> </string>
+    <string name="Welcome_one_image">Logo Electronic Cats</string>
+
+    //Welcome Screen2
+    <string name="Welcome_two_title">It’s time to begin!</string>
+    <string name="Welcome_two_text">
+        Connect your Munchkin device either by Serial, Bluetooth or WiFi\n\n
+        Feel free to check the list of compatible devices with this app.\n
+        https://electroniccats.com/
+    </string>
+    <string name="Welcome_two_buttons"></string>
+    <string name="Welcome_two_image"></string>
+
+    //Welcome Screen3
+    <string name="Welcome_three_title">ETHICAL USE NOTICE AND LIMITATION OF LIABILITY</string>
+    <string name="Welcome_three_text">
+        Munchkin has been exclusively designed for the use of defensive cybersecurity, authorized
+        auditions and pentesting, previously approved and consented by the explicit system owner.\n\n
+
+        Electronic Cats does not promote or endorse the use of this device for illegal, unauthorized,
+        or otherwise unlawful activities in violation of applicable laws and regulations. The user is
+        solely responsible for obtaining any necessary authorizations before conducting any security
+        testing or activity.\n\n
+
+        Electronic Cats disclaims all civil, criminal, or administrative liability arising from the
+        misuse of this device. Any unauthorized or illegal use shall be the sole responsibility of
+        the user and may constitute a criminal offense.
+    </string>
+    <string name="Welcome_three_terms">
+        By using this device, you expressly acknowledge and agree to
+        these terms and commit to using it solely for legitimate and authorized purposes.
+    </string>
+    <string name="Welcome_three_buttons"></string>
+
 </resources>

@@ -1,0 +1,74 @@
+package com.example.munchkin_app.ui.screens.welcome
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.munchkin_app.R
+import com.example.munchkin_app.ui.theme.MunchkinappTheme
+
+
+@Composable
+fun WelcomeTextTwo(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            //Spacer(modifier = Modifier.height(16.dp))
+
+            //Aqui va el logo
+            //Image()
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = stringResource(R.string.Welcome_two_title),
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            Text(
+                text = stringResource(R.string.Welcome_two_text),
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ScreenTwo() {
+    MunchkinappTheme {
+        WelcomeTextTwo(
+            modifier = Modifier
+                .fillMaxSize()
+        )
+    }
+}
