@@ -22,10 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.munchkin_app.navigation.getNavController
 import com.example.munchkin_app.ui.screens.UsbControlUI
 import com.example.munchkin_app.ui.screens.welcome.OnboardingPagerWithButton
 import com.example.munchkin_app.ui.screens.welcome.ScreenOne
-import com.example.munchkin_app.ui.screens.welcome.WelcomeViewPager
 import com.example.munchkin_app.viewmodel.UsbViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,9 +40,7 @@ class MainActivity : ComponentActivity() {
         usbViewModel.registerReceiver()
 
         setContent {
-            WelcomeViewPager()
-            //Screen1()
-            //UsbControlUI(viewModel = usbViewModel)
+            getNavController(usbViewModel)
         }
     }
 

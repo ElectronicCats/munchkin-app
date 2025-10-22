@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.R
+import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 
@@ -28,6 +31,7 @@ fun WelcomeTextTwo(
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primary)
+            .verticalScroll(rememberScrollState())
     ) {
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -40,7 +44,7 @@ fun WelcomeTextTwo(
             //Aqui va el logo
             //Image()
 
-            Spacer(modifier = Modifier.height(32.dp))
+            ProportionalSpacer(0.05f)
 
             Text(
                 text = stringResource(R.string.Welcome_two_title),
@@ -49,11 +53,12 @@ fun WelcomeTextTwo(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(64.dp))
+            ProportionalSpacer(0.05f)
 
             Text(
                 text = stringResource(R.string.Welcome_two_text),
                 color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(16.dp)

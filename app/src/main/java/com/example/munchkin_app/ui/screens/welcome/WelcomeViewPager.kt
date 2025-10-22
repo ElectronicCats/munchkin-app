@@ -13,53 +13,65 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
+import com.example.munchkin_app.R
 import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingPagerWithButton() {
+
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { 3 } // ✅ OK
+        pageCount = { 3 }
     )
-    val scope = rememberCoroutineScope() // para animaciones
+    val scope = rememberCoroutineScope()
 
-    Box(
-        contentAlignment = Alignment.BottomCenter,
+    var isChecked by remember { mutableStateOf(false) }
+
+    Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Transparent)
+            .background(MaterialTheme.colorScheme.primary)
     ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
         ) { page ->
             when (page) {
                 0 -> ScreenOne()
                 1 -> ScreenTwo()
-                2 -> ScreenThree()
+                2 -> WelcomeTextThree(
+                    checked = isChecked,
+                    onCheckedChange = { isChecked = it }
+                )
             }
         }
 
-        // Botón para avanzar a la siguiente pantalla
+        // Botón para avanzar a la ultima pantalla
         Row (
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
-                .padding(16.dp)
+                .padding(4.dp)
                 .fillMaxWidth()
-
-
-
         ) {
             Button(
                 onClick = {
@@ -69,15 +81,15 @@ fun OnboardingPagerWithButton() {
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.secondary
                 ),
-                elevation = null, // 🔹 sin sombra
+                elevation = null,
                 modifier = Modifier
                     .padding(16.dp)
                     .weight(1f)
             ) {
                 Text(
-                    text = "Skip",
+                    text = stringResource(R.string.Welcome_skip),
                     textAlign = TextAlign.Center,
-                    fontSize = 22.sp
+                    fontSize = 20.sp
                 )
             }
 
@@ -90,15 +102,21 @@ fun OnboardingPagerWithButton() {
                         .padding(4.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .size(24.dp)
+                        .size(20.dp)
                 )
             }
 
             Button(
                 onClick = {
                     scope.launch {
-                        val nextPage = (pagerState.currentPage + 1).coerceAtMost(2)
-                        pagerState.animateScrollToPage(nextPage)
+                        if (pagerState.currentPage == 2) {
+                            //navController.navigate("test")
+                        } else {
+                            val nextPage = (pagerState.currentPage + 1).coerceAtMost(2)
+                            pagerState.animateScrollToPage(nextPage)
+                        }
+
+
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -111,9 +129,9 @@ fun OnboardingPagerWithButton() {
                     .weight(1f)
             ) {
                 Text(
-                    text = "Next",
+                    text = stringResource(R.string.Welcome_next),
                     textAlign = TextAlign.Center,
-                    fontSize = 22.sp
+                    fontSize = 20.sp
                 )
             }
         }

@@ -2,24 +2,21 @@
     <string name="app_name">munchkin-app</string>
     
     //!--------------------------// Welcome Screen \\--------------------------!\\
-
     <string name="Welcome_one_title">Welcome to Munchkin</string>
     <string name="Welcome_one_text">
         Munchkin is an open-source device which contains functional hardware that allows us to audit
         different wireless networks, such as WiFi, BLE, and Zigbee. With this application, you can
         communicate and execute commands with your Munchkin device through different ways of connection.
     </string>
-    <string name="Welcome_one_buttons"> </string>
     <string name="Welcome_one_image">Logo Electronic Cats</string>
 
     //Welcome Screen2
     <string name="Welcome_two_title">It’s time to begin!</string>
     <string name="Welcome_two_text">
         Connect your Munchkin device either by Serial, Bluetooth or WiFi\n\n
-        Feel free to check the list of compatible devices with this app.\n
+        Feel free to check the list of compatible devices with this app.\n\n
         https://electroniccats.com/
     </string>
-    <string name="Welcome_two_buttons"></string>
     <string name="Welcome_two_image"></string>
 
     //Welcome Screen3
@@ -41,6 +38,8 @@
         By using this device, you expressly acknowledge and agree to
         these terms and commit to using it solely for legitimate and authorized purposes.
     </string>
-    <string name="Welcome_three_buttons"></string>
 
+    //Viewpager
+    <string name="Welcome_skip">Skip</string>
+    <string name="Welcome_next">Next</string>
 </resources>

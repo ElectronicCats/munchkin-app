@@ -49,17 +49,19 @@ fun MunchkinappTheme(
     content: @Composable () -> Unit
 ) {
     val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
+    val smallestWidthDp = configuration.smallestScreenWidthDp
 
     // Escala basada en el ancho de pantalla
     val fontScale = when {
-        screenWidthDp >= 900 -> 3.5f  // tablet grande
-        screenWidthDp >= 600 -> 2.5f // tablet pequeña o landscape
-        else -> 1f                    // celular
+        smallestWidthDp >= 900 -> 2.0f  // tablet grande
+        smallestWidthDp >= 600 -> 1.5f // tablet pequeña o landscape
+        else -> 1f
     }
 
     val scaledTypography = Typography.copy(
         titleLarge = Typography.titleLarge.copy(fontSize = 24.sp * fontScale, lineHeight = 30.sp * fontScale),
+        bodyMedium = Typography.bodyMedium.copy(fontSize = 16.sp * fontScale, lineHeight = 25.sp * fontScale),
+        bodySmall = Typography.bodySmall.copy(fontSize = 12.sp * fontScale, lineHeight = 25.sp * fontScale),
     )
 
     val colorScheme = when {

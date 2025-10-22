@@ -30,6 +30,7 @@ fun UsbControlUI(viewModel: UsbViewModel) {
         topBar = {
             TopAppBar(title = { Text("Munchkin USB Control") })
         },
+        containerColor = MaterialTheme.colorScheme.background,
         content = { padding ->
             Column(
                 modifier = Modifier
