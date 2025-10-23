@@ -1,6 +1,6 @@
 package com.example.munchkin_app.ui.screens
 
-import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,17 +18,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.munchkin_app.viewmodel.UsbViewModel
-import kotlin.getValue
 
+
+//This screen was made to test protobuf and UsbHelper
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsbControlUI(viewModel: UsbViewModel) {
     val logs =viewModel.logs
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Munchkin USB Control") })
+            TopAppBar(
+                title = { Text("Munchkin USB Control") },
+                modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+                )
         },
         containerColor = MaterialTheme.colorScheme.background,
         content = { padding ->

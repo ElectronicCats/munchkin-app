@@ -5,14 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
@@ -31,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
@@ -43,11 +38,9 @@ fun WelcomeTextThree(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(true) }
-
     Box(
         modifier = modifier
-            .fillMaxHeight() // 🔹 importante para que no crezca más del pager
+            .fillMaxHeight() //Important or will increase more size than pager
             .background(MaterialTheme.colorScheme.primary)
             .verticalScroll(rememberScrollState())
     ) {
@@ -57,17 +50,16 @@ fun WelcomeTextThree(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            //Title
             ProportionalSpacer(0.05f)
-
             Text(
                 text = stringResource(R.string.Welcome_three_title),
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
-
+            //BodY Text
             ProportionalSpacer(0.05f)
-
             Text(
                 text = stringResource(R.string.Welcome_three_text),
                 color = MaterialTheme.colorScheme.onBackground,
@@ -75,16 +67,15 @@ fun WelcomeTextThree(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(16.dp)
             )
-
+            //Terms accepted text
             ProportionalSpacer(0.05f)
-
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
                     checked = checked,
-                    onCheckedChange = { checked = it },
+                    onCheckedChange = {onCheckedChange(it)},
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.Green,
                         uncheckedColor = Color.Gray,
@@ -102,7 +93,7 @@ fun WelcomeTextThree(
         }
     }
 }
-
+//Preview to see screen in Android Studio
 @Preview
 @Composable
 fun ScreenThree() {

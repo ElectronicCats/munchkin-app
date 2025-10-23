@@ -3,10 +3,8 @@ package com.example.munchkin_app.ui.screens.welcome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -44,17 +42,16 @@ fun WelcomeTextTwo(
             //Aqui va el logo
             //Image()
 
+            //Title
             ProportionalSpacer(0.05f)
-
             Text(
                 text = stringResource(R.string.Welcome_two_title),
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
-
+            //Body Text
             ProportionalSpacer(0.05f)
-
             Text(
                 text = stringResource(R.string.Welcome_two_text),
                 color = MaterialTheme.colorScheme.onBackground,
@@ -66,7 +63,7 @@ fun WelcomeTextTwo(
         }
     }
 }
-
+//Preview to see screen in Android Studio
 @Preview
 @Composable
 fun ScreenTwo() {

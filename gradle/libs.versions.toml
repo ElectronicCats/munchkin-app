@@ -16,6 +16,7 @@ protobufJavalite = "4.32.0"
 protobufKotlin = "4.32.0"
 protobufKotlinVersion = "3.25.1"
 usbSerialForAndroid = "3.9.0"
+ui = "1.9.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.
 protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobufKotlin" }
 protobuf-kotlin-v3251 = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobufKotlinVersion" }
 usb-serial-for1-android = { module = "com.github.mik3y:usb-serial-for-android", version.ref = "usbSerialForAndroid" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
