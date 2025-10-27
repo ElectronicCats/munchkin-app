@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import kotlinx.coroutines.launch
@@ -150,6 +151,6 @@ fun OnboardingPagerWithButton(navController: NavController) {
 @Composable
 fun WelcomeViewPager(){
     MunchkinappTheme {
-        OnboardingPagerWithButton(NavController(LocalContext.current))
+        OnboardingPagerWithButton(rememberNavController())
     }
 }
