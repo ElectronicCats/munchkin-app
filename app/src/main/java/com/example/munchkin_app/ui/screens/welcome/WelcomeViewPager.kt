@@ -116,7 +116,7 @@ fun OnboardingPagerWithButton(navController: NavController) {
                     scope.launch {
                         if (pagerState.currentPage == 2) {
                             if (isChecked) {
-                                navController.navigate("test")
+                                navController.navigate("home")
                             } else {
                                 Toast.makeText(context,
                                     context.getString(R.string.Welcome_toast), Toast.LENGTH_SHORT).show()

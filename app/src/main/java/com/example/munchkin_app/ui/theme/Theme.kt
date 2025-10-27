@@ -18,6 +18,7 @@ import com.example.munchkin_app.ui.theme.DarkOnBackground
 private val DarkColorScheme = darkColorScheme(
 
     primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
     secondary = DarkSecondary,
     background = DarkBackground,
     onBackground = DarkOnBackground
@@ -26,6 +27,7 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
 
     primary = LightPrimary,
+    onPrimary = LightOnPrimary,
     secondary = LightSecondary,
     background = LightBackground,
     onBackground = LightOnBackground

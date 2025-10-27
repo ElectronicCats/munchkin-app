@@ -42,4 +42,5 @@
     //Viewpager
     <string name="Welcome_skip">Skip</string>
     <string name="Welcome_next">Next</string>
+    <string name="Welcome_toast">You must accept terms and conditions</string>
 </resources>

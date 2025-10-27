@@ -45,7 +45,7 @@ fun WelcomeTextOne(
             ProportionalSpacer(0.05f)
             Text(
                 text = stringResource(R.string.Welcome_one_title),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
@@ -53,7 +53,7 @@ fun WelcomeTextOne(
             ProportionalSpacer(0.05f)
             Text(
                 text = stringResource(R.string.Welcome_one_text),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier

@@ -54,7 +54,7 @@ fun WelcomeTextThree(
             ProportionalSpacer(0.05f)
             Text(
                 text = stringResource(R.string.Welcome_three_title),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
@@ -62,7 +62,7 @@ fun WelcomeTextThree(
             ProportionalSpacer(0.05f)
             Text(
                 text = stringResource(R.string.Welcome_three_text),
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(16.dp)
@@ -84,7 +84,7 @@ fun WelcomeTextThree(
                 )
                 Text(
                     text = stringResource(R.string.Welcome_three_terms),
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(start = 8.dp)

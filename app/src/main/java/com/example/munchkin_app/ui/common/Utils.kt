@@ -21,3 +21,5 @@ fun ProportionalSpacer(fraction: Float) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     Spacer(modifier = Modifier.height(LayoutConfig.proportionalHeight(screenHeight, fraction)))
 }
+
+
