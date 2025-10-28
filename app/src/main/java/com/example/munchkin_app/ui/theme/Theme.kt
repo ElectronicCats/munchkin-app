@@ -67,6 +67,7 @@ fun MunchkinappTheme(
     //Typography's modified to be responsive
     val scaledTypography = Typography.copy(
         titleLarge = Typography.titleLarge.copy(fontSize = 24.sp * combinedScale, lineHeight = 30.sp * combinedScale),
+        titleMedium = Typography.titleMedium.copy(fontSize = 24.sp * combinedScale, lineHeight = 30.sp * combinedScale),
         bodyMedium = Typography.bodyMedium.copy(fontSize = 16.sp * combinedScale, lineHeight = 25.sp * combinedScale),
         bodySmall = Typography.bodySmall.copy(fontSize = 12.sp * combinedScale, lineHeight = 25.sp * combinedScale),
     )

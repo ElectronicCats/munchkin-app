@@ -1,28 +1,30 @@
 package com.example.munchkin_app.navigation
 
+import android.provider.Settings.Global.getString
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.ui.common.MunchkinScreens
+import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.screens.UsbControlUI
+import com.example.munchkin_app.ui.screens.ble.BleScreen
 import com.example.munchkin_app.ui.screens.home.HomeScreen
-import com.example.munchkin_app.ui.screens.home.ScrollContent
+import com.example.munchkin_app.ui.screens.iot.IotScreen
+import com.example.munchkin_app.ui.screens.scripts.ScriptsScreen
 import com.example.munchkin_app.ui.screens.welcome.OnboardingPagerWithButton
+import com.example.munchkin_app.ui.screens.wifi.WifiScreen
 import com.example.munchkin_app.viewmodel.UsbViewModel
 
 
 @Composable
-fun GetNavController(viewModel: UsbViewModel) {
+fun MainNavController(viewModel: UsbViewModel) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "welcome",
@@ -30,29 +32,29 @@ fun GetNavController(viewModel: UsbViewModel) {
         composable("test") { UsbControlUI( viewModel ) }
         composable("welcome") { OnboardingPagerWithButton(navController = navController) }
         composable(Destination.HOME.route) {HomeScreen(navController = navController)}
-        composable(Destination.WIFI.route) { UsbControlUI(viewModel) }
-        composable(Destination.BLE.route) { UsbControlUI(viewModel) }
-        composable(Destination.IOT.route) { UsbControlUI(viewModel) }
-        composable(Destination.SCRIPT.route) { UsbControlUI(viewModel) }
+        composable(Destination.WIFI.route) { WifiScreen(navController = navController) }
+        composable(Destination.BLE.route) { BleScreen(navController = navController) }
+        composable(Destination.IOT.route) { IotScreen(navController = navController) }
+        composable(Destination.SCRIPT.route) { ScriptsScreen(navController = navController) }
     }
 }
 
 enum class Destination(
     val route: String,
-    val label: String,
+    val labelResId: Int,
     val icon: ImageVector,
     val contentDescription: String
 ) {
-    HOME("home", "Home", Icons.Default.Home, "Home"),
-    WIFI("wifi", "Wifi", Icons.Default.PlayArrow, "Wifi"),
-    BLE("ble", "BLE", Icons.Default.PlayArrow, "BLE"),
-    IOT("iot", "IoT", Icons.Default.PlayArrow, "IoT"),
-    SCRIPT("script", "Scripts", Icons.Default.PlayArrow, "Scripts")
+    HOME("home", R.string.NavBar_home, Icons.Default.Home, "Home"),
+    WIFI("wifi", R.string.NavBar_wifi, Icons.Default.PlayArrow, "Wifi"),
+    BLE("ble", R.string.NavBar_ble, Icons.Default.PlayArrow, "BLE"),
+    IOT("iot", R.string.NavBar_iot, Icons.Default.PlayArrow, "IoT"),
+    SCRIPT("script", R.string.NavBar_scripts, Icons.Default.PlayArrow, "Scripts")
 }
 
 
 @Preview
 @Composable
 fun GetNavControllerPreview() {
-    GetNavController(viewModel())
+    MainNavController(viewModel())
 }

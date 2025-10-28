@@ -43,4 +43,14 @@
     <string name="Welcome_skip">Skip</string>
     <string name="Welcome_next">Next</string>
     <string name="Welcome_toast">You must accept terms and conditions</string>
+
+    //!--------------------------// Bottom Navigation Bar \\--------------------------!\\
+    <string name="NavBar_home">Home</string>
+    <string name="NavBar_wifi">WiFi</string>
+    <string name="NavBar_ble">BLE</string>
+    <string name="NavBar_iot">IoT</string>
+    <string name="NavBar_scripts">Scripts</string>
+
+    //!--------------------------// Home Screen \\--------------------------!\\
+    <string name="home_screen_title">Connection</string>
 </resources>

@@ -11,21 +11,22 @@ import androidx.compose.ui.unit.sp
 val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = Audimat,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 0.01.em
+    ),
+    titleMedium = TextStyle(
+        fontFamily = Audimat,
         fontWeight = FontWeight.Normal,
-        fontSize = 32.sp,
-        lineHeight = 30.sp,
         letterSpacing = 0.01.em
     ),
     bodyMedium = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = Metropolis,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
         letterSpacing = 0.01.em
     ),
     bodySmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
+        fontFamily = Metropolis,
+        fontWeight = FontWeight.Light,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.01.em

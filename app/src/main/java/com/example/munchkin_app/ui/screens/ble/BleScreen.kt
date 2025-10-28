@@ -1,0 +1,34 @@
+package com.example.munchkin_app.ui.screens.ble
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import com.example.munchkin_app.ui.common.MunchkinScreens
+
+@Composable
+fun BleScreen(navController: NavHostController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+
+    ){
+        MunchkinScreens.MunchkinLayout (navController) { innerPadding ->
+            BleSample("BLE Sample" ,innerPadding)
+        }
+    }
+}
+
+@Composable
+fun BleSample(text: String,innerPadding: PaddingValues) {
+    Column (modifier = Modifier.padding(innerPadding)) {
+        Text(text)
+    }
+}

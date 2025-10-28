@@ -95,8 +95,8 @@ fun OnboardingPagerWithButton(navController: NavController) {
             ) {
                 Text(
                     text = stringResource(R.string.Welcome_skip),
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp
                 )
             }
             //Dots that show the current screen
@@ -139,8 +139,8 @@ fun OnboardingPagerWithButton(navController: NavController) {
             ) {
                 Text(
                     text = stringResource(R.string.Welcome_next),
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp
                 )
             }
         }
