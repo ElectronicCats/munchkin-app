@@ -43,7 +43,10 @@ fun ProportionalSpacer(fraction: Float) {
 object MunchkinScreens {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun MunchkinTopAppBar(content: @Composable (PaddingValues) -> Unit) {
+    fun MunchkinLayout(
+        bottomBar: @Composable () -> Unit = {},
+        content: @Composable (PaddingValues) -> Unit
+    ) {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
         Scaffold(
@@ -83,6 +86,7 @@ object MunchkinScreens {
                     scrollBehavior = scrollBehavior,
                 )
             },
+            bottomBar = bottomBar
         ) { innerPadding ->
             content(innerPadding)
         }

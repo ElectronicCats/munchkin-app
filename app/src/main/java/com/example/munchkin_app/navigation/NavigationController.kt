@@ -29,9 +29,11 @@ fun GetNavController(viewModel: UsbViewModel) {
     ) {
         composable("test") { UsbControlUI( viewModel ) }
         composable("welcome") { OnboardingPagerWithButton(navController = navController) }
-        composable("home") {
-            AppsNavHost(navController, Destination.HOME, Modifier)
-        }
+        composable(Destination.HOME.route) {HomeScreen(navController = navController)}
+        composable(Destination.WIFI.route) { UsbControlUI(viewModel) }
+        composable(Destination.BLE.route) { UsbControlUI(viewModel) }
+        composable(Destination.IOT.route) { UsbControlUI(viewModel) }
+        composable(Destination.SCRIPT.route) { UsbControlUI(viewModel) }
     }
 }
 
@@ -46,30 +48,6 @@ enum class Destination(
     BLE("ble", "BLE", Icons.Default.PlayArrow, "BLE"),
     IOT("iot", "IoT", Icons.Default.PlayArrow, "IoT"),
     SCRIPT("script", "Scripts", Icons.Default.PlayArrow, "Scripts")
-}
-
-@Composable
-fun AppsNavHost(
-    navController: NavHostController,
-    startDestination: Destination,
-    modifier: Modifier = Modifier
-    ) {
-    NavHost(
-        navController,
-        startDestination = startDestination.route,
-    ) {
-        Destination.entries.forEach { destination ->
-            composable(destination.route) {
-                when (destination) {
-                    Destination.HOME -> HomeScreen(navController)
-                    Destination.WIFI -> UsbControlUI(viewModel())
-                    Destination.BLE -> UsbControlUI(viewModel())
-                    Destination.IOT -> UsbControlUI(viewModel())
-                    Destination.SCRIPT -> UsbControlUI(viewModel())
-                }
-            }
-        }
-    }
 }
 
 

@@ -38,8 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.navigation.AppsNavHost
 import com.example.munchkin_app.navigation.Destination
 import com.example.munchkin_app.ui.common.MunchkinScreens
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
@@ -53,24 +53,42 @@ fun HomeScreen(navController: NavHostController) {
             .background(MaterialTheme.colorScheme.background)
 
     ){
-        BottomNavBar(navController)
-        ScrollContent(PaddingValues())
+        MunchkinScreens.MunchkinLayout (
+            bottomBar = { BottomNavBar(navController) }
+        ) { innerPadding ->
+            ScrollContent(innerPadding)
+        }
         Text(text = "Home Screen")
     }
 }
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {
-    val startDestination = Destination.HOME
-    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    var selectedDestination by rememberSaveable { mutableIntStateOf(Destination.HOME.ordinal) }
+
+    // Actualiza selectedDestination basado en la ruta actual
+    Destination.entries.forEachIndexed { index, destination ->
+        if (currentRoute == destination.route) {
+            selectedDestination = index
+        }
+    }
 
     NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
         Destination.entries.forEachIndexed { index, destination ->
             NavigationBarItem(
                 selected = selectedDestination == index,
                 onClick = {
-                    navController.navigate(destination.route)
-                    selectedDestination = index
+                    if (selectedDestination != index) {
+                        navController.navigate(destination.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                        }
+                        selectedDestination = index
+                    }
                 },
                 icon = { Icon(destination.icon, contentDescription = destination.contentDescription) },
                 label = { Text(destination.label) }
