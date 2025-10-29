@@ -44,6 +44,21 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
             }
         }
     }
+    data class DeviceListEntry(
+        val device: UsbDevice,
+        val name: String = device.deviceName,
+    )
+
+    fun detectDevices(): List<DeviceListEntry> {
+        val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
+        return drivers.map { driver ->
+            DeviceListEntry(
+                name = driver.device.deviceName,
+                device = driver.device
+            )
+        }
+    }
+
 
     fun registerReceiver() {
         val filter = IntentFilter(ACTION_USB_PERMISSION)

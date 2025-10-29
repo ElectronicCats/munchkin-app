@@ -43,13 +43,13 @@ enum class Destination(
     val route: String,
     val labelResId: Int,
     val icon: ImageVector,
-    val contentDescription: String
+    val contentDescription: Int
 ) {
-    HOME("home", R.string.NavBar_home, Icons.Default.Home, "Home"),
-    WIFI("wifi", R.string.NavBar_wifi, Icons.Default.PlayArrow, "Wifi"),
-    BLE("ble", R.string.NavBar_ble, Icons.Default.PlayArrow, "BLE"),
-    IOT("iot", R.string.NavBar_iot, Icons.Default.PlayArrow, "IoT"),
-    SCRIPT("script", R.string.NavBar_scripts, Icons.Default.PlayArrow, "Scripts")
+    HOME("home", R.string.NavBar_home, Icons.Default.Home, R.string.NavBar_icon_home),
+    WIFI("wifi", R.string.NavBar_wifi, Icons.Default.PlayArrow, R.string.NavBar_icon_wifi),
+    BLE("ble", R.string.NavBar_ble, Icons.Default.PlayArrow, R.string.NavBar_icon_ble),
+    IOT("iot", R.string.NavBar_iot, Icons.Default.PlayArrow, R.string.NavBar_icon_iot),
+    SCRIPT("script", R.string.NavBar_scripts, Icons.Default.PlayArrow, R.string.NavBar_icon_scripts)
 }
 
 

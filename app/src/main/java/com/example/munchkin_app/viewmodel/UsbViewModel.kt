@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.munchkin_app.data.usb.UsbHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -11,8 +13,31 @@ class UsbViewModel @Inject constructor(
     private val usbHelper: UsbHelper
 ) : ViewModel() {
 
+    private val _usbDevices = MutableStateFlow<List<String>>(emptyList())
+    val usbDevices = _usbDevices.asStateFlow()
+
+    private val _status = MutableStateFlow("Idle")
+    val status = _status.asStateFlow()
+
+    private val _selectedDevice = MutableStateFlow<String?>(null)
+    val selectedDevice = _selectedDevice.asStateFlow()
+
     private val _logs = mutableStateListOf<String>()
     val logs: List<String> get() = _logs
+
+    fun detectDevices() {
+        val entries = usbHelper.detectDevices()
+        _usbDevices.value = entries.map { it.name }
+        _status.value = if (entries.isEmpty()) "No USB devices detected" else "Devices detected"
+    }
+
+    fun connectDevice(device: String): String {
+        usbHelper.detectAndGetPermission { msg ->
+            _status.value = msg
+        }
+        _selectedDevice.value = device
+        return "Connected to $device"
+    }
 
     fun appendLog(text: String) {
         _logs.add(text)

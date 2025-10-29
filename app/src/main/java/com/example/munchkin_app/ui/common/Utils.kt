@@ -141,7 +141,7 @@ fun BottomNavBar(navController: NavHostController) {
                 icon = {
                     Icon(
                         destination.icon,
-                        contentDescription = destination.contentDescription
+                        contentDescription = stringResource(destination.contentDescription)
                     )
                 },
                 label = { Text(stringResource(destination.labelResId)) }

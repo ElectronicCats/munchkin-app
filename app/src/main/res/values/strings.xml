@@ -50,6 +50,12 @@
     <string name="NavBar_ble">BLE</string>
     <string name="NavBar_iot">IoT</string>
     <string name="NavBar_scripts">Scripts</string>
+    //Icon descriptions
+    <string name="NavBar_icon_home">Home</string>
+    <string name="NavBar_icon_wifi">WiFi</string>
+    <string name="NavBar_icon_ble">Bluetooth</string>
+    <string name="NavBar_icon_iot">IoT</string>
+    <string name="NavBar_icon_scripts">Scripts</string>
 
     //!--------------------------// Home Screen \\--------------------------!\\
     <string name="home_screen_title">Connection</string>
