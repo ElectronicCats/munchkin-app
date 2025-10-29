@@ -1,5 +1,6 @@
 package com.example.munchkin_app.ui.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -95,12 +97,18 @@ fun ConnectionSettingsScreen(
     viewModel: UsbViewModel = hiltViewModel(),
 ) {
     var selectedOption by remember { mutableStateOf(ConnectionOption.SERIAL) }
-    var isConnected by remember { mutableStateOf("Not Connected") }
+    var previousOption by remember { mutableStateOf<ConnectionOption?>(null) }
 
     val usbDevices by viewModel.usbDevices.collectAsState()
     val status by viewModel.status.collectAsState()
     val selectedDevice by viewModel.selectedDevice.collectAsState()
 
+    var isConnected = selectedDevice?.let { "Connected to $it" } ?: "Not Connected"
+
+    // Agrega logs para confirmar que la UI observa cambios
+    LaunchedEffect(usbDevices) {
+        Log.d("Connection", "UI actualizada: usbDevices = $usbDevices, size = ${usbDevices.size}")
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         SingleChoiceSegmentedButton(
@@ -112,18 +120,27 @@ fun ConnectionSettingsScreen(
 
         ProportionalSpacer(0.01f)
 
+        LaunchedEffect(selectedOption) {
+            if (previousOption == ConnectionOption.SERIAL && selectedOption != ConnectionOption.SERIAL) {
+                isConnected = "Not Connected"
+                viewModel.disconnectDevice()
+            }
+            previousOption = selectedOption
+        }
+
         when (selectedOption) {
             ConnectionOption.SERIAL -> {
                 LaunchedEffect(Unit) {
                     viewModel.detectDevices()
                 }
-
                 Text(status)
 
                 if (usbDevices.isEmpty()) {
+                    Log.d("Connection", "Mostrando 'No USB devices detected' - usbDevices: $usbDevices")
                     Text("No USB devices detected")
                 } else {
-                    Column {
+                    Log.d("Connection", "Mostrando lista con ${usbDevices.size} dispositivos - usbDevices: $usbDevices")
+                    Column (){
                         usbDevices.forEach { device ->
                             Card(
                                 modifier = Modifier

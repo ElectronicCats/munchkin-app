@@ -21,6 +21,9 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
     private var serialManager: UsbSerialManager? = null
     private val TAG = "UsbHelper"
     val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
+    private val ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED"
+    private val ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED"
+
     private val usbManager: UsbManager by lazy {
         context.getSystemService(Context.USB_SERVICE) as UsbManager
     }
@@ -29,17 +32,30 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
     private var port: UsbSerialPort? = null
     private var connection: UsbDeviceConnection? = null
     private var usbDevice: UsbDevice? = null
+    var onDevicesChanged: (() -> Unit)? = null
 
 
     // Receiver de permisos
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            Log.d(TAG, "Receiver triggered: ${intent.action}")
             when (intent.action) {
                 ACTION_USB_PERMISSION -> {
                     val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
                     val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                     val status = if (granted) "✅ Permiso concedido" else "❌ Permiso denegado"
                     Log.d(TAG, "$status para $device")
+                }
+                ACTION_USB_ATTACHED -> {
+                    Log.d(TAG, "Receiver triggered: ${intent.action} - Dispositivo: ${intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)?.deviceName}")
+                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    Log.d(TAG, "Dispositivo USB conectado: ${device?.deviceName}")
+                    onDevicesChanged?.invoke()  // Notifica cambio
+                }
+                ACTION_USB_DETACHED -> {
+                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    Log.d(TAG, "Dispositivo USB desconectado: ${device?.deviceName}")
+                    onDevicesChanged?.invoke()  // Notifica cambio
                 }
             }
         }
@@ -61,7 +77,12 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
 
 
     fun registerReceiver() {
-        val filter = IntentFilter(ACTION_USB_PERMISSION)
+        Log.d(TAG, "Registrando receiver")
+        val filter = IntentFilter().apply {
+            addAction(ACTION_USB_PERMISSION)
+            addAction(ACTION_USB_ATTACHED)
+            addAction(ACTION_USB_DETACHED)
+        }
         ContextCompat.registerReceiver(
             context,
             usbReceiver,
@@ -71,6 +92,7 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
     }
 
     fun unregisterUsbReceiver() {
+        Log.d(TAG, "Desregistrando receiver")
         context.unregisterReceiver(usbReceiver)
     }
 
@@ -146,62 +168,88 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
 
         if (serialManager == null) {
             val opened = ensurePortOpen(onStatusChanged)
-            if (!opened) return // si no se pudo abrir, abortar
+            if (!opened) return
         }
 
-        try {
-            // Si ya hay un serialManager anterior, se asegura de cerrarlo antes de reabrir
-            serialManager?.stop()
+        serialManager?.stop()
 
-            val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
-            val driver = availableDrivers.firstOrNull { it.device.deviceId == usbDevice?.deviceId }
-            if (driver == null) {
-                onStatusChanged("❌ No se encontró driver para el dispositivo.")
-                return
-            }
-
-            connection = usbManager.openDevice(driver.device)
-            if (connection == null) {
-                onStatusChanged("❌ No se pudo abrir la conexión. Asegúrate de tener permiso.")
-                return
-            }
-
-            port = driver.ports.firstOrNull()
-            if (port == null) {
-                onStatusChanged("❌ No se encontró puerto serial disponible.")
-                return
-            }
-
-            port!!.open(connection)
-            port!!.setParameters(
-                115200,
-                8,
-                UsbSerialPort.STOPBITS_1,
-                UsbSerialPort.PARITY_NONE
-            )
-
-            serialManager = UsbSerialManager(port!!, connection!!)
-            serialManager?.readSerial(onStatusChanged)
-
-            onStatusChanged("✅ Lectura inicializada correctamente.")
-
-        } catch (e: Exception) {
-            onStatusChanged("❌ Error iniciando lectura: ${e.message}")
-            Log.e(TAG, "Error en readSerial", e)
+        val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
+        val driver = availableDrivers.firstOrNull { it.device.deviceId == usbDevice?.deviceId }
+        if (driver == null) {
+            onStatusChanged("❌ No se encontró driver para el dispositivo.")
+            return
         }
-        serialManager?.readSerial(onStatusChanged)
+
+        connection = usbManager.openDevice(driver.device)
+        if (connection == null) {
+            onStatusChanged("❌ No se pudo abrir la conexión. Asegúrate de tener permiso.")
+            return
+        }
+
+        port = driver.ports.firstOrNull()
+        if (port == null) {
+            onStatusChanged("❌ No se encontró puerto serial disponible.")
+            return
+        }
+
+        port!!.open(connection)
+        port!!.setParameters(
+            115200,
+            8,
+            UsbSerialPort.STOPBITS_1,
+            UsbSerialPort.PARITY_NONE
+        )
+
+        serialManager = UsbSerialManager(port!!, connection!!)
+        serialManager?.readSerial(
+            onStatusChanged = onStatusChanged,
+            onError = { errorMsg ->
+                Log.e(TAG, "Error asíncrono en readSerial: $errorMsg")
+                onStatusChanged("❌ Error en lectura: $errorMsg. Reiniciando...")
+                disconnect(onStatusChanged)
+                onDevicesChanged?.invoke()
+            }
+        )
+
+        onStatusChanged("✅ Lectura inicializada correctamente.")
+
+
     }
 
     // --- Escritura serial ---
     fun writeToSerial(request: Munchkin.MainRequest, onStatusChanged: (String) -> Unit) {
-        val protobufBytes = request.toByteArray()
-        serialManager?.writeToSerial(protobufBytes, onStatusChanged)
+        try {
+            val protobufBytes = request.toByteArray()
+            serialManager?.writeToSerial(
+                requestBytes = protobufBytes,
+                onStatusChanged = onStatusChanged,
+                onError = { errorMsg ->
+                    Log.e(TAG, "Error asíncrono en writeToSerial: $errorMsg")
+                    onStatusChanged("❌ Error al enviar: $errorMsg. Reiniciando...")
+                    disconnect(onStatusChanged)
+                    onDevicesChanged?.invoke()
+                }
+            )
+        } catch (e: Exception) {
+            onStatusChanged("❌ Error al enviar datos: ${e.message}. Reiniciando...")
+            Log.e(TAG, "Error en writeToSerial", e)
+            disconnect(onStatusChanged)  // Cierra puerto y resetea
+            onDevicesChanged?.invoke()  // Fuerza refresco de lista
+        }
     }
 
     fun stopReading() {
         serialManager?.stop()
         port = null
         connection = null
+    }
+
+    fun disconnect(onStatusChanged: (String) -> Unit) {
+        Log.d(TAG, "Ejecutando disconnect")
+        stopReading()
+        usbDevice = null
+        serialManager = null
+        onStatusChanged("🔌 Desconectado")
     }
 
     // --- Funciones RPC ---

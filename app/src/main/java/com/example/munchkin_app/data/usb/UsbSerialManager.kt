@@ -18,7 +18,7 @@ class UsbSerialManager(
     private val writeExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private val TAG = "UsbSerialManager"
 
-    fun readSerial(onStatusChanged: (String) -> Unit) {
+    fun readSerial(onStatusChanged: (String) -> Unit, onError: (String) -> Unit) {
         if (isReading) {
             onStatusChanged("⚠️ Ya se está leyendo el puerto.")
             return
@@ -39,6 +39,7 @@ class UsbSerialManager(
                         port.read(buffer, 100)
                     } catch (e: IOException) {
                         onStatusChanged("❌ Error de lectura: ${e.message}")
+                        onError("❌ Error de lectura: ${e.message}")
                         break
                     }
 
@@ -97,7 +98,7 @@ class UsbSerialManager(
         }
     }
 
-    fun writeToSerial(requestBytes: ByteArray, onStatusChanged: (String) -> Unit) {
+    fun writeToSerial(requestBytes: ByteArray, onStatusChanged: (String) -> Unit, onError: (String) -> Unit) {
         writeExecutor.submit {
             try {
                 if (port == null || connection == null) {
@@ -119,7 +120,11 @@ class UsbSerialManager(
                     } catch (e: IOException) {
                         attempts++
                         Log.w(TAG, "⚠️ Intento $attempts falló: ${e.message}")
-                        if (attempts >= 3) throw e
+                        if (attempts >= 3) {
+                            val errorMsg = "Error después de 3 intentos: ${e.message}"
+                            onStatusChanged("❌ $errorMsg")
+                            onError(errorMsg)  // Llama al callback de error
+                        }
                     }
                 }
 
