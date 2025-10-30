@@ -87,7 +87,7 @@ fun HomeContent(innerPadding: PaddingValues) {
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
         ProportionalSpacer(0.02f)
@@ -102,7 +102,7 @@ fun HomeContent(innerPadding: PaddingValues) {
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleLarge
         )
 
         Text(

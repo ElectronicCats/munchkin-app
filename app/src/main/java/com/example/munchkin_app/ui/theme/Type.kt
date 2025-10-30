@@ -19,6 +19,16 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.01.em
     ),
+    titleSmall = TextStyle(
+        fontFamily = Audimat,
+        fontWeight = FontWeight.Light,
+        letterSpacing = 0.01.em
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = Metropolis,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.01.em
+    ),
     bodyMedium = TextStyle(
         fontFamily = Metropolis,
         fontWeight = FontWeight.Normal,
@@ -27,8 +37,6 @@ val Typography = Typography(
     bodySmall = TextStyle(
         fontFamily = Metropolis,
         fontWeight = FontWeight.Light,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
         letterSpacing = 0.01.em
     )
 

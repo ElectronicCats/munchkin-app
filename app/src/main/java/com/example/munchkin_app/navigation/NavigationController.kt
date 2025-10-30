@@ -20,6 +20,7 @@ import com.example.munchkin_app.ui.screens.iot.IotScreen
 import com.example.munchkin_app.ui.screens.scripts.ScriptsScreen
 import com.example.munchkin_app.ui.screens.welcome.OnboardingPagerWithButton
 import com.example.munchkin_app.ui.screens.wifi.WifiScreen
+import com.example.munchkin_app.ui.screens.wifi.analyzer.Analyzer
 import com.example.munchkin_app.viewmodel.UsbViewModel
 
 
@@ -29,13 +30,17 @@ fun MainNavController(viewModel: UsbViewModel) {
 
     NavHost(navController = navController, startDestination = "welcome",
     ) {
+        //Welcome
         composable("test") { UsbControlUI( viewModel ) }
         composable("welcome") { OnboardingPagerWithButton(navController = navController) }
+        //Bottom Navigation Bar
         composable(Destination.HOME.route) {HomeScreen(navController = navController)}
         composable(Destination.WIFI.route) { WifiScreen(navController = navController) }
         composable(Destination.BLE.route) { BleScreen(navController = navController) }
         composable(Destination.IOT.route) { IotScreen(navController = navController) }
         composable(Destination.SCRIPT.route) { ScriptsScreen(navController = navController) }
+        //Wifi Applications
+        composable("analyzer") { Analyzer(navController = navController) }
     }
 }
 
