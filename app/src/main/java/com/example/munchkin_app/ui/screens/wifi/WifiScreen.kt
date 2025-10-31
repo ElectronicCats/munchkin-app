@@ -71,7 +71,7 @@ fun WifiHome(
         AppCardRow(
             navController = navController,
             titleOne = "Analyzer",
-            textOne = "Scan Networks Around You",
+            textOne = "Scan All Networks Around You",
             titleTwo = "Captive",
             textTwo = "Set Up Your Own Captive Portal!",
             navRouteOne = "analyzer",
