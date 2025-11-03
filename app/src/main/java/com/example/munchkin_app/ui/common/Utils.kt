@@ -293,6 +293,8 @@ object LayoutConfig {
                 Text(text)
             }
 
+            
+
             Box(
                 modifier = Modifier
                     .weight(0.2f)

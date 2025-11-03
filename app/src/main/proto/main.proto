@@ -1,0 +1,18 @@
+syntax = "proto3";
+package minino.rpc;
+
+import "about.proto";
+
+message MainRequest {
+  oneof payload {
+    minino.about.AboutRequest about = 1;
+
+  }
+}
+
+message MainResponse {
+  oneof payload {
+    minino.about.AboutResponse about = 1;
+    // agregar respuestas futuras...
+  }
+}

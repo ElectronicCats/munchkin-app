@@ -26,6 +26,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        usbViewModel.registerReceiver()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        usbViewModel.unregisterReceiver()
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
         usbViewModel.unregisterReceiver()

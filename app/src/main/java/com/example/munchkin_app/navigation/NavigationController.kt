@@ -13,14 +13,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.munchkin_app.R
-import com.example.munchkin_app.ui.screens.UsbControlUI
 import com.example.munchkin_app.ui.screens.ble.BleScreen
 import com.example.munchkin_app.ui.screens.home.HomeScreen
 import com.example.munchkin_app.ui.screens.iot.IotScreen
 import com.example.munchkin_app.ui.screens.scripts.ScriptsScreen
 import com.example.munchkin_app.ui.screens.welcome.OnboardingPagerWithButton
 import com.example.munchkin_app.ui.screens.wifi.WifiScreen
-import com.example.munchkin_app.ui.screens.wifi.analyzer.Analyzer
+import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
+import com.example.munchkin_app.ui.screens.wifi.captive.CaptivePortalScreen
 import com.example.munchkin_app.viewmodel.UsbViewModel
 
 
@@ -31,7 +31,6 @@ fun MainNavController(viewModel: UsbViewModel) {
     NavHost(navController = navController, startDestination = "welcome",
     ) {
         //Welcome
-        composable("test") { UsbControlUI( viewModel ) }
         composable("welcome") { OnboardingPagerWithButton(navController = navController) }
         //Bottom Navigation Bar
         composable(Destination.HOME.route) {HomeScreen(navController = navController)}
@@ -40,7 +39,8 @@ fun MainNavController(viewModel: UsbViewModel) {
         composable(Destination.IOT.route) { IotScreen(navController = navController) }
         composable(Destination.SCRIPT.route) { ScriptsScreen(navController = navController) }
         //Wifi Applications
-        composable("analyzer") { Analyzer(navController = navController) }
+        composable("analyzer") { AnalyzerScreen(navController = navController) }
+        composable("captive") { CaptivePortalScreen(navController = navController) }
     }
 }
 

@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.munchkin_app.ui.common.MunchkinScreens
-import com.example.munchkin_app.ui.screens.UsbControlUI
 import com.example.munchkin_app.ui.screens.ble.BleSample
 import com.example.munchkin_app.viewmodel.UsbViewModel
 
@@ -24,8 +23,7 @@ fun ScriptsScreen(navController: NavHostController) {
 
     ){
         MunchkinScreens.MunchkinLayout (navController) { innerPadding ->
-            UsbControlUI(viewModel)
-        //BleSample("Scripts Sample", innerPadding)
+            BleSample("Scripts Sample", innerPadding)
         }
     }
 }

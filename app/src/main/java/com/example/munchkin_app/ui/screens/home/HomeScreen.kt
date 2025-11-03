@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +49,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -56,6 +59,7 @@ import com.example.munchkin_app.navigation.Destination
 import com.example.munchkin_app.ui.common.MunchkinScreens
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
+import com.example.munchkin_app.viewmodel.UsbViewModel
 
 
 @Composable
@@ -72,7 +76,10 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
-fun HomeContent(innerPadding: PaddingValues) {
+fun HomeContent(
+    innerPadding: PaddingValues,
+    viewModel: UsbViewModel = hiltViewModel()
+) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -95,6 +102,10 @@ fun HomeContent(innerPadding: PaddingValues) {
         ConnectionSettingsScreen()
 
         ProportionalSpacer(0.2f)
+
+        Button(onClick = {viewModel.requestAboutInfo()}) {
+            Text("Version")
+        }
 
         Text(
             text = "File Manager",
