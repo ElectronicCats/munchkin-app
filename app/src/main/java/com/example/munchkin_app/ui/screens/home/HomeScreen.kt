@@ -101,7 +101,7 @@ fun HomeContent(
 
         ConnectionSettingsScreen()
 
-        ProportionalSpacer(0.2f)
+        ProportionalSpacer(0.02f)
 
         Button(onClick = {viewModel.requestAboutInfo()}) {
             Text("Version")

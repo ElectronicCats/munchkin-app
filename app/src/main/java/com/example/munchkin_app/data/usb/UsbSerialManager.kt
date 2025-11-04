@@ -7,7 +7,6 @@ import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.experimental.and
 
 class UsbSerialManager(
     private val port: UsbSerialPort,
@@ -18,19 +17,13 @@ class UsbSerialManager(
     private val readExecutor = Executors.newSingleThreadExecutor()
     private val writeExecutor = Executors.newSingleThreadExecutor()
 
-    // Buffer compartido para acumulación de bytes entrantes
     private val buffer = mutableListOf<Byte>()
-
-    // Control de lectura continua
     private val reading = AtomicBoolean(false)
 
     var onProtobufReceived: ((ByteArray) -> Unit)? = null
     var onStatus: ((String) -> Unit)? = null
     var onError: ((String) -> Unit)? = null
 
-    /**
-     * Inicia la lectura continua. Llamar solo una vez tras abrir el puerto.
-     */
     fun startReading() {
         if (reading.getAndSet(true)) {
             onStatus?.invoke("⚠️ Lectura ya iniciada")
@@ -43,7 +36,6 @@ class UsbSerialManager(
             try {
                 while (reading.get()) {
                     val len = try {
-                        // Timeout relativamente corto para no bloquear indefinidamente
                         port.read(temp, 500)
                     } catch (e: IOException) {
                         val msg = "❌ Error en read(): ${e.message}"
@@ -52,21 +44,15 @@ class UsbSerialManager(
                         break
                     }
 
-                    if (len <= 0) {
-                        // nada recibido en este ciclo
-                        continue
-                    }
+                    if (len <= 0) continue
 
-                    // Añadimos los bytes leídos al buffer
                     synchronized(buffer) {
                         for (i in 0 until len) buffer.add(temp[i])
                     }
 
-                    // Loguea los bytes leídos (hex) para depuración
                     val hex = temp.copyOf(len).joinToString(" ") { String.format("%02X", it) }
                     Log.d(TAG, "Bytes leídos ($len): $hex")
 
-                    // Procesa buffer
                     processBuffer()
                 }
             } finally {
@@ -76,9 +62,6 @@ class UsbSerialManager(
         }
     }
 
-    /**
-     * Parar lectura y cerrar recursos (no destruyas port/connection aquí si quieres reusar, usa stopAndClose)
-     */
     fun stopReading() {
         reading.set(false)
         try {
@@ -88,9 +71,6 @@ class UsbSerialManager(
         }
     }
 
-    /**
-     * Parar y cerrar puerto/conexión
-     */
     fun stopAndClose() {
         stopReading()
         try {
@@ -113,42 +93,52 @@ class UsbSerialManager(
     }
 
     /**
-     * Procesa el buffer en busca de mensajes: 2 bytes de header (big-endian) + payload.
+     * Procesa el buffer en busca de mensajes completos.
+     * - Soporta encabezado de longitud o delimitador 0D 0A
+     * - Ignora mensajes de control pequeños (13, 0D, 0A)
      */
     private fun processBuffer() {
         while (true) {
             val msgBytes: ByteArray? = synchronized(buffer) {
-                if (buffer.size < 2) return@synchronized null // no hay header completo
-                // big-endian length
-                val high = buffer[0].toInt() and 0xFF
-                val low = buffer[1].toInt() and 0xFF
-                val expectedLength = (high shl 8) or low
+                if (buffer.isEmpty()) return@synchronized null
 
-                // sanity check: evitar longitudes locas
-                if (expectedLength <= 0) {
-                    // elimina header corrupto y continúa
-                    buffer.removeAt(0)
-                    return@synchronized null
+                // --- Protocolo basado en longitud ---
+                if (buffer.size >= 2) {
+                    val high = buffer[0].toInt() and 0xFF
+                    val low = buffer[1].toInt() and 0xFF
+                    val expectedLength = (high shl 8) or low
+                    if (expectedLength in 1..4096 && buffer.size >= 2 + expectedLength) {
+                        val payload = ByteArray(expectedLength)
+                        for (i in 0 until expectedLength) {
+                            payload[i] = buffer[2 + i]
+                        }
+                        repeat(2 + expectedLength) { buffer.removeAt(0) }
+                        return@synchronized payload
+                    }
                 }
 
-                // si no tenemos todo el mensaje, espera
-                if (buffer.size < 2 + expectedLength) return@synchronized null
-
-                // extraer payload
-                val payload = ByteArray(expectedLength)
-                for (i in 0 until expectedLength) {
-                    payload[i] = buffer[2 + i]
+                // --- Protocolo con terminador 0D 0A ---
+                val endIndex = buffer.windowed(2).indexOfFirst {
+                    it[0] == 0x0D.toByte() && it[1] == 0x0A.toByte()
                 }
-                // remover bytes procesados
-                for (i in 0 until (2 + expectedLength)) buffer.removeAt(0)
-                payload
+                if (endIndex != -1) {
+                    val payload = buffer.subList(0, endIndex).toByteArray()
+                    repeat(endIndex + 2) { buffer.removeAt(0) }
+                    return@synchronized payload
+                }
+
+                null
             }
 
-            // si no hay mensaje listo, salir del loop
             if (msgBytes == null) break
 
-            // Log y callback fuera del synchronized
-            Log.d(TAG, "📥 Mensaje completo recibido (${msgBytes.size} bytes): ${msgBytes.joinToString(" ") { String.format("%02X", it) }}")
+            // --- 🧹 Filtro de paquetes de control pequeños ---
+            if (msgBytes.size <= 3 && msgBytes.all { it == 0x13.toByte() || it == 0x0D.toByte() || it == 0x0A.toByte() }) {
+                Log.d(TAG, "🧹 Ignorado paquete de control: ${msgBytes.joinToString(" ") { "%02X".format(it) }}")
+                continue
+            }
+
+            Log.d(TAG, "📥 Mensaje completo (${msgBytes.size} bytes): ${msgBytes.joinToString(" ") { "%02X".format(it) }}")
             onStatus?.invoke("📥 Recibidos ${msgBytes.size} bytes")
             try {
                 onProtobufReceived?.invoke(msgBytes)
@@ -158,10 +148,6 @@ class UsbSerialManager(
         }
     }
 
-    /**
-     * Escribe un array de bytes al puerto. Añade header de 2 bytes (big-endian) si `addLengthHeader = true`.
-     * Reintenta hasta 3 veces en fallos transitorios.
-     */
     fun writeToSerial(
         payload: ByteArray,
         addLengthHeader: Boolean = true,
@@ -173,9 +159,7 @@ class UsbSerialManager(
                 val len = payload.size
                 val header = byteArrayOf(((len shr 8) and 0xFF).toByte(), (len and 0xFF).toByte())
                 header + payload
-            } else {
-                payload
-            }
+            } else payload
 
             val hexSent = full.joinToString(" ") { String.format("%02X", it) }
             var lastEx: Exception? = null

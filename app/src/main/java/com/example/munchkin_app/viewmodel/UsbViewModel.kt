@@ -88,6 +88,8 @@ class UsbViewModel @Inject constructor(
         if (!usbHelper.ensurePortOpen { _status.value = it }) return
 
         usbHelper.setProtobufCallback { bytes ->
+            if (bytes.size < 5) return@setProtobufCallback  // ignorar ACKs u otros ruidos
+
             Log.d("UsbViewModel", "Bytes recibidos: ${bytes.joinToString(",")}")
             try {
                 val response = Main.MainResponse.parseFrom(bytes)
@@ -110,6 +112,7 @@ class UsbViewModel @Inject constructor(
                 }
             }
         }
+
 
         // Enviar request — el listener interno ya escuchará la respuesta
         val request = Main.MainRequest.newBuilder()
