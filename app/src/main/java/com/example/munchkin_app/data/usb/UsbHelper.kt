@@ -34,9 +34,7 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
     var serialManager: UsbSerialManager? = null
     var onDevicesChanged: (() -> Unit)? = null
 
-
-    private var protobufCallback: ((ByteArray) -> Unit)? = null
-    private val buffer = mutableListOf<Byte>()
+    var onUsbPermissionGranted: (() -> Unit)? = null
 
     // --- Receiver para permisos y eventos USB ---
     private val usbReceiver = object : BroadcastReceiver() {
@@ -46,8 +44,12 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
                 ACTION_USB_PERMISSION -> {
                     val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
                     val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
-                    val status = if (granted) "✅ Permiso concedido" else "❌ Permiso denegado"
+                    val status = if (granted) "Permission granted" else "Permission denied"
                     Log.d(TAG, "$status para $device")
+
+                    if (granted) {
+                        onUsbPermissionGranted?.invoke()
+                    }
                 }
                 ACTION_USB_ATTACHED -> {
                     val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
@@ -99,18 +101,18 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
 
         val driver = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager).firstOrNull()
         if (driver == null) {
-            onStatusChanged("❌ No hay dispositivos USB disponibles")
+            onStatusChanged("No USB devices available")
             return false
         }
 
         val device = driver.device
         if (!usbManager.hasPermission(device)) {
-            onStatusChanged("❌ Sin permiso USB para ${device.deviceName}")
+            onStatusChanged("USB permission denied for ${device.deviceName}")
             return false
         }
 
         val conn = usbManager.openDevice(device) ?: run {
-            onStatusChanged("❌ No se pudo abrir la conexión USB")
+            onStatusChanged("Error while opening connection USB")
             return false
         }
 
@@ -121,21 +123,21 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
             p.dtr = true
             p.rts = true
         } catch (e: IOException) {
-            onStatusChanged("❌ Error abriendo puerto: ${e.message}")
+            onStatusChanged("Error opening USB port: ${e.message}")
             return false
         }
 
         // Crear y arrancar el nuevo serialManager
         serialManager = UsbSerialManager(p, conn).apply {
             onStatus = { msg -> onStatusChanged(msg) }
-            onError = { err -> onStatusChanged("❌ Error USB: $err") }
+            onError = { err -> onStatusChanged("USB Error: $err") }
             startReading()
         }
 
         port = p
         connection = conn
         usbDevice = device
-        onStatusChanged("✅ Puerto abierto y lectura iniciada")
+        onStatusChanged("Port opened and ready to read")
         return true
     }
 
@@ -144,11 +146,11 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
         val driver = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager).firstOrNull()
         val foundDevice = usbManager.deviceList.values.firstOrNull()
         if (driver == null) {
-            onStatusChanged("❌ No se encontraron dispositivos USB seriales.")
+            onStatusChanged("No serial devices found.")
             return
         } else {
             usbDevice = foundDevice
-            onStatusChanged("✅ Dispositivo detectado: ${usbDevice?.deviceName}")
+            onStatusChanged("Detected USB device: ${usbDevice?.deviceName}")
         }
 
         val device = driver.device
@@ -158,9 +160,9 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
             usbManager.requestPermission(device, permissionIntent)
-            onStatusChanged("🔑 Solicitando permiso para dispositivo USB...")
+            onStatusChanged("Granting USB permission...")
         } else {
-            onStatusChanged("✅ Permiso ya concedido para ${device.deviceName}")
+            onStatusChanged("Device connected.")
         }
     }
 
@@ -179,13 +181,13 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
                 onStatusChanged = onStatusChanged,
                 onErrorCallback = { err ->
                     Log.e(TAG, "Error en writeToSerial: $err")
-                    onStatusChanged("❌ Error al enviar: $err")
+                    onStatusChanged("Error while trying to write: $err")
                     disconnect(onStatusChanged)
                     onDevicesChanged?.invoke()
                 }
             )
         } catch (e: Exception) {
-            onStatusChanged("❌ Error al enviar datos: ${e.message}")
+            onStatusChanged("Error while trying to write data: ${e.message}")
             Log.e(TAG, "Excepción en writeToSerial", e)
             disconnect(onStatusChanged)
             onDevicesChanged?.invoke()
@@ -204,6 +206,6 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
         connection = null
         usbDevice = null
         serialManager = null
-        onStatusChanged("🔌 Desconectado")
+        onStatusChanged("Disconnected")
     }
 }

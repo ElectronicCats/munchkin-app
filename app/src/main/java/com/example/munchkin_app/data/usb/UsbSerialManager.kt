@@ -139,7 +139,7 @@ class UsbSerialManager(
             }
 
             Log.d(TAG, "📥 Mensaje completo (${msgBytes.size} bytes): ${msgBytes.joinToString(" ") { "%02X".format(it) }}")
-            onStatus?.invoke("📥 Recibidos ${msgBytes.size} bytes")
+            onStatus?.invoke("Connexion OK, received [${msgBytes.size} bytes]")
             try {
                 onProtobufReceived?.invoke(msgBytes)
             } catch (e: Exception) {

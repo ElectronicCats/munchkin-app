@@ -78,7 +78,6 @@ fun HomeScreen(navController: NavHostController) {
 @Composable
 fun HomeContent(
     innerPadding: PaddingValues,
-    viewModel: UsbViewModel = hiltViewModel()
 ) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -103,10 +102,6 @@ fun HomeContent(
 
         ProportionalSpacer(0.02f)
 
-        Button(onClick = {viewModel.requestAboutInfo()}) {
-            Text("Version")
-        }
-
         Text(
             text = "File Manager",
             modifier = Modifier
@@ -124,7 +119,6 @@ fun HomeContent(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium
         )
-
         Storage(Modifier.fillMaxWidth())
     }
 }

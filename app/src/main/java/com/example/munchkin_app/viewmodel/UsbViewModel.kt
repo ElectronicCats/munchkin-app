@@ -34,9 +34,32 @@ class UsbViewModel @Inject constructor(
     private val _logs = mutableStateListOf<String>()
     val logs: List<String> get() = _logs
 
+    private val _deviceVersion = MutableStateFlow<String?>(null)
+    val deviceVersion: StateFlow<String?> = _deviceVersion
+
+    private val _deviceName = MutableStateFlow<String?>(null)
+    val deviceName: StateFlow<String?> = _deviceName
+
+    private val _deviceStatus = MutableStateFlow<Main.Status>(Main.Status.STATUS_UNKNOWN)
+    val deviceStatus: StateFlow<Main.Status> = _deviceStatus
+
+    private val _deviceCounterID = MutableStateFlow<Int?>(null)
+    val deviceCounterID: StateFlow<Int?> = _deviceCounterID
+
+    private val _connectionStatus = MutableStateFlow("Not Connected")
+    val connectionStatus: StateFlow<String> = _connectionStatus
+
     init {
         usbHelper.onDevicesChanged = {
-            viewModelScope.launch { detectDevices() }
+            viewModelScope.launch {
+                detectDevices()
+                if (usbHelper.detectDevices().isEmpty()) {
+                    _connectionStatus.value = "Not Connected"
+                    _deviceName.value = null
+                    _deviceVersion.value = null
+                    _selectedDevice.value = null
+                }
+            }
         }
         usbHelper.registerReceiver()
     }
@@ -54,16 +77,19 @@ class UsbViewModel @Inject constructor(
     }
 
     fun connectDevice(device: String): String {
+        _selectedDevice.value = device
+
         usbHelper.detectAndGetPermission { msg ->
             _status.value = msg
         }
-        _selectedDevice.value = device
-        return "Connected to $device"
+        _connectionStatus.value = "Connected to $device"
+        return _connectionStatus.value
     }
 
     fun disconnectDevice() {
         usbHelper.disconnect { msg -> _status.value = msg }
         _selectedDevice.value = null
+        _connectionStatus.value = "Not Connected"
         restartReceiver()
     }
 
@@ -81,10 +107,28 @@ class UsbViewModel @Inject constructor(
     fun unregisterReceiver() = usbHelper.unregisterUsbReceiver()
     fun detectAndGetPermission() = usbHelper.detectAndGetPermission(::appendLog)
 
+    fun requestAboutInfoRepeatedly() {
+        viewModelScope.launch {
+            // Evita múltiples lanzamientos simultáneos
+            if (_deviceName.value != null && _deviceVersion.value != null) return@launch
+
+            var attempts = 0
+            while ((_deviceName.value == null || _deviceVersion.value == null) && attempts < 5) {
+                Log.d("UsbViewModel", "Intento #$attempts de obtener AboutInfo")
+                requestAboutInfo()
+                attempts++
+                kotlinx.coroutines.delay(1000L) // espera 1s entre intentos
+            }
+            Log.d("UsbViewModel", "Finalizado intento de obtener AboutInfo (nombre=${_deviceName.value}, versión=${_deviceVersion.value})")
+        }
+    }
+
+
     /**
      * Envía una solicitud 'AboutRequest' al dispositivo y procesa la respuesta del ESP32.
      */
     fun requestAboutInfo() {
+        Log.d("UsbViewModel", "requestAboutInfo llamado")
         if (!usbHelper.ensurePortOpen { _status.value = it }) return
 
         usbHelper.setProtobufCallback { bytes ->
@@ -93,12 +137,12 @@ class UsbViewModel @Inject constructor(
             Log.d("UsbViewModel", "Bytes recibidos: ${bytes.joinToString(",")}")
             try {
                 val response = Main.MainResponse.parseFrom(bytes)
+                _deviceStatus.value = response.status
+                _deviceCounterID.value = response.messageId
                 if (response.hasAbout()) {
                     val about = response.about
-                    val info = "${about.productName} ${about.version}"
-                    _status.value = info
-                    _aboutInfo.value = response
-                    Log.d("UsbViewModel", "✅ Decodificado correctamente: $info")
+                    _deviceName.value = about.productName
+                    _deviceVersion.value = about.version
                 } else {
                     Log.w("UsbViewModel", "⚠️ Respuesta sin campo 'about'")
                 }
@@ -116,6 +160,7 @@ class UsbViewModel @Inject constructor(
 
         // Enviar request — el listener interno ya escuchará la respuesta
         val request = Main.MainRequest.newBuilder()
+            .setMessageId(1)
             .setAbout(About.AboutRequest.newBuilder().build())
             .build()
 

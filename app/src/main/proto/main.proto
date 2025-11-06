@@ -1,18 +1,31 @@
 syntax = "proto3";
 package minino.rpc;
 
-import "about.proto";
+import "about/about.proto";
+
+enum Status {
+  STATUS_UNKNOWN = 0;
+  STATUS_OK = 1;
+  STATUS_ERROR = 2;
+}
 
 message MainRequest {
+
+  uint32 message_id = 100;
+  Status status = 101;
+
   oneof payload {
     minino.about.AboutRequest about = 1;
-
+    // otros requests...
   }
 }
 
 message MainResponse {
+  uint32 message_id = 100;
+  Status status = 101;
+
   oneof payload {
     minino.about.AboutResponse about = 1;
-    // agregar respuestas futuras...
+    // otras respuestas...
   }
 }
