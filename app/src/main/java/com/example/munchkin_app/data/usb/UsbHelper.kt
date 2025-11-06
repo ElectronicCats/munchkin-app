@@ -83,6 +83,7 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
             addAction(ACTION_USB_DETACHED)
         }
         ContextCompat.registerReceiver(context, usbReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        Log.d(TAG, "Receiver registrado exitosamente")  // 👈 Agrega este log
     }
 
     fun unregisterUsbReceiver() {
@@ -155,6 +156,7 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
 
         val device = driver.device
         if (!usbManager.hasPermission(device)) {
+            Log.d(TAG, "Solicitando permiso para $device")
             val permissionIntent = PendingIntent.getBroadcast(
                 context, 0, Intent(ACTION_USB_PERMISSION),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -162,9 +164,12 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
             usbManager.requestPermission(device, permissionIntent)
             onStatusChanged("Granting USB permission...")
         } else {
+            Log.d(TAG, "Permiso ya concedido, llamando callback directamente")
             onStatusChanged("Device connected.")
+            onUsbPermissionGranted?.invoke()
         }
     }
+
 
     // --- Escritura serial (protobuf) ---
     fun writeToSerial(request: Main.MainRequest, onStatusChanged: (String) -> Unit) {

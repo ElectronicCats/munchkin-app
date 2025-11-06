@@ -47,7 +47,7 @@ class UsbViewModel @Inject constructor(
     val deviceCounterID: StateFlow<Int?> = _deviceCounterID
 
     private val _connectionStatus = MutableStateFlow("Not Connected")
-    val connectionStatus: StateFlow<String> = _connectionStatus
+    val connectionStatus: StateFlow<String> = _connectionStatus.asStateFlow()
 
     init {
         usbHelper.onDevicesChanged = {
@@ -76,15 +76,24 @@ class UsbViewModel @Inject constructor(
             if (entries.isEmpty()) "No USB devices detected" else "Devices detected"
     }
 
-    fun connectDevice(device: String): String {
+    // Dentro del ViewModel
+    fun connectDevice(device: String) {
         _selectedDevice.value = device
-
-        usbHelper.detectAndGetPermission { msg ->
-            _status.value = msg
+        usbHelper.onUsbPermissionGranted = {
+            viewModelScope.launch {  // 👈 Agrega esto si no está
+                val connected = usbHelper.ensurePortOpen { _status.value = it }
+                if (connected) {
+                    _connectionStatus.value = "Connected to $device"
+                    Log.d("UsbViewModel", "Aqui deberia de hacer la solicitud")
+                    requestAboutInfoRepeatedly()
+                } else {
+                    _connectionStatus.value = "Connection failed"
+                }
+            }
         }
-        _connectionStatus.value = "Connected to $device"
-        return _connectionStatus.value
+        usbHelper.detectAndGetPermission { _status.value = it }
     }
+
 
     fun disconnectDevice() {
         usbHelper.disconnect { msg -> _status.value = msg }
