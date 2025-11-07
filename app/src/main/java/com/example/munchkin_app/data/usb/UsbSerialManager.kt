@@ -26,10 +26,10 @@ class UsbSerialManager(
 
     fun startReading() {
         if (reading.getAndSet(true)) {
-            onStatus?.invoke("⚠️ Lectura ya iniciada")
+            onStatus?.invoke("Reading already started")
             return
         }
-        onStatus?.invoke("✅ Lectura iniciada (background)")
+        onStatus?.invoke("Reading started")
 
         readExecutor.submit {
             val temp = ByteArray(512)
@@ -38,7 +38,7 @@ class UsbSerialManager(
                     val len = try {
                         port.read(temp, 500)
                     } catch (e: IOException) {
-                        val msg = "❌ Error en read(): ${e.message}"
+                        val msg = "Error while reading: ${e.message}"
                         Log.e(TAG, msg, e)
                         onError?.invoke(msg)
                         break
@@ -57,7 +57,7 @@ class UsbSerialManager(
                 }
             } finally {
                 reading.set(false)
-                onStatus?.invoke("ℹ️ Lectura finalizada")
+                onStatus?.invoke("Device disconnected")
             }
         }
     }
@@ -89,7 +89,7 @@ class UsbSerialManager(
         } catch (e: Exception) {
             Log.w(TAG, "Error closing connection: ${e.message}")
         }
-        onStatus?.invoke("🔌 Conexión cerrada")
+        onStatus?.invoke("Connection closed")
     }
 
     /**
@@ -139,7 +139,7 @@ class UsbSerialManager(
             }
 
             Log.d(TAG, "📥 Mensaje completo (${msgBytes.size} bytes): ${msgBytes.joinToString(" ") { "%02X".format(it) }}")
-            onStatus?.invoke("Connexion OK, received [${msgBytes.size} bytes]")
+            onStatus?.invoke("Connection OK, received [${msgBytes.size} bytes]")
             try {
                 onProtobufReceived?.invoke(msgBytes)
             } catch (e: Exception) {
@@ -167,8 +167,8 @@ class UsbSerialManager(
                 try {
                     port.write(full, 3000)
                     Log.d(TAG, "📤 Enviado (${full.size} bytes): $hexSent")
-                    onStatusChanged?.invoke("📤 Enviado OK (${full.size} bytes)")
-                    this.onStatus?.invoke("📤 Enviado OK (${full.size} bytes)")
+                    onStatusChanged?.invoke("Sending OK (${full.size} bytes)")
+                    this.onStatus?.invoke("Sending OK (${full.size} bytes)")
                     return@submit
                 } catch (e: Exception) {
                     lastEx = e
