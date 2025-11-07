@@ -51,7 +51,7 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
     val channels = remember {
         listOf(
             "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Channel 6",
-            "Channel 7", "Channel 8", "Channel 9", "Channel 10", "Channel 11", "Channel 12",
+        "Channel 7", "Channel 8", "Channel 9", "Channel 10", "Channel 11", "Channel 12",
             "Channel 13", "Channel 14"
             )
     }
@@ -100,10 +100,14 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
         
         LayoutConfig.InformationLabel(modifier = Modifier.weight(1f))
 
+        ProportionalSpacer(0.02f)
+
         LayoutConfig.StartButton(
             text = "Start",
             command = {}
         )
+
+        ProportionalSpacer(0.05f)
     }
 }
 

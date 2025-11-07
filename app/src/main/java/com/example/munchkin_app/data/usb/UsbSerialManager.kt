@@ -176,7 +176,7 @@ class UsbSerialManager(
                     TimeUnit.MILLISECONDS.sleep(100)
                 }
             }
-            val msg = "❌ Error enviando datos: ${lastEx?.message ?: "unknown"}"
+            val msg = "Error while sending data: ${lastEx?.message ?: "unknown"}"
             Log.e(TAG, msg, lastEx)
             onErrorCallback?.invoke(msg)
             onError?.invoke(msg)

@@ -19,6 +19,7 @@ import com.example.munchkin_app.ui.screens.welcome.OnboardingPagerWithButton
 import com.example.munchkin_app.ui.screens.wifi.WifiScreen
 import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
 import com.example.munchkin_app.ui.screens.wifi.captive.CaptivePortalScreen
+import com.example.munchkin_app.ui.screens.wifi.captive.CaptiveProcessScreen
 import com.example.munchkin_app.viewmodel.UsbViewModel
 
 
@@ -39,6 +40,7 @@ fun MainNavController(viewModel: UsbViewModel) {
         //Wifi Applications
         composable("analyzer") { AnalyzerScreen(navController = navController) }
         composable("captive") { CaptivePortalScreen(navController = navController) }
+        composable("captiveProcess") { CaptiveProcessScreen(navController = navController) }
     }
 }
 

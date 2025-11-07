@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -288,7 +290,7 @@ object LayoutConfig {
             Button(
                 modifier = Modifier
                     .weight(0.6f),
-                onClick = { command }
+                onClick = { command() }
             ) {
                 Text(text)
             }
@@ -301,6 +303,26 @@ object LayoutConfig {
             )
         }
     }
+}
+
+@Composable
+fun IndeterminateCircularIndicator(loading: Boolean, fraction: Float, stroke: Float) {
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    val circleSize = screenWidth * fraction
+
+    if (!loading) return
+
+    CircularProgressIndicator(
+        modifier = Modifier
+            .padding(16.dp)
+            .size(circleSize),
+        color = MaterialTheme.colorScheme.secondary,
+        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        strokeWidth = circleSize * stroke
+    )
 }
 
 @Composable
