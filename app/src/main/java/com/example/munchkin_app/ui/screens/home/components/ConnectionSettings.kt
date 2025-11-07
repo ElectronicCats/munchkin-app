@@ -1,4 +1,4 @@
-package com.example.munchkin_app.ui.screens.home
+package com.example.munchkin_app.ui.screens.home.components
 
 import android.util.Log
 import android.widget.Toast
@@ -21,9 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.munchkin_app.ui.common.ProportionalSpacer
-import com.example.munchkin_app.ui.screens.home.components.ConnectionOption
-import com.example.munchkin_app.ui.screens.home.components.SingleChoiceSegmentedButton
-import com.example.munchkin_app.ui.screens.home.components.UsbDeviceCard
 import com.example.munchkin_app.viewmodel.UsbViewModel
 import minino.rpc.Main
 
@@ -36,10 +33,11 @@ fun ConnectionSettingsScreen(
 
     val usbDevices by viewModel.usbDevices.collectAsState()
     val status by viewModel.status.collectAsState()
-    val version by viewModel.deviceVersion.collectAsState()
-    val productName by viewModel.deviceName.collectAsState()
+    val deviceVersion by viewModel.deviceVersion.collectAsState()
+    val deviceName by viewModel.deviceName.collectAsState()
     val selectedDevice by viewModel.selectedDevice.collectAsState()
-    val statusDevice by viewModel.deviceStatus.collectAsState()
+    val deviceStatus by viewModel.deviceStatus.collectAsState()
+    val deviceCounterId by viewModel.deviceCounterId.collectAsState()
 
     val context = LocalContext.current
 
@@ -99,7 +97,7 @@ fun ConnectionSettingsScreen(
         Text(
             text = if (connectionStatus.equals("Not Connected", ignoreCase = true))
                 ""
-            else "Model: $productName\nV$version",
+            else "Model: $deviceName\nV${deviceVersion}",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -107,10 +105,10 @@ fun ConnectionSettingsScreen(
             style = MaterialTheme.typography.bodyLarge
         )
 
-        if (statusDevice == Main.Status.STATUS_OK){
+        if (deviceStatus == Main.Status.STATUS_OK){
             Toast.makeText(context,
-                "Connected Successfully", Toast.LENGTH_SHORT).show()
-        } else if (statusDevice == Main.Status.STATUS_ERROR){
+                "Connected Successfully. ID:$deviceCounterId", Toast.LENGTH_SHORT).show()
+        } else if (deviceStatus == Main.Status.STATUS_ERROR){
             Toast.makeText(context,
                 "Connection Error", Toast.LENGTH_SHORT).show()
         }
