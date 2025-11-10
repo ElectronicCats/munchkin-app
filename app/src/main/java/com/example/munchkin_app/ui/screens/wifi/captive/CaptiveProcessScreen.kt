@@ -1,14 +1,8 @@
 package com.example.munchkin_app.ui.screens.wifi.captive
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,16 +12,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.IndeterminateCircularIndicator
-import com.example.munchkin_app.ui.common.LayoutConfig
-import com.example.munchkin_app.ui.common.MunchkinScreens
+import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.common.ProportionalSpacer
+import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 @Composable
@@ -44,7 +38,7 @@ fun CaptiveProcessContents(innerPadding: PaddingValues, navController: NavHostCo
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(innerPadding)
     ) {
-        LayoutConfig.ApplicationTitle("WiFi", "Captive Portal")
+        ApplicationTitle("WiFi", "Captive Portal")
 
         ProportionalSpacer(0.03f)
 
@@ -62,7 +56,7 @@ fun CaptiveProcessContents(innerPadding: PaddingValues, navController: NavHostCo
 
         ProportionalSpacer(0.03f)
 
-        LayoutConfig.StartButton("Stop", { loading = false; navController.navigate("captive") })
+        StartButton("Stop", { loading = false; navController.navigate("captive") })
     }
 }
 

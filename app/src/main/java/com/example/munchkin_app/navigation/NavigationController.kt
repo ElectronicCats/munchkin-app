@@ -1,8 +1,12 @@
 package com.example.munchkin_app.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +34,12 @@ fun MainNavController(viewModel: UsbViewModel) {
     NavHost(navController = navController, startDestination = "welcome",
     ) {
         //Welcome
-        composable("welcome") { OnboardingPagerWithButton(navController = navController) }
+        composable(
+            route = "welcome",
+            enterTransition = NavigationTransitions.fadeSlideIn,
+            exitTransition = NavigationTransitions.fadeSlideOut
+        ) { OnboardingPagerWithButton(navController = navController) }
+
         //Bottom Navigation Bar
         composable(Destination.HOME.route) {HomeScreen(navController = navController)}
         composable(Destination.WIFI.route) { WifiScreen(navController = navController) }
@@ -47,14 +56,14 @@ fun MainNavController(viewModel: UsbViewModel) {
 enum class Destination(
     val route: String,
     val labelResId: Int,
-    val icon: ImageVector,
+    val icon: Int,
     val contentDescription: Int
 ) {
-    HOME("home", R.string.NavBar_home, Icons.Default.Home, R.string.NavBar_icon_home),
-    WIFI("wifi", R.string.NavBar_wifi, Icons.Default.PlayArrow, R.string.NavBar_icon_wifi),
-    BLE("ble", R.string.NavBar_ble, Icons.Default.PlayArrow, R.string.NavBar_icon_ble),
-    IOT("iot", R.string.NavBar_iot, Icons.Default.PlayArrow, R.string.NavBar_icon_iot),
-    SCRIPT("script", R.string.NavBar_scripts, Icons.Default.PlayArrow, R.string.NavBar_icon_scripts)
+    HOME("home", R.string.NavBar_home, R.drawable.icon_home, R.string.NavBar_icon_home),
+    WIFI("wifi", R.string.NavBar_wifi, R.drawable.icon_wifi, R.string.NavBar_icon_wifi),
+    BLE("ble", R.string.NavBar_ble, R.drawable.icon_bluetooth, R.string.NavBar_icon_ble),
+    IOT("iot", R.string.NavBar_iot, R.drawable.icon_iot, R.string.NavBar_icon_iot),
+    SCRIPT("script", R.string.NavBar_scripts, R.drawable.icon_terminal, R.string.NavBar_icon_scripts)
 }
 
 

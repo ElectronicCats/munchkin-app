@@ -1,10 +1,6 @@
 package com.example.munchkin_app.ui.screens.home.components
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -15,16 +11,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.munchkin_app.R
 
 enum class ConnectionOption(
     val label: String,
-    val icon: ImageVector,
+    val icon: Int,
     val contentDescription: String
 ) {
-    SERIAL("Serial", Icons.Default.Add, "Serial connection"),
-    BLUETOOTH("Bluetooth", Icons.Default.AccountBox, "Bluetooth connection"),
-    NETWORK("Network", Icons.Default.Build, "Network connection")
+    SERIAL("Serial", R.drawable.icon_usb, "Serial connection"),
+    BLUETOOTH("Bluetooth", R.drawable.icon_bluetooth, "Bluetooth connection"),
+    NETWORK("Network", R.drawable.icon_wifi, "Network connection")
 }
 
 @Composable
@@ -59,7 +57,7 @@ fun SingleChoiceSegmentedButton(
                 selected = option == selectedOption,
                 label = { Text(option.label) },
                 icon = {
-                    Icon(option.icon, contentDescription = option.contentDescription)
+                    Icon(painterResource(option.icon), contentDescription = option.contentDescription)
                 }
             )
         }

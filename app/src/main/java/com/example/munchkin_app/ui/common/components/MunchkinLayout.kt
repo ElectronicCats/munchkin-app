@@ -1,11 +1,6 @@
-package com.example.munchkin_app.ui.common
+package com.example.munchkin_app.ui.common.components
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,8 +13,10 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
+import com.example.munchkin_app.R
 
 object MunchkinScreens {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -51,15 +48,15 @@ object MunchkinScreens {
                     navigationIcon = {
                         IconButton(onClick = { }) {
                             Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Localized description"
+                                painter = painterResource(R.drawable.icon_menu),
+                                contentDescription = "Menu"
                             )
                         }
                     },
                     actions = {
                         IconButton(onClick = { /* do something */ }) {
                             Icon(
-                                imageVector = Icons.Filled.AccountCircle,
+                                painter = painterResource(R.drawable._2_isotipo_ec),
                                 contentDescription = "Localized description"
                             )
                         }
@@ -103,7 +100,7 @@ object MunchkinScreens {
                     navigationIcon = {
                         IconButton(onClick = { navController.navigate(navRouteBack) }) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                painter = painterResource(R.drawable.icon_arrowback),
                                 contentDescription = "Localized description"
                             )
                         }
@@ -111,7 +108,7 @@ object MunchkinScreens {
                     actions = {
                         IconButton(onClick = { /* do something */ }) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                painter = painterResource(R.drawable.icon_info),
                                 contentDescription = "Localized description"
                             )
                         }

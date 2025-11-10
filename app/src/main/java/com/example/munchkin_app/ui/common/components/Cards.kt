@@ -1,4 +1,4 @@
-package com.example.munchkin_app.ui.common
+package com.example.munchkin_app.ui.common.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -19,25 +20,25 @@ import androidx.navigation.NavHostController
 object Cards {
     @Composable
     fun CustomCard(
-        modifier: Modifier = Modifier,
+        modifier: Modifier = Modifier.Companion,
         title: String,
         text: String,
         iconDescription: String,
         navController: NavHostController,
         navRoute: String,
-        icon: ImageVector
+        icon: Int
     ){
-        Card (
+        Card(
             shape = CardDefaults.shape,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
             modifier = modifier
                 .padding(start = 8.dp)
-                .clickable(onClick = {navController.navigate(navRoute)})
+                .clickable(onClick = { navController.navigate(navRoute) })
         ) {
             Icon(
-                imageVector = icon,
+                painter = painterResource(icon),
                 contentDescription = iconDescription,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(16.dp),
 
@@ -45,9 +46,9 @@ object Cards {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
+                fontWeight = FontWeight.Companion.Normal,
+                textAlign = TextAlign.Companion.Center,
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(8.dp)
             )
@@ -55,9 +56,9 @@ object Cards {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
+                fontWeight = FontWeight.Companion.Normal,
+                textAlign = TextAlign.Companion.Center,
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(8.dp)
             )

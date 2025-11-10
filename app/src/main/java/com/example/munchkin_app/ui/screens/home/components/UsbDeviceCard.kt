@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -20,9 +17,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.munchkin_app.R
 import com.example.munchkin_app.viewmodel.UsbViewModel
 
 @Composable
@@ -74,8 +73,8 @@ fun UsbDeviceCard(
                         modifier = Modifier.padding(8.dp)
                     ) {
                         Icon(
-                            imageVector = if (device == selectedDevice)
-                                Icons.Default.Add else Icons.Default.Close,
+                            painter = if (device == selectedDevice)
+                                painterResource(R.drawable.icon_close) else painterResource(R.drawable.icon_add),
                             contentDescription = null
                         )
                         Text(

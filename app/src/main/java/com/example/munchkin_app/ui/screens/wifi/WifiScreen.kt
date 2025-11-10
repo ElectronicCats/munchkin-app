@@ -9,17 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,9 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.munchkin_app.R
-import com.example.munchkin_app.ui.common.Cards
-import com.example.munchkin_app.ui.common.MunchkinScreens
-import com.example.munchkin_app.ui.screens.ble.BleSample
+import com.example.munchkin_app.ui.common.components.Cards
+import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 
@@ -76,8 +69,8 @@ fun WifiHome(
             textTwo = "Set Up Your Own Captive Portal!",
             navRouteOne = "analyzer",
             navRouteTwo = "captive",
-            iconOne = Icons.Default.Favorite,
-            iconTwo = Icons.Default.Favorite,
+            iconOne = R.drawable._4_analyzer,
+            iconTwo = R.drawable._5_captive,
             enableOne = true,
             enableTwo = true
         )
@@ -90,8 +83,8 @@ fun WifiHome(
             textTwo = "Detect Deauth Packets in the Air",
             navRouteOne = "welcome",
             navRouteTwo = "captive",
-            iconOne = Icons.Default.Favorite,
-            iconTwo = Icons.Default.Favorite,
+            iconOne = R.drawable._6_deauth,
+            iconTwo = R.drawable._7_deauth_scan,
             enableOne = true,
             enableTwo = true
         )
@@ -104,8 +97,8 @@ fun WifiHome(
             textTwo = "Spam a great amount of SSIDs",
             navRouteOne = "welcome",
             navRouteTwo = "test",
-            iconOne = Icons.Default.Favorite,
-            iconTwo = Icons.Default.Favorite,
+            iconOne = R.drawable._8_dos,
+            iconTwo = R.drawable._9_spammer,
             enableOne = true,
             enableTwo = true
         )
@@ -118,8 +111,8 @@ fun WifiHome(
             textTwo = "",
             navRouteOne = "welcome",
             navRouteTwo = "",
-            iconOne = Icons.Default.Favorite,
-            iconTwo = Icons.Default.Favorite,
+            iconOne = R.drawable._0_modbus_tcp,
+            iconTwo = R.drawable._0_modbus_tcp,
             enableOne = true,
             enableTwo = false
         )
@@ -137,8 +130,8 @@ fun AppCardRow(
     textTwo: String,
     navRouteOne: String,
     navRouteTwo: String,
-    iconOne: ImageVector,
-    iconTwo: ImageVector,
+    iconOne: Int,
+    iconTwo: Int,
     enableOne: Boolean = true,
     enableTwo: Boolean = true
 ) {

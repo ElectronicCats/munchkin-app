@@ -25,9 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.ui.common.LayoutConfig
-import com.example.munchkin_app.ui.common.MunchkinScreens
+import com.example.munchkin_app.ui.common.ApplicationTitle
+import com.example.munchkin_app.ui.common.OptionsButtonSegment
+import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.common.ProportionalSpacer
+import com.example.munchkin_app.ui.common.StartButton
+import com.example.munchkin_app.ui.common.components.ChannelDropMenu
 import com.example.munchkin_app.ui.screens.wifi.captive.components.PortalAndRedirect
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
@@ -70,7 +73,7 @@ fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostCon
             .padding(innerPadding)
             .verticalScroll(rememberScrollState())
     ) {
-        LayoutConfig.ApplicationTitle("WiFi", "Captive Portal")
+        ApplicationTitle("WiFi", "Captive Portal")
         ProportionalSpacer(0.02f)
         Text(
             text = "HTML",
@@ -105,7 +108,7 @@ fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostCon
             }
         }
         ProportionalSpacer(0.02f)
-        LayoutConfig.OptionsButtonSegment(
+        OptionsButtonSegment(
             names = mode,
             selectedIndex = selectedModeIndex,
             onSelectionChanged = {index, name ->
@@ -118,7 +121,7 @@ fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostCon
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
         ProportionalSpacer(0.02f)
-        LayoutConfig.OptionsButtonSegment(
+        OptionsButtonSegment(
             names = sdDumping,
             selectedIndex = selectedSdDestinationIndex,
             onSelectionChanged = {index, name ->
@@ -131,7 +134,7 @@ fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostCon
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
         ProportionalSpacer(0.02f)
-        LayoutConfig.ChannelDropMenu(
+        ChannelDropMenu(
             channels = channels,
             selectedChannel = selectedChannel,
             handleChannelSelection = {channel ->
@@ -140,7 +143,7 @@ fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostCon
             }
         )
         ProportionalSpacer(0.02f)
-        LayoutConfig.StartButton(
+        StartButton(
             text = "Run",
             command = {
                 navController.navigate("captiveProcess")

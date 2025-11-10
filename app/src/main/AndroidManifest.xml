@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.usb.host" />
     <uses-permission android:name="android.permission.USB_PERMISSION" />
-    <uses-sdk android:minSdkVersion="13"
+    <uses-sdk android:minSdkVersion="23"
         tools:ignore="GradleOverrides" />
 
 

@@ -19,9 +19,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.ui.common.LayoutConfig
-import com.example.munchkin_app.ui.common.MunchkinScreens
+import com.example.munchkin_app.ui.common.ApplicationTitle
+import com.example.munchkin_app.ui.common.InformationLabel
+import com.example.munchkin_app.ui.common.OptionsButtonSegment
+import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.common.ProportionalSpacer
+import com.example.munchkin_app.ui.common.StartButton
+import com.example.munchkin_app.ui.common.components.ChannelDropMenu
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 @Composable
@@ -64,7 +68,7 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
             .verticalScroll(rememberScrollState())
     ) {
 
-        LayoutConfig.ApplicationTitle(
+        ApplicationTitle(
             application = "WiFi",
             applicationName = "Analyzer"
         )
@@ -72,7 +76,7 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
         ProportionalSpacer(0.03f)
 
         // Selector de destino usando lista de strings
-        LayoutConfig.OptionsButtonSegment(
+        OptionsButtonSegment(
             names = storageDestination,
             selectedIndex = selectedDestinationIndex,
             onSelectionChanged = { index, name ->
@@ -87,7 +91,7 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
 
         ProportionalSpacer(0.02f)
 
-        LayoutConfig.ChannelDropMenu(
+        ChannelDropMenu(
             channels = channels,
             selectedChannel = selectedChannel,
             handleChannelSelection = { channel ->
@@ -98,11 +102,11 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
 
         ProportionalSpacer(0.02f)
         
-        LayoutConfig.InformationLabel(modifier = Modifier.weight(1f))
+        InformationLabel(modifier = Modifier.weight(1f))
 
         ProportionalSpacer(0.02f)
 
-        LayoutConfig.StartButton(
+        StartButton(
             text = "Start",
             command = {}
         )

@@ -1,4 +1,4 @@
-package com.example.munchkin_app.ui.common
+package com.example.munchkin_app.ui.common.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -50,7 +51,7 @@ fun BottomNavBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
-                        destination.icon,
+                        painter = painterResource(destination.icon),
                         contentDescription = stringResource(destination.contentDescription)
                     )
                 },
