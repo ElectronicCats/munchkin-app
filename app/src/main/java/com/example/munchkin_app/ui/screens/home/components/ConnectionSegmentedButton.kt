@@ -48,6 +48,8 @@ fun SingleChoiceSegmentedButton(
                 colors = SegmentedButtonDefaults.colors(
                     activeContainerColor = Color(0XFF72BA63),
                     activeContentColor = Color.White,
+                    inactiveContainerColor = Color.White,
+                    inactiveContentColor = Color.Black
                 ),
                 shape = SegmentedButtonDefaults.itemShape(
                     index = index,

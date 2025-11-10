@@ -29,13 +29,15 @@ class UsbViewModel @Inject constructor(
     val status = usbManager.status.asStateFlow()
     val selectedDevice = usbManager.selectedDevice.asStateFlow()
     val connectionStatus: StateFlow<String> = usbManager.connectionStatus.asStateFlow()
+    //Analyzer
+    val wifiNetworks = deviceRepository.wifiNetworks.asStateFlow()
+
     //ProtobufRepository
     private val protobufRepository = ProtobufRepository(
         usbHelper = usbHelper,
         deviceRepo = deviceRepository,
         usbManager = usbManager,
         scope = viewModelScope,
-
     )
 
     //Logs
@@ -61,4 +63,6 @@ class UsbViewModel @Inject constructor(
     fun registerReceiver() = usbHelper.registerReceiver()
     fun unregisterReceiver() = usbHelper.unregisterUsbReceiver()
     fun detectAndGetPermission() = usbHelper.detectAndGetPermission(::appendLog)
+    fun startAnalyzer() = protobufRepository.startAnalyzer()
+    fun stopAnalyzer() = protobufRepository.stopAnalyzer()
 }

@@ -2,6 +2,7 @@ syntax = "proto3";
 package minino.rpc;
 
 import "about/about.proto";
+import "wifi/analyzer/analyzer.proto";
 
 enum Status {
   STATUS_UNKNOWN = 0;
@@ -16,7 +17,8 @@ message MainRequest {
 
   oneof payload {
     minino.about.AboutRequest about = 1;
-    // otros requests...
+    minino.analyzer.AnalyzerStartRequest analyzer_start = 2;
+    minino.analyzer.AnalyzerStopRequest analyzer_stop = 3;
   }
 }
 
@@ -26,6 +28,6 @@ message MainResponse {
 
   oneof payload {
     minino.about.AboutResponse about = 1;
-    // otras respuestas...
+    minino.analyzer.AnalyzerData analyzer = 2;
   }
 }

@@ -34,7 +34,8 @@ fun BottomNavBar(navController: NavHostController) {
         Destination.entries.forEachIndexed { index, destination ->
             NavigationBarItem(
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color(0XFFFFD8E4)
+                    indicatorColor = Color(0XFFFFD8E4),
+                    selectedTextColor = Color.Black
                 ),
                 selected = selectedDestination == index,
                 onClick = {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,8 +18,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.munchkin_app.data.usb.UsbHelper
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.InformationLabel
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
@@ -27,11 +31,18 @@ import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
+import com.example.munchkin_app.viewmodel.DeviceRepository
+import com.example.munchkin_app.viewmodel.ProtobufRepository
+import com.example.munchkin_app.viewmodel.UsbViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+
 
 @Composable
 fun AnalyzerScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: UsbViewModel = hiltViewModel()
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,12 +55,18 @@ fun AnalyzerScreen(
 }
 
 @Composable
-fun AnalyzerContent(innerPaddingValues: PaddingValues){
+fun AnalyzerContent(
+    innerPaddingValues: PaddingValues,
+    viewModel: UsbViewModel = hiltViewModel()
+){
+    val wifiNetworks by viewModel.wifiNetworks.collectAsState()
+
     // Lista de opciones de destino
     val storageDestination = remember {
         listOf("SD Card", "Internal")
     }
     var selectedDestinationIndex by remember { mutableStateOf(0) }
+    var running by remember { mutableStateOf(false)}
 
     // Lista de canales para el dropdown
     val channels = remember {
@@ -101,15 +118,33 @@ fun AnalyzerContent(innerPaddingValues: PaddingValues){
         )
 
         ProportionalSpacer(0.02f)
-        
-        InformationLabel(modifier = Modifier.weight(1f))
+
+        InformationLabel(
+            modifier = Modifier.weight(1f),
+            information = wifiNetworks.joinToString("\n\n") { net ->
+                buildString {
+                    appendLine("SSID: ${net.ssid.ifBlank { "(sin SSID)" }}")
+                    appendLine("BSSID: ${net.bssid.ifBlank { "(sin BSSID)" }}")
+                    appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(sin canal)"}")
+                }
+            }
+        )
+
 
         ProportionalSpacer(0.02f)
 
-        StartButton(
-            text = "Start",
-            command = {}
-        )
+        if (running) {
+            StartButton(
+                text = "Stop",
+                command = { viewModel.stopAnalyzer(); running = false }
+            )
+        } else {
+            StartButton(
+                text = "Start",
+                command = { viewModel.startAnalyzer(); running = true}
+            )
+        }
+
 
         ProportionalSpacer(0.05f)
     }

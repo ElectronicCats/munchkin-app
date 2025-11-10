@@ -96,4 +96,48 @@ class ProtobufRepository(
             }
         }
     }
+
+    fun startAnalyzer() {
+        sendRequest(
+            messageId = 2,
+            requestBuilder = {
+                setAnalyzerStart(minino.analyzer.Analyzer.AnalyzerStartRequest.getDefaultInstance())
+            },
+            onResponse = { response ->
+                Log.w("ProtobufRepository", "$response \nesto es lo que recibo")
+                Log.d("ProtobufRepository", "✅ Respuesta recibida:\n${response.toString()}")
+                Log.d("ProtobufRepository", "🧩 whichPayload=${response.payloadCase.name} status=${response.status}")
+
+                if (response.hasAnalyzer()) {
+                    val analyzerData = response.analyzer
+                    val networks = analyzerData.networksList
+                    deviceRepo.updateWifiNetworks(networks)
+                    Log.d("ProtobufRepository", "📡 Recibidas ${networks.size} redes Wi-Fi")
+                    for (n in networks) {
+                        Log.d("ProtobufRepository", "${n.ssid} - RSSI ${n.rssi}")
+                    }
+                } else {
+                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer'")
+                }
+            }
+        )
+    }
+
+    fun stopAnalyzer() {
+        sendRequest(
+            messageId = 3,
+            requestBuilder = {
+                setAnalyzerStop(minino.analyzer.Analyzer.AnalyzerStopRequest.getDefaultInstance())
+            },
+            onResponse = { response ->
+                if (response.hasAnalyzer()) {
+                    Log.d("ProtobufRepository", "🛑 Analizador detenido correctamente")
+                } else {
+                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer' al detener")
+                }
+            }
+        )
+    }
+
+
 }

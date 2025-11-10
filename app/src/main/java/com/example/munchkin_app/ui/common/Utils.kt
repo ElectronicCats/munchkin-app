@@ -1,6 +1,7 @@
 package com.example.munchkin_app.ui.common
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -87,6 +91,8 @@ fun OptionsButtonSegment(
                 colors = SegmentedButtonDefaults.colors(
                     activeContainerColor = Color(0XFF72BA63),
                     activeContentColor = Color.White,
+                    inactiveContainerColor = Color.White,
+                    inactiveContentColor = Color.Black
                 ),
                 shape = SegmentedButtonDefaults.itemShape(
                     index = index,
@@ -109,47 +115,43 @@ fun OptionsButtonSegment(
 }
 
 @Composable
-fun InformationLabel(modifier: Modifier){
-    Text(
-        text = "Information",
-        style = MaterialTheme.typography.bodyLarge,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
-    Box(
-        contentAlignment = Alignment.Center,
+fun InformationLabel(modifier: Modifier = Modifier, information: String) {
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
+        Text(
+            text = "Information",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Card(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .heightIn(min = 100.dp) // ajustable
                 .border(
                     width = 1.dp,
                     color = Color.Black,
                     shape = RoundedCornerShape(20.dp)
                 )
                 .clip(RoundedCornerShape(20.dp)),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
-            Column(
+            // scrollable text
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Información del análisis WiFi",
+                    text = information.ifEmpty { "No networks found" },
                     style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start
                 )
             }
         }
