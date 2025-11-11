@@ -1,13 +1,12 @@
 package com.example.munchkin_app.ui.common
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -82,7 +81,7 @@ fun OptionsButtonSegment(
     )
 
     SingleChoiceSegmentedButtonRow(
-        space = -4.dp,
+        space = (-4).dp,
         modifier = modifier
     ) {
         names.forEachIndexed { index, name ->
@@ -144,14 +143,17 @@ fun InformationLabel(modifier: Modifier = Modifier, information: String) {
         ) {
             // scrollable text
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
+                    modifier = Modifier.fillMaxWidth(),
                     text = information.ifEmpty { "No networks found" },
                     style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Start
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -189,6 +191,7 @@ fun StartButton(
 }
 
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun IndeterminateCircularIndicator(loading: Boolean, fraction: Float, stroke: Float) {
 
@@ -209,6 +212,7 @@ fun IndeterminateCircularIndicator(loading: Boolean, fraction: Float, stroke: Fl
     )
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun ProportionalSpacer(fraction: Float) {
     val screenHeight = LocalConfiguration.current.screenHeightDp

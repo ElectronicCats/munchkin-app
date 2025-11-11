@@ -1,11 +1,9 @@
 package com.example.munchkin_app.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.example.munchkin_app.data.usb.UsbHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import minino.rpc.Main
 

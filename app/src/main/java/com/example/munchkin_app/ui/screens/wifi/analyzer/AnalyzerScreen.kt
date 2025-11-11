@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -19,28 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.data.usb.UsbHelper
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.InformationLabel
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
-import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
+import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
-import com.example.munchkin_app.viewmodel.DeviceRepository
-import com.example.munchkin_app.viewmodel.ProtobufRepository
 import com.example.munchkin_app.viewmodel.UsbViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 
 @Composable
 fun AnalyzerScreen(
-    navController: NavHostController,
-    viewModel: UsbViewModel = hiltViewModel()
+    navController: NavHostController
 ) {
 
     Column(
@@ -65,7 +60,7 @@ fun AnalyzerContent(
     val storageDestination = remember {
         listOf("SD Card", "Internal")
     }
-    var selectedDestinationIndex by remember { mutableStateOf(0) }
+    var selectedDestinationIndex by remember { mutableIntStateOf(0) }
     var running by remember { mutableStateOf(false)}
 
     // Lista de canales para el dropdown
@@ -130,9 +125,6 @@ fun AnalyzerContent(
             }
         )
 
-
-        ProportionalSpacer(0.02f)
-
         if (running) {
             StartButton(
                 text = "Stop",
@@ -144,9 +136,6 @@ fun AnalyzerContent(
                 command = { viewModel.startAnalyzer(); running = true}
             )
         }
-
-
-        ProportionalSpacer(0.05f)
     }
 }
 

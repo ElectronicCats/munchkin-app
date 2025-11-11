@@ -16,10 +16,6 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,7 +36,7 @@ fun WelcomeTextThree(
 ) {
     Box(
         modifier = modifier
-            .fillMaxHeight() //Important or will increase more size than pager
+            .fillMaxHeight()
             .background(MaterialTheme.colorScheme.primary)
             .verticalScroll(rememberScrollState())
     ) {
@@ -51,15 +47,15 @@ fun WelcomeTextThree(
                 .padding(16.dp)
         ) {
             //Title
-            ProportionalSpacer(0.05f)
+            ProportionalSpacer(0.03f)
             Text(
                 text = stringResource(R.string.Welcome_three_title),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
-            //BodY Text
-            ProportionalSpacer(0.05f)
+            //Body Text
+            ProportionalSpacer(0.03f)
             Text(
                 text = stringResource(R.string.Welcome_three_text),
                 color = MaterialTheme.colorScheme.onPrimary,
@@ -68,7 +64,7 @@ fun WelcomeTextThree(
                 modifier = Modifier.padding(16.dp)
             )
             //Terms accepted text
-            ProportionalSpacer(0.05f)
+            ProportionalSpacer(0.03f)
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically

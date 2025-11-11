@@ -1,6 +1,8 @@
 package com.example.munchkin_app.ui.common.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -13,18 +15,22 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.munchkin_app.R
 
 object MunchkinScreens {
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun MunchkinLayout(
         navController: NavHostController,
         content: @Composable (PaddingValues) -> Unit
     ) {
+        val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
         Scaffold(
@@ -46,16 +52,27 @@ object MunchkinScreens {
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = { }) {
+                        IconButton(
+                            modifier = Modifier
+                                .size(screenWidth * 0.05f),
+                            onClick = { /* do something */ }
+                        ) {
                             Icon(
+                                modifier = Modifier
+                                    .size(screenWidth * 0.05f),
                                 painter = painterResource(R.drawable.icon_menu),
                                 contentDescription = "Menu"
                             )
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* do something */ }) {
+                        IconButton(
+                            modifier = Modifier
+                                .size(screenWidth * 0.1f),
+                            onClick = { /* do something */ }) {
                             Icon(
+                                modifier = Modifier
+                                    .size(screenWidth * 0.1f),
                                 painter = painterResource(R.drawable._2_isotipo_ec),
                                 contentDescription = "Localized description"
                             )

@@ -56,6 +56,7 @@ fun PortalAndRedirect(
                 text = nameImportedContent,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)

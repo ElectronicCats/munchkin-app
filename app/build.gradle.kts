@@ -34,8 +34,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+    android {
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+
+        kotlin {
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            }
+        }
     }
     buildFeatures {
         compose = true
@@ -68,13 +77,17 @@ protobuf {
 }
 
 dependencies {
-    implementation("com.google.dagger:hilt-android:2.57.2")
+    implementation(libs.hilt.android)
     implementation(libs.androidx.compose.ui)
-    kapt("com.google.dagger:hilt-compiler:2.57.2")
+    implementation(libs.androidx.compose.material3.window.size.class1)
+    implementation(libs.androidx.compose.adaptive)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    kapt(libs.hilt.compiler)
 
-    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
+    implementation(libs.androidx.hilt.navigation.compose)
 
-
+    implementation(libs.androidx.window)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation (libs.usb.serial.for1.android)

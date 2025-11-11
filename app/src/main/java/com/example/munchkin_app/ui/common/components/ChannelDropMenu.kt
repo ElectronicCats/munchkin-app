@@ -79,6 +79,7 @@ fun ChannelDropMenu(
                 Text(
                     text = selectedChannel,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(0.8f)
                 )

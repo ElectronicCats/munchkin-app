@@ -1,6 +1,5 @@
 package com.example.munchkin_app.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.munchkin_app.data.usb.UsbHelper
@@ -39,10 +38,6 @@ class UsbViewModel @Inject constructor(
         usbManager = usbManager,
         scope = viewModelScope,
     )
-
-    //Logs
-    private val _logs = mutableStateListOf<String>()
-
     init {
         usbHelper.onDevicesChanged = {
             viewModelScope.launch {
@@ -59,10 +54,9 @@ class UsbViewModel @Inject constructor(
     fun connectDevice(device: String) = usbManager.connect(device) {protobufRepository.requestAboutInfoRepeatedly()}
     fun disconnectDevice() = usbManager.disconnect()
     fun detectDevices() = usbManager.detect()
-    private fun appendLog(text: String) = _logs.add(text)
     fun registerReceiver() = usbHelper.registerReceiver()
     fun unregisterReceiver() = usbHelper.unregisterUsbReceiver()
-    fun detectAndGetPermission() = usbHelper.detectAndGetPermission(::appendLog)
     fun startAnalyzer() = protobufRepository.startAnalyzer()
     fun stopAnalyzer() = protobufRepository.stopAnalyzer()
+
 }

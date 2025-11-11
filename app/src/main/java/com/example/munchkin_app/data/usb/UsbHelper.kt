@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
+import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hoho.android.usbserial.driver.UsbSerialPort
@@ -17,11 +18,13 @@ import minino.rpc.Main
 import java.io.IOException
 import javax.inject.Inject
 
-class UsbHelper @Inject constructor(@ApplicationContext private val context: Context) {
-    private val TAG = "UsbHelper"
-    val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
-    private val ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED"
-    private val ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED"
+private const val TAG = "UsbHelper"
+const val ACTION_USB_PERMISSION = "com.example.munchkin_app.USB_PERMISSION"
+private const val ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED"
+private const val ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED"
+
+class UsbHelper @Inject constructor(@param:ApplicationContext private val context: Context) {
+
 
     private val usbManager: UsbManager by lazy {
         context.getSystemService(Context.USB_SERVICE) as UsbManager
@@ -42,7 +45,12 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
             Log.d(TAG, "Receiver triggered: ${intent.action}")
             when (intent.action) {
                 ACTION_USB_PERMISSION -> {
-                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    val device: UsbDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    }
                     val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                     val status = if (granted) "Permission granted" else "Permission denied"
                     Log.d(TAG, "$status para $device")
@@ -52,12 +60,22 @@ class UsbHelper @Inject constructor(@ApplicationContext private val context: Con
                     }
                 }
                 ACTION_USB_ATTACHED -> {
-                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    val device: UsbDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    }
                     Log.d(TAG, "USB conectado: ${device?.deviceName}")
                     onDevicesChanged?.invoke()
                 }
                 ACTION_USB_DETACHED -> {
-                    val device: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    val device: UsbDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+                    }
                     Log.d(TAG, "USB desconectado: ${device?.deviceName}")
                     onDevicesChanged?.invoke()
                 }

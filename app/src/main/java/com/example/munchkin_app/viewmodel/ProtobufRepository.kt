@@ -29,7 +29,7 @@ class ProtobufRepository(
 
             try {
                 val response = Main.MainResponse.parseFrom(bytes)
-                Log.d("ProtobufRepository", "✅ Respuesta recibida: ${response}")
+                Log.d("ProtobufRepository", "✅ Respuesta recibida: $response")
 
                 // Actualizar estado general
                 deviceRepo.deviceStatus.value = response.status
@@ -38,7 +38,7 @@ class ProtobufRepository(
                 // Callback para el usuario (UI o lógica externa)
                 onResponse(response)
 
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 val ascii = bytes.map { it.toInt().toChar() }
                     .filter { it.isLetterOrDigit() || it in ". -" }
                     .joinToString("")
@@ -104,21 +104,8 @@ class ProtobufRepository(
                 setAnalyzerStart(minino.analyzer.Analyzer.AnalyzerStartRequest.getDefaultInstance())
             },
             onResponse = { response ->
-                Log.w("ProtobufRepository", "$response \nesto es lo que recibo")
-                Log.d("ProtobufRepository", "✅ Respuesta recibida:\n${response.toString()}")
+                Log.d("ProtobufRepository", "✅ Respuesta recibida:\n$response")
                 Log.d("ProtobufRepository", "🧩 whichPayload=${response.payloadCase.name} status=${response.status}")
-
-                if (response.hasAnalyzer()) {
-                    val analyzerData = response.analyzer
-                    val networks = analyzerData.networksList
-                    deviceRepo.updateWifiNetworks(networks)
-                    Log.d("ProtobufRepository", "📡 Recibidas ${networks.size} redes Wi-Fi")
-                    for (n in networks) {
-                        Log.d("ProtobufRepository", "${n.ssid} - RSSI ${n.rssi}")
-                    }
-                } else {
-                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer'")
-                }
             }
         )
     }
@@ -131,9 +118,15 @@ class ProtobufRepository(
             },
             onResponse = { response ->
                 if (response.hasAnalyzer()) {
-                    Log.d("ProtobufRepository", "🛑 Analizador detenido correctamente")
+                    val analyzerData = response.analyzer
+                    val networks = analyzerData.networksList
+                    deviceRepo.updateWifiNetworks(networks)
+                    Log.d("ProtobufRepository", "📡 Recibidas ${networks.size} redes Wi-Fi")
+                    for (n in networks) {
+                        Log.d("ProtobufRepository", "${n.ssid} - RSSI ${n.rssi}")
+                    }
                 } else {
-                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer' al detener")
+                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer'")
                 }
             }
         )

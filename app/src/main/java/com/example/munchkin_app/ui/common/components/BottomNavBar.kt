@@ -1,6 +1,7 @@
 package com.example.munchkin_app.ui.common.components
 
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
@@ -52,6 +53,7 @@ fun BottomNavBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
+                        tint = MaterialTheme.colorScheme.onBackground,
                         painter = painterResource(destination.icon),
                         contentDescription = stringResource(destination.contentDescription)
                     )
