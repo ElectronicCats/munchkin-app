@@ -16,4 +16,5 @@ message WifiNetwork {
 
 message AnalyzerData {
   repeated WifiNetwork networks = 1;
+  uint32 total_packet_count = 2;
 }

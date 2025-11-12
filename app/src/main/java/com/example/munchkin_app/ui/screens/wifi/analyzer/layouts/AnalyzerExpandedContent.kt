@@ -36,7 +36,8 @@ fun AnalyzerExpandedContent(
     onChannelChanged: (String) -> Unit,
     viewModel: UsbViewModel,
     running: Boolean,
-    onToggleRunning: () -> Unit
+    onToggleRunning: () -> Unit,
+    totalPackets: Int
 ) {
     Column(
         modifier = Modifier
@@ -110,17 +111,24 @@ fun AnalyzerExpandedContent(
             ) {
                 InformationLabel(
                     modifier = Modifier.fillMaxSize(),
-                    information = when {
-                        running -> "Escaneando..."
-                        wifiNetworks.isEmpty() -> "No se detectaron redes WiFi."
-                        else -> wifiNetworks.joinToString("\n\n") { net ->
-                            buildString {
-                                appendLine("SSID: ${net.ssid.ifBlank { "(sin SSID)" }}")
-                                appendLine("BSSID: ${net.bssid.ifBlank { "(sin BSSID)" }}")
-                                appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(sin canal)"}")
-                                appendLine("RSSI: ${net.rssi.takeIf { it != 0 } ?: "(sin RSSI)"}")
+                    information = buildString {
+                        appendLine("Total packets: $totalPackets")
+                        appendLine()
+
+                        append(
+                            when {
+                                running -> "Escaneando..."
+                                wifiNetworks.isEmpty() -> "No se detectaron redes WiFi."
+                                else -> wifiNetworks.joinToString("\n\n") { net ->
+                                    buildString {
+                                        appendLine("SSID: ${net.ssid.ifBlank { "(sin SSID)" }}")
+                                        appendLine("BSSID: ${net.bssid.ifBlank { "(sin BSSID)" }}")
+                                        appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(sin canal)"}")
+                                        appendLine("RSSI: ${net.rssi.takeIf { it != 0 } ?: "(sin RSSI)"}")
+                                    }
+                                }
                             }
-                        }
+                        )
                     }
                 )
             }

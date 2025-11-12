@@ -30,6 +30,7 @@ class UsbViewModel @Inject constructor(
     val connectionStatus: StateFlow<String> = usbManager.connectionStatus.asStateFlow()
     //Analyzer
     val wifiNetworks = deviceRepository.wifiNetworks.asStateFlow()
+    val totalPackets = deviceRepository.totalPackets.asStateFlow()
 
     //ProtobufRepository
     private val protobufRepository = ProtobufRepository(

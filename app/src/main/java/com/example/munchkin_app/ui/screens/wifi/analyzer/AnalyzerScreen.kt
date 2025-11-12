@@ -50,6 +50,7 @@ fun AnalyzerContent(
     windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
 ){
     val wifiNetworks by viewModel.wifiNetworks.collectAsState()
+    val totalPackets by viewModel.totalPackets.collectAsState()
 
     val storageDestination = remember {
         listOf("SD Card", "Internal")
@@ -101,7 +102,8 @@ fun AnalyzerContent(
                     onChannelChanged = { selectedChannel = it },
                     running = running,
                     onToggleRunning = { running = !running },
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    totalPackets = totalPackets
                 )
             }
             // Medium u otro caso
