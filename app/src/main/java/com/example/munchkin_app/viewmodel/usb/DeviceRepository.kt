@@ -1,4 +1,4 @@
-package com.example.munchkin_app.viewmodel
+package com.example.munchkin_app.viewmodel.usb
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import minino.analyzer.Analyzer

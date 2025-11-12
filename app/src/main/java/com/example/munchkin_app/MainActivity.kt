@@ -7,7 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import com.example.munchkin_app.navigation.MainNavController
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
-import com.example.munchkin_app.viewmodel.UsbViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

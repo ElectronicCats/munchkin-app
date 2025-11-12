@@ -1,4 +1,4 @@
-package com.example.munchkin_app.viewmodel
+package com.example.munchkin_app.viewmodel.usb
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

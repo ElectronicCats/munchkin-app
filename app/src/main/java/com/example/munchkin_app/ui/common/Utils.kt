@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -117,7 +117,7 @@ fun OptionsButtonSegment(
 fun InformationLabel(modifier: Modifier = Modifier, information: String) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
@@ -127,10 +127,11 @@ fun InformationLabel(modifier: Modifier = Modifier, information: String) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        ProportionalSpacer(0.05f)
+
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 100.dp) // ajustable
+                .fillMaxSize()
                 .border(
                     width = 1.dp,
                     color = Color.Black,
@@ -145,11 +146,13 @@ fun InformationLabel(modifier: Modifier = Modifier, information: String) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
                     text = information.ifEmpty { "No networks found" },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black,
@@ -170,18 +173,22 @@ fun StartButton(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
     ){
         Box(
             modifier = Modifier
                 .weight(0.2f)
+                .align(Alignment.CenterVertically)
         )
         Button(
             modifier = Modifier
                 .weight(0.6f),
             onClick = { command() }
         ) {
-            Text(text)
+            Text(
+                modifier = Modifier.padding(4.dp),
+                text = text,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
         Box(
             modifier = Modifier

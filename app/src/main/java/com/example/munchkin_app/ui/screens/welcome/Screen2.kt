@@ -45,11 +45,11 @@ fun WelcomeTextTwo(
     val minSide = if (screenWidth < screenHeight) screenWidth else screenHeight
 
     Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.primary)
-            .verticalScroll(rememberScrollState())
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+            modifier = modifier
+                .background(MaterialTheme.colorScheme.primary)
+                .verticalScroll(rememberScrollState())
+                .fillMaxSize(),
+    contentAlignment = Alignment.Center
     ) {
         when {
             // Compact
@@ -69,7 +69,7 @@ fun WelcomeTextTwo(
 }
 
 @Composable
-fun CompactContent(modifier: Modifier, minSide: Dp){
+private fun CompactContent(modifier: Modifier, minSide: Dp){
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primary)
@@ -113,7 +113,7 @@ fun CompactContent(modifier: Modifier, minSide: Dp){
 }
 
 @Composable
-fun ExpandedContent(modifier: Modifier, minSide: Dp) {
+private fun ExpandedContent(modifier: Modifier, minSide: Dp) {
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primary)

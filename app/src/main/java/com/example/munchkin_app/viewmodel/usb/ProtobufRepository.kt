@@ -1,10 +1,13 @@
-package com.example.munchkin_app.viewmodel
+package com.example.munchkin_app.viewmodel.usb
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import minino.rpc.Main
 import com.example.munchkin_app.data.usb.UsbHelper
+import kotlinx.coroutines.delay
+import minino.about.About
+import minino.analyzer.Analyzer
 
 class ProtobufRepository(
     private val usbHelper: UsbHelper,
@@ -64,7 +67,7 @@ class ProtobufRepository(
         sendRequest(
             messageId = 1,
             requestBuilder = {
-                setAbout(minino.about.About.AboutRequest.getDefaultInstance())
+                setAbout(About.AboutRequest.getDefaultInstance())
             },
             onResponse = { response ->
                 if (response.hasAbout()) {
@@ -92,7 +95,7 @@ class ProtobufRepository(
                 Log.d("UsbViewModel", "Intento #$attempts de obtener AboutInfo")
                 requestAboutInfo()
                 attempts++
-                kotlinx.coroutines.delay(1000L)
+                delay(1000L)
             }
         }
     }
@@ -101,7 +104,7 @@ class ProtobufRepository(
         sendRequest(
             messageId = 2,
             requestBuilder = {
-                setAnalyzerStart(minino.analyzer.Analyzer.AnalyzerStartRequest.getDefaultInstance())
+                setAnalyzerStart(Analyzer.AnalyzerStartRequest.getDefaultInstance())
             },
             onResponse = { response ->
                 Log.d("ProtobufRepository", "✅ Respuesta recibida:\n$response")
@@ -114,7 +117,7 @@ class ProtobufRepository(
         sendRequest(
             messageId = 3,
             requestBuilder = {
-                setAnalyzerStop(minino.analyzer.Analyzer.AnalyzerStopRequest.getDefaultInstance())
+                setAnalyzerStop(Analyzer.AnalyzerStopRequest.getDefaultInstance())
             },
             onResponse = { response ->
                 if (response.hasAnalyzer()) {

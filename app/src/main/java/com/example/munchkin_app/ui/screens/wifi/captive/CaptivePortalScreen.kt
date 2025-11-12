@@ -1,38 +1,28 @@
 package com.example.munchkin_app.ui.screens.wifi.captive
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.OptionsButtonSegment
+import androidx.window.core.layout.WindowSizeClass
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
-import com.example.munchkin_app.ui.common.ProportionalSpacer
-import com.example.munchkin_app.ui.common.StartButton
-import com.example.munchkin_app.ui.common.components.ChannelDropMenu
-import com.example.munchkin_app.ui.screens.wifi.captive.components.PortalAndRedirect
+import com.example.munchkin_app.ui.screens.wifi.captive.layouts.CaptiveCompactContent
+import com.example.munchkin_app.ui.screens.wifi.captive.layouts.CaptiveExpandedContent
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
+import com.example.munchkin_app.viewmodel.screens.wifi.CaptiveViewModel
 
 @Composable
 fun CaptivePortalScreen(navController: NavHostController) {
@@ -48,17 +38,18 @@ fun CaptivePortalScreen(navController: NavHostController) {
 }
 
 @Composable
-fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostController){
+fun CaptivePortalContents(
+    innerPadding: PaddingValues,
+    navController: NavHostController,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+    viewModel: CaptiveViewModel = hiltViewModel()
+){
     val mode = remember {
         listOf("Standalone", "Replicate")
     }
-    var selectedModeIndex by remember { mutableStateOf(0) }
-
     val sdDumping = remember {
         listOf("Dump to SD", "No Dump")
     }
-    var selectedSdDestinationIndex by remember { mutableStateOf(0) }
-
     val channels = remember {
         listOf(
             "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Channel 6",
@@ -66,122 +57,102 @@ fun CaptivePortalContents(innerPadding: PaddingValues, navController: NavHostCon
             "Channel 13", "Channel 14"
         )
     }
-    var selectedChannel by remember { mutableStateOf(channels.first()) }
 
-    Column (
+    val selectedModeIndex by viewModel.selectedModeIndex.collectAsState()
+    val selectedSdDestinationIndex by viewModel.selectedSdDestinationIndex.collectAsState()
+    val selectedChannel by viewModel.selectedChannel.collectAsState()
+
+    // Quita contentAlignment para que no centre y permita scroll
+    Box(
         modifier = Modifier
-            .padding(innerPadding)
-            .verticalScroll(rememberScrollState())
+            .background(MaterialTheme.colorScheme.background)
+            .fillMaxSize()
     ) {
-        ApplicationTitle("WiFi", "Captive Portal")
-        ProportionalSpacer(0.02f)
-        Text(
-            text = "HTML",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        )
-        Box (
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                PortalAndRedirect(
-                    modifier = Modifier.weight(1f),
-                    title = "Portal",
-                    nameImportedContent = "No Portal Imported"
+        when {
+            // Compact
+            !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
+                CaptiveCompactContent(
+                    innerPadding = innerPadding,
+                    mode = mode,
+                    selectedModeIndex = selectedModeIndex,
+                    onSelectionModeChanged = { viewModel.updateModeIndex(it) },
+                    sdDumping = sdDumping,
+                    selectedSdDestinationIndex = selectedSdDestinationIndex,
+                    onSelectedSdIndexChange = { viewModel.updateSdDestinationIndex(it) },
+                    channels = channels,
+                    selectedChannel = selectedChannel,
+                    onChannelSelection = { viewModel.updateChannel(it) },
+                    navController = navController
                 )
-                PortalAndRedirect(
-                    modifier = Modifier.weight(1f),
-                    title = "Redirect",
-                    nameImportedContent = "No Portal Imported"
+            }
+            // Expanded
+            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
+                CaptiveExpandedContent(
+                    innerPadding = innerPadding,
+                    mode = mode,
+                    selectedModeIndex = selectedModeIndex,
+                    onSelectionModeChanged = {viewModel.updateModeIndex(it) },
+                    sdDumping = sdDumping,
+                    selectedSdDestinationIndex = selectedSdDestinationIndex,
+                    onSelectedSdIndexChange = { viewModel.updateSdDestinationIndex(it) },
+                    channels = channels,
+                    selectedChannel = selectedChannel,
+                    onChannelSelection = { viewModel.updateChannel(it) },
+                    navController = navController
+                )
+            }
+            // Medium u otro caso (incluye landscape en teléfono)
+            else -> {
+                CaptiveCompactContent(
+                    innerPadding = innerPadding,
+                    mode = mode,
+                    selectedModeIndex = selectedModeIndex,
+                    onSelectionModeChanged = { viewModel.updateModeIndex(it) },
+                    sdDumping = sdDumping,
+                    selectedSdDestinationIndex = selectedSdDestinationIndex,
+                    onSelectedSdIndexChange = { viewModel.updateSdDestinationIndex(it) },
+                    channels = channels,
+                    selectedChannel = selectedChannel,
+                    onChannelSelection = { viewModel.updateChannel(it) },
+                    navController = navController
                 )
             }
         }
-        ProportionalSpacer(0.02f)
-        OptionsButtonSegment(
-            names = mode,
-            selectedIndex = selectedModeIndex,
-            onSelectionChanged = {index, name ->
-                selectedModeIndex = index
-                handleModeSelection(index, name)
-            },
-            title = "Mode",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-        ProportionalSpacer(0.02f)
-        OptionsButtonSegment(
-            names = sdDumping,
-            selectedIndex = selectedSdDestinationIndex,
-            onSelectionChanged = {index, name ->
-                selectedSdDestinationIndex = index
-                handleSdDestinationSelection(index, name)
-            },
-            title = "SD Dumping",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-        ProportionalSpacer(0.02f)
-        ChannelDropMenu(
-            channels = channels,
-            selectedChannel = selectedChannel,
-            handleChannelSelection = {channel ->
-                selectedChannel = channel
-                handleChannelSelection(channel)
-            }
-        )
-        ProportionalSpacer(0.02f)
-        StartButton(
-            text = "Run",
-            command = {
-                navController.navigate("captiveProcess")
-            }
-        )
-        ProportionalSpacer(0.02f)
     }
 }
 
-private fun handleModeSelection(index: Int, name: String) {
-    println("Destination selected: $name (Index: $index)")
-    when (index) {
-        0 -> println("Configurando SD Card...")
-        1 -> println("Configurando almacenamiento interno...")
-        2 -> println("Configurando almacenamiento en la nube...")
-        else -> println("Opción desconocida")
-    }
-}
-
-private fun handleSdDestinationSelection(index: Int, name: String) {
-    println("Destination selected: $name (Index: $index)")
-    when (index) {
-        0 -> println("Configurando SD Card...")
-        1 -> println("Configurando almacenamiento interno...")
-        2 -> println("Configurando almacenamiento en la nube...")
-        else -> println("Opción desconocida")
-    }
-}
-
-private fun handleChannelSelection(channel: String) {
-    println("Channel selected: $channel")
-    // Aquí puedes agregar la lógica específica para manejar la selección del canal
-}
-
-
-@Preview
+@Preview(
+    name = "Phone Preview",
+    showBackground = true,
+    device = Devices.PHONE
+)
 @Composable
 fun CaptivePortalScreenPreview() {
+    MunchkinappTheme {
+        CaptivePortalScreen(rememberNavController())
+    }
+}
+
+@Preview(
+    name = "Phone Landscape Preview",
+    showBackground = true,
+    widthDp = 840,
+    heightDp = 400
+)
+@Composable
+fun CaptivePortalScreenLandscapePreview() {
+    MunchkinappTheme {
+        CaptivePortalScreen(rememberNavController())
+    }
+}
+
+@Preview(
+    name = "Tablet Preview",
+    showBackground = true,
+    device = Devices.TABLET
+)
+@Composable
+fun CaptivePortalExpandedScreenPreview() {
     MunchkinappTheme {
         CaptivePortalScreen(rememberNavController())
     }

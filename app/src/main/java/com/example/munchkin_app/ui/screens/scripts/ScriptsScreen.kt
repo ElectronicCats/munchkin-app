@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.screens.ble.BleSample
-import com.example.munchkin_app.viewmodel.UsbViewModel
 
 @Composable
 fun ScriptsScreen(navController: NavHostController) {
-    val viewModel: UsbViewModel = hiltViewModel()
 
     Column(
         modifier = Modifier

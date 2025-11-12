@@ -27,7 +27,7 @@ fun PortalAndRedirect(
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = title,
@@ -65,7 +65,7 @@ fun PortalAndRedirect(
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
             onClick = {}
         ) {
             Text("Import")

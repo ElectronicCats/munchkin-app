@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.munchkin_app.R
-import com.example.munchkin_app.viewmodel.UsbViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 @Composable
 fun UsbDeviceCard(
