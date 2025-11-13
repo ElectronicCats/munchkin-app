@@ -113,6 +113,19 @@ class ProtobufRepository(
         )
     }
 
+    fun setAnalyzerChannel(channel: Int) {
+        sendRequest(
+            messageId = 11,
+            requestBuilder = {
+                setAnalyzerSetChannel(
+                    Analyzer.AnalyzerSetChannelRequest.newBuilder()
+                        .setChannel(channel)
+                        .build()
+                )
+            }
+        )
+    }
+
     fun stopAnalyzer() {
         sendRequest(
             messageId = 3,
@@ -122,7 +135,7 @@ class ProtobufRepository(
             onResponse = { response ->
                 if (response.hasAnalyzer()) {
                     val analyzerData = response.analyzer
-                    val networks = analyzerData.packetsList
+                    val networks = analyzerData.networksList
                     val totalPackets = analyzerData.totalPacketCount
                     deviceRepo.wifiNetworks.value = networks
                     deviceRepo.totalPackets.value = totalPackets

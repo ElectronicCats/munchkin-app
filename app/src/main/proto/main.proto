@@ -19,6 +19,7 @@ message MainRequest {
     minino.about.AboutRequest about = 1;
     minino.analyzer.AnalyzerStartRequest analyzer_start = 2;
     minino.analyzer.AnalyzerStopRequest analyzer_stop = 3;
+    minino.analyzer.AnalyzerSetChannelRequest analyzer_set_channel = 4;
   }
 }
 

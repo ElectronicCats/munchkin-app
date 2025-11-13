@@ -80,7 +80,7 @@ fun WifiHome(
             textOne = "Deny Access to Users in a Network",
             titleTwo = "Deauth Scan",
             textTwo = "Detect Deauth Packets in the Air",
-            navRouteOne = "welcome",
+            navRouteOne = "deauth",
             navRouteTwo = "captive",
             iconOne = R.drawable._6_deauth,
             iconTwo = R.drawable._7_deauth_scan,

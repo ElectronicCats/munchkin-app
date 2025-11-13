@@ -122,7 +122,7 @@ fun InformationLabel(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
@@ -137,6 +137,7 @@ fun InformationLabel(
         Card(
             modifier = Modifier
                 .fillMaxSize()
+                .height(250.dp)
                 .border(
                     width = 1.dp,
                     color = Color.Black,

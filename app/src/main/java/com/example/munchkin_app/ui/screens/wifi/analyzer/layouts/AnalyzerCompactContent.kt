@@ -25,7 +25,7 @@ fun AnalyzerCompactContent(
     storageDestination: List<String>,
     selectedDestinationIndex: Int,
     onDestinationChanged: (Int) -> Unit,
-    wifiNetworks: List<Analyzer.PacketInfo>,
+    wifiNetworks: List<Analyzer.WifiNetwork>,
     channels: List<String>,
     selectedChannel: String,
     onChannelChanged: (String) -> Unit,
@@ -68,6 +68,8 @@ fun AnalyzerCompactContent(
             channels = channels,
             selectedChannel = selectedChannel,
             handleChannelSelection = { channel ->
+                val number = channel.removePrefix("Channel ").toInt()
+                viewModel.setChannel(number)
                 onChannelChanged(channel)
                 handleChannelSelection(channel)
             }
@@ -76,7 +78,7 @@ fun AnalyzerCompactContent(
         ProportionalSpacer(0.02f)
 
         InformationLabel(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier,
             loading = running,
             information = buildString {
                 when {
@@ -93,15 +95,9 @@ fun AnalyzerCompactContent(
                         append(
                             wifiNetworks.joinToString("\n\n") { net ->
                                 buildString {
-                                    appendLine("Packet Number: ${net.packetNumber.takeIf { it != 0} ?: "(No Number)" }}")
-                                    appendLine("Time Stamp: ${net.packetNumber.takeIf { it != 0} ?: "(No Timestamp)" }}")
-                                    appendLine("Capture Length: ${net.captureLen.takeIf { it != 0} ?: "(No Capture)" }}")
-                                    appendLine("Packet Length: ${net.packetLen.takeIf { it != 0} ?: "(No Stamp)" }}")
                                     appendLine("SSID: ${net.ssid.ifBlank { "(No SSID)" }}")
-                                    appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(No channel)"}")
+                                    appendLine(selectedChannel)
                                     appendLine("BSSID: ${net.bssid.ifBlank { "(No BSSID)" }}")
-                                    appendLine("Frame Type: ${net.frameType.takeIf { it != 0 } ?: "(No Frame Type)"}")
-                                    appendLine("Frame Subtype: ${net.frameSubtype.takeIf { it != 0 } ?: "(No Frame Subtype)"}")
                                     appendLine("Destination: ${net.destination.ifBlank { "(No Destination)" }}")
                                     appendLine("Source: ${net.source.ifBlank { "(No Source)" }}")
                                 }
@@ -111,6 +107,8 @@ fun AnalyzerCompactContent(
                 }
             }
         )
+
+        ProportionalSpacer(0.05f)
 
         if (running) {
             StartButton(

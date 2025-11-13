@@ -3,6 +3,8 @@ package com.example.munchkin_app.ui.screens.wifi.captive
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,12 +39,13 @@ fun CaptiveProcessContents(innerPadding: PaddingValues, navController: NavHostCo
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(innerPadding)
+            .verticalScroll(rememberScrollState())
     ) {
         ApplicationTitle("WiFi", "Captive Portal")
 
         ProportionalSpacer(0.03f)
 
-        IndeterminateCircularIndicator(loading, 0.5f, 0.05f)
+        IndeterminateCircularIndicator(loading, 0.4f, 0.04f)
 
         ProportionalSpacer(0.03f)
 

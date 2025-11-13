@@ -58,6 +58,7 @@ class UsbViewModel @Inject constructor(
     fun registerReceiver() = usbHelper.registerReceiver()
     fun unregisterReceiver() = usbHelper.unregisterUsbReceiver()
     fun startAnalyzer() = protobufRepository.startAnalyzer()
+    fun setChannel(channel: Int) = protobufRepository.setAnalyzerChannel(channel)
     fun stopAnalyzer() = protobufRepository.stopAnalyzer()
 
 }

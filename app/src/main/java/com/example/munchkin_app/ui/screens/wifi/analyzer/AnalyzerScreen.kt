@@ -10,7 +10,6 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,7 +76,7 @@ fun AnalyzerContent(
         when {
             // Compact
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
-                    AnalyzerCompactContent(
+                AnalyzerCompactContent(
                     innerPaddingValues = innerPaddingValues,
                     storageDestination = storageDestination,
                     selectedDestinationIndex = selectedDestinationIndex,

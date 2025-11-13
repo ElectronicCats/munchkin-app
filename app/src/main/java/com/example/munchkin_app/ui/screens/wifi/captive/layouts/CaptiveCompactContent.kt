@@ -80,6 +80,13 @@ fun CaptiveCompactContent(
             }
         }
         ProportionalSpacer(0.02f)
+        Text(
+            text = "SETTINGS",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        ProportionalSpacer(0.02f)
         OptionsButtonSegment(
             names = mode,
             selectedIndex = selectedModeIndex,
@@ -114,7 +121,8 @@ fun CaptiveCompactContent(
                 handleChannelSelection(channel)
             }
         )
-        ProportionalSpacer(0.02f)
+        ProportionalSpacer(0.05f)
+
         StartButton(
             text = "Run",
             command = {
