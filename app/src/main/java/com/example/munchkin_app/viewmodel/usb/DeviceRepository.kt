@@ -9,7 +9,7 @@ class DeviceRepository {
     val deviceVersion = MutableStateFlow<String?>(null)
     val deviceStatus = MutableStateFlow(Main.Status.STATUS_UNKNOWN)
     val deviceCounterId = MutableStateFlow<Int?>(null)
-    val wifiNetworks = MutableStateFlow<List<Analyzer.WifiNetwork>>(emptyList())
+    val wifiNetworks = MutableStateFlow<List<Analyzer.PacketInfo>>(emptyList())
     val totalPackets = MutableStateFlow(0)
 
 

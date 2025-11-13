@@ -122,13 +122,13 @@ class ProtobufRepository(
             onResponse = { response ->
                 if (response.hasAnalyzer()) {
                     val analyzerData = response.analyzer
-                    val networks = analyzerData.networksList
+                    val networks = analyzerData.packetsList
                     val totalPackets = analyzerData.totalPacketCount
                     deviceRepo.wifiNetworks.value = networks
                     deviceRepo.totalPackets.value = totalPackets
                     Log.d("ProtobufRepository", "📡 Recibidas ${networks.size} redes Wi-Fi")
                     for (n in networks) {
-                        Log.d("ProtobufRepository", "${n.ssid} - RSSI ${n.rssi}")
+                        Log.d("ProtobufRepository", "${n.ssid}")
                     }
                 } else {
                     Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer'")

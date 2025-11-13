@@ -25,6 +25,7 @@ import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.screens.wifi.analyzer.layouts.AnalyzerCompactContent
 import com.example.munchkin_app.ui.screens.wifi.analyzer.layouts.AnalyzerExpandedContent
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
+import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 
@@ -47,6 +48,7 @@ fun AnalyzerScreen(
 fun AnalyzerContent(
     innerPaddingValues: PaddingValues,
     viewModel: UsbViewModel = hiltViewModel(),
+    screenViewModel: AnalyzerViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
 ){
     val wifiNetworks by viewModel.wifiNetworks.collectAsState()
@@ -55,7 +57,7 @@ fun AnalyzerContent(
     val storageDestination = remember {
         listOf("SD Card", "Internal")
     }
-    var selectedDestinationIndex by remember { mutableIntStateOf(0) }
+    val selectedDestinationIndex by screenViewModel.selectedDestinationIndex.collectAsState()
     var running by remember { mutableStateOf(false)}
 
     // Lista de canales para el dropdown
@@ -66,7 +68,7 @@ fun AnalyzerContent(
             "Channel 13", "Channel 14"
         )
     }
-    var selectedChannel by remember { mutableStateOf(channels.first()) }
+    val selectedChannel by screenViewModel.selectedChannel.collectAsState()
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -79,14 +81,15 @@ fun AnalyzerContent(
                     innerPaddingValues = innerPaddingValues,
                     storageDestination = storageDestination,
                     selectedDestinationIndex = selectedDestinationIndex,
-                    onDestinationChanged = { selectedDestinationIndex = it },
+                    onDestinationChanged = { screenViewModel.updateDestinationIndex(it) },
                     wifiNetworks = wifiNetworks,
                     channels = channels,
                     selectedChannel = selectedChannel,
-                    onChannelChanged = { selectedChannel = it },
+                    onChannelChanged = { screenViewModel.updateChannel(it) },
                     running = running,
                     onToggleRunning = { running = !running },
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    totalPackets = totalPackets
                 )
             }
             // Expanded
@@ -95,11 +98,11 @@ fun AnalyzerContent(
                     innerPaddingValues = innerPaddingValues,
                     storageDestination = storageDestination,
                     selectedDestinationIndex = selectedDestinationIndex,
-                    onDestinationChanged = { selectedDestinationIndex = it },
+                    onDestinationChanged = { screenViewModel.updateDestinationIndex(it)},
                     wifiNetworks = wifiNetworks,
                     channels = channels,
                     selectedChannel = selectedChannel,
-                    onChannelChanged = { selectedChannel = it },
+                    onChannelChanged = { screenViewModel.updateChannel(it) },
                     running = running,
                     onToggleRunning = { running = !running },
                     viewModel = viewModel,
@@ -112,14 +115,15 @@ fun AnalyzerContent(
                     innerPaddingValues = innerPaddingValues,
                     storageDestination = storageDestination,
                     selectedDestinationIndex = selectedDestinationIndex,
-                    onDestinationChanged = { selectedDestinationIndex = it },
+                    onDestinationChanged = { screenViewModel.updateDestinationIndex(it) },
                     wifiNetworks = wifiNetworks,
                     channels = channels,
                     selectedChannel = selectedChannel,
-                    onChannelChanged = { selectedChannel = it },
+                    onChannelChanged = { screenViewModel.updateChannel(it) },
                     running = running,
                     onToggleRunning = { running = !running },
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    totalPackets = totalPackets
                 )
             }
         }

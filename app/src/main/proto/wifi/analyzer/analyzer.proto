@@ -1,20 +1,25 @@
 syntax = "proto3";
 package minino.analyzer;
 
-message AnalyzerStartRequest {
-}
+message AnalyzerStartRequest {}
+message AnalyzerStopRequest {}
+message AnalyzerSetChannelRequest { uint32 channel = 1; }
 
-message AnalyzerStopRequest {
-}
-
-message WifiNetwork {
-  string ssid = 1;
-  string bssid = 2;
-  uint32 channel = 3;
-  int32 rssi = 4;
+message PacketInfo {
+  uint32 packet_number = 1;
+  uint32 timestamp = 2;
+  uint32 capture_len = 3;
+  uint32 packet_len = 4;
+  string ssid = 5;
+  uint32 channel = 6;
+  string bssid = 7;
+  uint32 frame_type = 8;
+  uint32 frame_subtype = 9;
+  string destination = 10;
+  string source = 11;
 }
 
 message AnalyzerData {
-  repeated WifiNetwork networks = 1;
+  repeated PacketInfo packets = 1;
   uint32 total_packet_count = 2;
 }

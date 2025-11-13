@@ -30,7 +30,7 @@ fun AnalyzerExpandedContent(
     storageDestination: List<String>,
     selectedDestinationIndex: Int,
     onDestinationChanged: (Int) -> Unit,
-    wifiNetworks: List<Analyzer.WifiNetwork>,
+    wifiNetworks: List<Analyzer.PacketInfo>,
     channels: List<String>,
     selectedChannel: String,
     onChannelChanged: (String) -> Unit,
@@ -111,26 +111,41 @@ fun AnalyzerExpandedContent(
             ) {
                 InformationLabel(
                     modifier = Modifier.fillMaxSize(),
+                    loading = running,
                     information = buildString {
-                        appendLine("Total packets: $totalPackets")
-                        appendLine()
-
-                        append(
-                            when {
-                                running -> "Escaneando..."
-                                wifiNetworks.isEmpty() -> "No se detectaron redes WiFi."
-                                else -> wifiNetworks.joinToString("\n\n") { net ->
-                                    buildString {
-                                        appendLine("SSID: ${net.ssid.ifBlank { "(sin SSID)" }}")
-                                        appendLine("BSSID: ${net.bssid.ifBlank { "(sin BSSID)" }}")
-                                        appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(sin canal)"}")
-                                        appendLine("RSSI: ${net.rssi.takeIf { it != 0 } ?: "(sin RSSI)"}")
-                                    }
-                                }
+                        when {
+                            running -> {
+                                appendLine("Scanning WiFi networks...")
                             }
-                        )
+                            wifiNetworks.isEmpty() -> {
+                                appendLine("No WiFi networks found.")
+                            }
+                            else -> {
+                                appendLine("Total packets: $totalPackets")
+                                appendLine()
+
+                                append(
+                                    wifiNetworks.joinToString("\n\n") { net ->
+                                        buildString {
+                                            appendLine("Packet Number: ${net.packetNumber.takeIf { it != 0} ?: "(No Number)" }}")
+                                            appendLine("Time Stamp: ${net.packetNumber.takeIf { it != 0} ?: "(No Timestamp)" }}")
+                                            appendLine("Capture Length: ${net.captureLen.takeIf { it != 0} ?: "(No Capture)" }}")
+                                            appendLine("Packet Length: ${net.packetLen.takeIf { it != 0} ?: "(No Stamp)" }}")
+                                            appendLine("SSID: ${net.ssid.ifBlank { "(No SSID)" }}")
+                                            appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(No channel)"}")
+                                            appendLine("BSSID: ${net.bssid.ifBlank { "(No BSSID)" }}")
+                                            appendLine("Frame Type: ${net.frameType.takeIf { it != 0 } ?: "(No Frame Type)"}")
+                                            appendLine("Frame Subtype: ${net.frameSubtype.takeIf { it != 0 } ?: "(No Frame Subtype)"}")
+                                            appendLine("Destination: ${net.destination.ifBlank { "(No Destination)" }}")
+                                            appendLine("Source: ${net.source.ifBlank { "(No Source)" }}")
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 )
+
             }
         }
     }

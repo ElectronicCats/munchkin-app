@@ -21,15 +21,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.munchkin_app.ui.common.ProportionalSpacer
+import com.example.munchkin_app.viewmodel.screens.home.HomeViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 import minino.rpc.Main
 
 @Composable
 fun ConnectionSettingsScreen(
     viewModel: UsbViewModel = hiltViewModel(),
+    screenViewModel: HomeViewModel = hiltViewModel()
 ) {
-    var selectedOption by remember { mutableStateOf(ConnectionOption.SERIAL) }
-    var previousOption by remember { mutableStateOf<ConnectionOption?>(null) }
+    val selectedOption by screenViewModel.selectedOption.collectAsState()
+    val previousOption by screenViewModel.previousOption.collectAsState()
 
     val usbDevices by viewModel.usbDevices.collectAsState()
     val status by viewModel.status.collectAsState()
@@ -55,7 +57,7 @@ fun ConnectionSettingsScreen(
         SingleChoiceSegmentedButton(
             modifier = Modifier.fillMaxWidth(),
             selectedOption = selectedOption,
-            onSelectionChanged = { selectedOption = it },
+            onSelectionChanged = { newOption -> screenViewModel.updateSelectedOption(newOption)},
             connectionStatus = connectionStatus
         )
 
@@ -65,7 +67,6 @@ fun ConnectionSettingsScreen(
             if (previousOption == ConnectionOption.SERIAL && selectedOption != ConnectionOption.SERIAL) {
                 viewModel.disconnectDevice()
             }
-            previousOption = selectedOption
         }
 
         when (selectedOption) {

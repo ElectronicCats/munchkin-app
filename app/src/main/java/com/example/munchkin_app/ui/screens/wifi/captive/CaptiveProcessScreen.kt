@@ -42,7 +42,7 @@ fun CaptiveProcessContents(innerPadding: PaddingValues, navController: NavHostCo
 
         ProportionalSpacer(0.03f)
 
-        IndeterminateCircularIndicator(loading, 0.7f, 0.07f)
+        IndeterminateCircularIndicator(loading, 0.5f, 0.05f)
 
         ProportionalSpacer(0.03f)
 

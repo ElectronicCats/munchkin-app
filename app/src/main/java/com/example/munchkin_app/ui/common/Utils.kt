@@ -114,7 +114,12 @@ fun OptionsButtonSegment(
 }
 
 @Composable
-fun InformationLabel(modifier: Modifier = Modifier, information: String) {
+fun InformationLabel(
+    modifier: Modifier = Modifier,
+    information: String,
+    loading: Boolean = false,
+    loadingText: String = "Scanning..."
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -149,15 +154,38 @@ fun InformationLabel(modifier: Modifier = Modifier, information: String) {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    text = information.ifEmpty { "No networks found" },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
-                )
+                if (loading) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 4.dp
+                        )
+                        ProportionalSpacer(0.01f)
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()),
+                            text = loadingText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                        text = information.ifEmpty { "No networks found" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -201,11 +229,13 @@ fun StartButton(
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun IndeterminateCircularIndicator(loading: Boolean, fraction: Float, stroke: Float) {
-
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
 
-    val circleSize = screenWidth * fraction
+    // 🔧 Usa el lado más corto
+    val baseSize = if (screenWidth < screenHeight) screenWidth else screenHeight
+    val circleSize = baseSize * fraction
 
     if (!loading) return
 
@@ -218,6 +248,7 @@ fun IndeterminateCircularIndicator(loading: Boolean, fraction: Float, stroke: Fl
         strokeWidth = circleSize * stroke
     )
 }
+
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
