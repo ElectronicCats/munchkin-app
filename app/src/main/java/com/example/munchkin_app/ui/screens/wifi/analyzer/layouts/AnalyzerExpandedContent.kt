@@ -128,7 +128,6 @@ fun AnalyzerExpandedContent(
                                     wifiNetworks.joinToString("\n\n") { net ->
                                         buildString {
                                             appendLine("SSID: ${net.ssid.ifBlank { "(No SSID)" }}")
-                                            appendLine("Channel: ${net.channel.takeIf { it != 0 } ?: "(No channel)"}")
                                             appendLine("BSSID: ${net.bssid.ifBlank { "(No BSSID)" }}")
                                             appendLine("Destination: ${net.destination.ifBlank { "(No Destination)" }}")
                                             appendLine("Source: ${net.source.ifBlank { "(No Source)" }}")

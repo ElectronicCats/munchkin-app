@@ -13,6 +13,7 @@ import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
 import com.example.munchkin_app.ui.screens.wifi.captive.CaptivePortalScreen
 import com.example.munchkin_app.ui.screens.wifi.captive.CaptiveProcessScreen
 import com.example.munchkin_app.ui.screens.wifi.deauth.DeauthScreen
+import com.example.munchkin_app.ui.screens.wifi.deauth_scan.DeauthScanScreen
 
 fun NavGraphBuilder.wifiNavGraph(navController: NavHostController) {
     // Pantalla principal WiFi
@@ -51,5 +52,13 @@ fun NavGraphBuilder.wifiNavGraph(navController: NavHostController) {
         exitTransition = scaleOut
     ) {
         DeauthScreen(navController = navController)
+    }
+    //Deauth Scan
+    composable(
+        route = "deauthScan",
+        enterTransition = scaleIn,
+        exitTransition = scaleOut
+    ) {
+        DeauthScanScreen(navController = navController)
     }
 }
