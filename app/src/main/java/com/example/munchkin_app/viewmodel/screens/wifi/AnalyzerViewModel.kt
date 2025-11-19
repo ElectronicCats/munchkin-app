@@ -1,9 +1,5 @@
 package com.example.munchkin_app.viewmodel.screens.wifi
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +12,18 @@ class AnalyzerViewModel @Inject constructor(): ViewModel(){
     val selectedDestinationIndex: StateFlow<Int> = _selectedDestinationIndex
     private val _selectedChannel = MutableStateFlow("Channel 1")
     val selectedChannel: StateFlow<String> = _selectedChannel
+
+    private val _scanChannel = MutableStateFlow<String?>(null)
+    val scanChannel: StateFlow<String?> = _scanChannel
+
+
+    fun setScanChannel(channel: String) {
+        _scanChannel.value = channel
+    }
+
+    fun clearScanChannel() {
+        _scanChannel.value = null
+    }
 
     fun updateDestinationIndex(index: Int) {
         _selectedDestinationIndex.value = index

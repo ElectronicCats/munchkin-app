@@ -14,16 +14,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.screens.wifi.analyzer.layouts.AnalyzerCompactContent
 import com.example.munchkin_app.ui.screens.wifi.analyzer.layouts.AnalyzerExpandedContent
-import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
@@ -86,8 +82,10 @@ fun AnalyzerContent(
                     selectedChannel = selectedChannel,
                     onChannelChanged = { screenViewModel.updateChannel(it) },
                     running = running,
+                    onStopRunning = {running = false},
                     onToggleRunning = { running = !running },
                     viewModel = viewModel,
+                    screenViewModel = screenViewModel,
                     totalPackets = totalPackets
                 )
             }
@@ -104,7 +102,9 @@ fun AnalyzerContent(
                     onChannelChanged = { screenViewModel.updateChannel(it) },
                     running = running,
                     onToggleRunning = { running = !running },
+                    onStopRunning = {running = false},
                     viewModel = viewModel,
+                    screenViewModel = screenViewModel,
                     totalPackets = totalPackets
                 )
             }
@@ -120,8 +120,10 @@ fun AnalyzerContent(
                     selectedChannel = selectedChannel,
                     onChannelChanged = { screenViewModel.updateChannel(it) },
                     running = running,
+                    onStopRunning = {running = false},
                     onToggleRunning = { running = !running },
                     viewModel = viewModel,
+                    screenViewModel = screenViewModel,
                     totalPackets = totalPackets
                 )
             }
@@ -129,6 +131,7 @@ fun AnalyzerContent(
     }
 }
 
+/*
 @Preview(
     name = "Phone Preview",
     showBackground = true,
@@ -152,3 +155,4 @@ fun AnalyzerExpandedPreview(){
         AnalyzerScreen(rememberNavController())
     }
 }
+*/
