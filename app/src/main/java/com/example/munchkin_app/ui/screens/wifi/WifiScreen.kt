@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +53,7 @@ fun WifiHome(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "WiFi",
+            text = stringResource(R.string.wifi_app_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Normal,
             textAlign = TextAlign.Center,
@@ -62,10 +63,10 @@ fun WifiHome(
         )
         AppCardRow(
             navController = navController,
-            titleOne = "Analyzer",
-            textOne = "Scan All Networks Around You",
-            titleTwo = "Captive",
-            textTwo = "Set Up Your Own Captive Portal!",
+            titleOne = stringResource(R.string.wifi_card_title_analyzer),
+            textOne = stringResource(R.string.wifi_card_descriptor_analyzer),
+            titleTwo = stringResource(R.string.wifi_card_title_captive),
+            textTwo = stringResource(R.string.wifi_card_descriptor_captive),
             navRouteOne = "analyzer",
             navRouteTwo = "captive",
             iconOne = R.drawable._4_analyzer,
@@ -76,10 +77,10 @@ fun WifiHome(
         //Deauth and Deauth Scan
         AppCardRow(
             navController = navController,
-            titleOne = "Deauth",
-            textOne = "Deny Access to Users in a Network",
-            titleTwo = "Deauth Scan",
-            textTwo = "Detect Deauth Packets in the Air",
+            titleOne = stringResource(R.string.wifi_card_title_deauth),
+            textOne = stringResource(R.string.wifi_card_descriptor_deauth),
+            titleTwo = stringResource(R.string.wifi_card_title_deauth_scan),
+            textTwo = stringResource(R.string.wifi_card_descriptor_deauth_scan),
             navRouteOne = "deauth",
             navRouteTwo = "deauthScan",
             iconOne = R.drawable._6_deauth,
@@ -90,10 +91,10 @@ fun WifiHome(
         //DOS and SSID Spammer
         AppCardRow(
             navController = navController,
-            titleOne = "DOS",
-            textOne = "Denial of Service in your Network",
-            titleTwo = "SSID Spammer",
-            textTwo = "Spam a great amount of SSIDs",
+            titleOne = stringResource(R.string.wifi_card_title_dos),
+            textOne = stringResource(R.string.wifi_card_descriptor_dos),
+            titleTwo = stringResource(R.string.wifi_card_title_ssid_spammer),
+            textTwo = stringResource(R.string.wifi_card_descriptor_ssid_spammer),
             navRouteOne = "welcome",
             navRouteTwo = "test",
             iconOne = R.drawable._8_dos,
@@ -104,8 +105,8 @@ fun WifiHome(
         //Modbus TCP and additional app (if needed)
         AppCardRow(
             navController = navController,
-            titleOne = "Modbus TCP",
-            textOne = "Audit Any Network Nearby",
+            titleOne = stringResource(R.string.wifi_card_title_modbus_tcp),
+            textOne = stringResource(R.string.wifi_card_descriptor_modbus_tcp),
             titleTwo = "",
             textTwo = "",
             navRouteOne = "welcome",

@@ -73,7 +73,7 @@ fun HomeContent(
         ProportionalSpacer(0.02f)
 
         Text(
-            text = "File Manager",
+            text = stringResource(R.string.home_file_manager),
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
@@ -82,7 +82,7 @@ fun HomeContent(
         )
 
         Text(
-            text = "Access to files in your device",
+            text = stringResource(R.string.home_file_manager_description),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
@@ -117,19 +117,19 @@ fun Storage(modifier: Modifier = Modifier) {
                 contentDescription = "Close"
                 )
                 Text(
-                    text = "Local Storage",
+                    text = stringResource(R.string.home_local_storage),
                     textAlign = TextAlign.Center,
                     modifier = modifier
                 )
             }
 
             Text(
-                text = "Available Space: 100GB",
+                text = stringResource(R.string.home_available_local_storage),
                 textAlign = TextAlign.Center,
                 modifier = modifier
             )
             Text(
-                text = "Used Space: 50GB",
+                text = stringResource(R.string.home_used_local_storage),
                 textAlign = TextAlign.Center,
                 modifier = modifier
             )
@@ -151,19 +151,19 @@ fun Storage(modifier: Modifier = Modifier) {
                     contentDescription = "Close"
                 )
                 Text(
-                    text = "Local Storage",
+                    text = stringResource(R.string.web_storage),
                     textAlign = TextAlign.Center,
                     modifier = modifier
                 )
             }
 
             Text(
-                text = "Available Space: 100GB",
+                text = stringResource(R.string.home_available_web_storage),
                 textAlign = TextAlign.Center,
                 modifier = modifier
             )
             Text(
-                text = "Used Space: 50GB",
+                text = stringResource(R.string.home_used_web_storage),
                 textAlign = TextAlign.Center,
                 modifier = modifier
             )

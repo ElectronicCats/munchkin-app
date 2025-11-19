@@ -74,7 +74,7 @@ private fun CompactContent() {
             modifier = Modifier
                 .size(LocalConfiguration.current.screenHeightDp.dp * 0.4f),
             painter = painterResource(R.drawable.ec_logo),
-            contentDescription = "Logo Electronic Cats",
+            contentDescription = stringResource(R.string.Welcome_one_image),
             tint = Color.White
         )
         // Título
@@ -111,7 +111,7 @@ private fun ExpandedContent() {
             modifier = Modifier
                 .size(LocalConfiguration.current.screenHeightDp.dp * 0.3f),
             painter = painterResource(R.drawable.ec_logo),
-            contentDescription = "Logo Electronic Cats",
+            contentDescription = stringResource(R.string.Welcome_one_image),
             tint = Color.White
         )
         Text(
@@ -130,6 +130,7 @@ private fun ExpandedContent() {
         )
     }
 }
+
 
 @Preview(
     name = "Phone Preview",

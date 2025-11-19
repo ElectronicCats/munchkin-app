@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    //WifiScreen
+    <string name="wifi_app_title">WiFi</string>
+    <string name="wifi_card_title_analyzer">Analyzer</string>
+    <string name="wifi_card_title_captive">Captive</string>
+    <string name="wifi_card_title_deauth">Deauth</string>
+    <string name="wifi_card_title_deauth_scan">Deauth Scan</string>
+    <string name="wifi_card_title_dos">DOS</string>
+    <string name="wifi_card_title_ssid_spammer">SSID Spammer</string>
+    <string name="wifi_card_title_modbus_tcp">Modbus TCP</string>
+    <string name="wifi_card_descriptor_analyzer">Scan All Networks Around You</string>
+    <string name="wifi_card_descriptor_captive">Set Up Your Own Captive Portal!</string>
+    <string name="wifi_card_descriptor_deauth">Deny Access to Users in a Network</string>
+    <string name="wifi_card_descriptor_deauth_scan">Detect Deauth Packets in the Air</string>
+    <string name="wifi_card_descriptor_dos">Denial of Service in your Network</string>
+    <string name="wifi_card_descriptor_ssid_spammer">Spam a great amount of SSIDs</string>
+    <string name="wifi_card_descriptor_modbus_tcp">Audit Any Network Nearby</string>
+
+    //Analyzer
+    <string name="wifi_analyzer_sd_card">SD Card</string>
+    <string name="wifi_analyzer_internal">Internal</string>
+    <string name="wifi_title">WiFi</string>
+    <string name="wifi_analyzer_title_application">Analyzer</string>
+    <string name="wifi_analyzer_storage_destination">Storage Destination</string>
+    <string name="wifi_analyzer_scanning_networks">Scanning WiFi networks...</string>
+    <string name="wifi_analyzer_no_networks">No WiFi networks found.</string>
+    <string name="analyzer_total_packets">Total packets: %1$d</string>
+    <string name="analyzer_stop">Stop</string>
+    <string name="analyzer_start">Start</string>
+    <string name="wifi_network_template">
+        SSID: %1$s\n
+        %2$s\n
+        BSSID: %3$s\n
+        Destination: %4$s\n
+        Source: %5$s
+    </string>
+
+    //Channels
+    <string-array name="wifi_analyzer_channels">
+        <item>Channel 1</item>
+        <item>Channel 2</item>
+        <item>Channel 3</item>
+        <item>Channel 4</item>
+        <item>Channel 5</item>
+        <item>Channel 6</item>
+        <item>Channel 7</item>
+        <item>Channel 8</item>
+        <item>Channel 9</item>
+        <item>Channel 10</item>
+        <item>Channel 11</item>
+        <item>Channel 12</item>
+        <item>Channel 13</item>
+    </string-array>
+</resources>

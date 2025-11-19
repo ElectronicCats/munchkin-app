@@ -17,16 +17,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.InformationLabel
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
+import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.screens.wifi.analyzer.formatWifiNetworks
 import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 import minino.analyzer.Analyzer
@@ -51,6 +55,8 @@ fun AnalyzerExpandedContent(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     val scanChannel by screenViewModel.scanChannel.collectAsState()
+
+    val context = LocalContext.current
 
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -90,8 +96,8 @@ fun AnalyzerExpandedContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ApplicationTitle(
-                    application = "WiFi",
-                    applicationName = "Analyzer"
+                    application = stringResource(R.string.wifi_title),
+                    applicationName = stringResource(R.string.wifi_analyzer_title_application)
                 )
 
                 ProportionalSpacer(0.03f)
@@ -103,7 +109,7 @@ fun AnalyzerExpandedContent(
                         onDestinationChanged(index)
                         handleDestinationSelection(index, name)
                     },
-                    title = "Storage Destination",
+                    title = stringResource(R.string.wifi_analyzer_storage_destination),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -121,7 +127,9 @@ fun AnalyzerExpandedContent(
                 ProportionalSpacer(0.05f)
 
                 StartButton(
-                    text = if (running) "Stop" else "Start",
+                    text = if (running)
+                        stringResource(R.string.analyzer_stop)
+                    else stringResource(R.string.analyzer_start),
                     command = {
                         if (running) {
                             viewModel.stopAnalyzer()
@@ -148,26 +156,16 @@ fun AnalyzerExpandedContent(
                     information = buildString {
                         when {
                             running -> {
-                                appendLine("Scanning WiFi networks...")
+                                appendLine(stringResource(R.string.wifi_analyzer_scanning_networks))
                             }
                             wifiNetworks.isEmpty() -> {
-                                appendLine("No WiFi networks found.")
+                                appendLine(stringResource(R.string.wifi_analyzer_no_networks))
                             }
                             else -> {
-                                appendLine("Total packets: $totalPackets")
+                                appendLine(stringResource(R.string.analyzer_total_packets, totalPackets))
                                 appendLine()
 
-                                append(
-                                    wifiNetworks.joinToString("\n\n") { net ->
-                                        buildString {
-                                            appendLine("SSID: ${net.ssid.ifBlank { "(No SSID)" }}")
-                                            appendLine(scanChannel ?: "(No channel)")
-                                            appendLine("BSSID: ${net.bssid.ifBlank { "(No BSSID)" }}")
-                                            appendLine("Destination: ${net.destination.ifBlank { "(No Destination)" }}")
-                                            appendLine("Source: ${net.source.ifBlank { "(No Source)" }}")
-                                        }
-                                    }
-                                )
+                                append(formatWifiNetworks(context, wifiNetworks, scanChannel))
                             }
                         }
                     }

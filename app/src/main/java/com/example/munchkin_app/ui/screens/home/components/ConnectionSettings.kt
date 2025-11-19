@@ -17,9 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.viewmodel.screens.home.HomeViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
@@ -45,6 +47,9 @@ fun ConnectionSettingsScreen(
 
     val connectionStatus by viewModel.connectionStatus.collectAsState() // 👈 se observa aquí
 
+    val safeDeviceName = deviceName ?: stringResource(R.string.home_loading_name)
+    val safeDeviceVersion = deviceVersion ?: stringResource(R.string.home_null_version)
+    val safeDeviceCounterId = deviceCounterId ?: stringResource(R.string.home_toast_not_connected_default)
     LaunchedEffect(usbDevices) {
         Log.d("Connection", "UI actualizada: usbDevices = $usbDevices, size = ${usbDevices.size}")
     }
@@ -97,8 +102,8 @@ fun ConnectionSettingsScreen(
 
         Text(
             text = if (connectionStatus.equals("Not Connected", ignoreCase = true))
-                ""
-            else "Model: $deviceName\nV${deviceVersion}",
+                stringResource(R.string.home_model_version_empty)
+            else stringResource(R.string.home_model_version_data, safeDeviceName, safeDeviceVersion),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
@@ -108,10 +113,12 @@ fun ConnectionSettingsScreen(
 
         if (deviceStatus == Main.Status.STATUS_OK){
             Toast.makeText(context,
-                "Connected Successfully. ID:$deviceCounterId", Toast.LENGTH_SHORT).show()
+                stringResource(
+                    R.string.home_connected_successfully_id,safeDeviceCounterId),
+                Toast.LENGTH_SHORT).show()
         } else if (deviceStatus == Main.Status.STATUS_ERROR){
             Toast.makeText(context,
-                "Connection Error", Toast.LENGTH_SHORT).show()
+                stringResource(R.string.home_toast_connection_error), Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -11,17 +11,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.R
 
 enum class ConnectionOption(
-    val label: String,
+    val label: Int,
     val icon: Int,
-    val contentDescription: String
+    val contentDescription: Int
 ) {
-    SERIAL("Serial", R.drawable.icon_usb, "Serial connection"),
-    BLUETOOTH("Bluetooth", R.drawable.icon_bluetooth, "Bluetooth connection"),
-    NETWORK("Network", R.drawable.icon_wifi, "Network connection")
+    SERIAL(R.string.home_serial,
+        R.drawable.icon_usb,
+        R.string.home_serial_description),
+    BLUETOOTH(R.string.home_bluetooth,
+        R.drawable.icon_bluetooth,
+        R.string.home_bluetooth_description),
+    NETWORK(R.string.home_network,
+        R.drawable.icon_wifi,
+        R.string.home_network_description)
 }
 
 @Composable
@@ -56,9 +63,11 @@ fun SingleChoiceSegmentedButton(
                 ),
                 onClick = { onSelectionChanged(option) },
                 selected = option == selectedOption,
-                label = { Text(option.label) },
+                label = { Text(stringResource(option.label)) },
                 icon = {
-                    Icon(painterResource(option.icon), contentDescription = option.contentDescription)
+                    Icon(
+                        painter = painterResource(option.icon),
+                        contentDescription = stringResource(option.contentDescription))
                 }
             )
         }

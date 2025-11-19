@@ -28,10 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.InformationLabel
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
+import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
 import com.example.munchkin_app.ui.theme.MunchkinappTheme

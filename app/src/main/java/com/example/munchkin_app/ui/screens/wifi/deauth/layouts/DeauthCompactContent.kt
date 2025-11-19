@@ -22,10 +22,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.InformationLabel
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
+import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
 
 @Composable

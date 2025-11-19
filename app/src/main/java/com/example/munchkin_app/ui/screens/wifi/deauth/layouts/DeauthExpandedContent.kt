@@ -23,15 +23,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.InformationLabel
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
+import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
 
 
@@ -61,12 +62,15 @@ fun DeauthExpandedContent(
                 .verticalScroll(rememberScrollState())
         ) {
 
-            ApplicationTitle("WiFi", "Deauth")
+            ApplicationTitle(
+                application = stringResource(R.string.wifi_title),
+                stringResource(R.string.wifi_deauth_application_name)
+            )
 
             ProportionalSpacer(0.1f)
 
             OptionsButtonSegment(
-                title = "Type of Attack",
+                title = stringResource(R.string.wifi_deauth_attack_type),
                 names = typeOfAttack,
                 selectedIndex = attackIndex,
                 modifier = Modifier.fillMaxWidth(),
@@ -90,9 +94,8 @@ fun DeauthExpandedContent(
                     ProportionalSpacer(0.01f)
                     Text(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
-                        text = "Attack is being executed...",
+                            .fillMaxWidth(),
+                        text = stringResource(R.string.deauth_inprocess),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Black,
                         textAlign = TextAlign.Center

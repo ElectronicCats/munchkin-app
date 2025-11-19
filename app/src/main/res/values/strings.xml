@@ -8,7 +8,7 @@
         different wireless networks, such as WiFi, BLE, and Zigbee. With this application, you can
         communicate and execute commands with your Munchkin device through different ways of connection.
     </string>
-    <string name="Welcome_one_image">Logo Electronic Cats</string>
+    <string name="Welcome_one_image">Electronic Cats Logo</string>
 
     //Welcome Screen2
     <string name="Welcome_two_title">It’s time to begin!</string>
@@ -17,7 +17,7 @@
         Feel free to check the list of compatible devices with this app.\n\n
         https://electroniccats.com/
     </string>
-    <string name="Welcome_two_image"></string>
+    <string name="Welcome_two_image">Sam Waving Hand</string>
 
     //Welcome Screen3
     <string name="Welcome_three_title">ETHICAL USE NOTICE AND LIMITATION OF LIABILITY</string>
@@ -56,7 +56,8 @@
     <string name="NavBar_icon_ble">Bluetooth</string>
     <string name="NavBar_icon_iot">IoT</string>
     <string name="NavBar_icon_scripts">Scripts</string>
+    <string name="wifi_deauth_application_name">Deauth</string>
+    <string name="wifi_deauth_attack_type">Type of Attack</string>
+    <string name="deauth_inprocess">Attack is being executed...</string>
 
-    //!--------------------------// Home Screen \\--------------------------!\\
-    <string name="home_screen_title">Connection</string>
 </resources>

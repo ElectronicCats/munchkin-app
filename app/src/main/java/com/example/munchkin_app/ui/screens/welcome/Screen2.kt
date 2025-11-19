@@ -83,7 +83,7 @@ private fun CompactContent(modifier: Modifier, minSide: Dp){
             //Image
             Image(
                 painter = painterResource(R.drawable._1_sam_saludando),
-                contentDescription = "Sam Waving Hand",
+                contentDescription = stringResource(R.string.Welcome_two_image),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .size(minSide * 0.6f)
@@ -129,7 +129,7 @@ private fun ExpandedContent(modifier: Modifier, minSide: Dp) {
             // Imagen a la izquierda
             Image(
                 painter = painterResource(R.drawable._1_sam_saludando),
-                contentDescription = "Sam Waving Hand",
+                contentDescription = stringResource(R.string.Welcome_two_image),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .size(minSide * 0.5f)
