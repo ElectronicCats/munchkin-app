@@ -119,6 +119,8 @@ fun AnalyzerExpandedContent(
                     channels = channels,
                     selectedChannel = selectedChannel,
                     handleChannelSelection = { channel ->
+                        val number = channel.removePrefix("Channel ").toInt()
+                        viewModel.setChannel(number)
                         onChannelChanged(channel)
                         handleChannelSelection(channel)
                     }

@@ -16,46 +16,63 @@ class ProtobufRepository(
     private val usbManager: UsbManager,
     private val scope: CoroutineScope
 ) {
+    // Mapa para callbacks por messageId
+    private val responseCallbacks = mutableMapOf<Int, (Main.MainResponse) -> Unit>()
+    private var parserInstalled = false  // Flag para instalar solo una vez
+
+    init {
+        // Instalar parser global una sola vez
+        installGlobalProtobufParser()
+    }
 
     // -------------------------------------------------------
     // 🔥 Parser robusto (compatible con nanopb)
     // -------------------------------------------------------
 
-    private fun installProtobufParser(onResponse: (Main.MainResponse) -> Unit) {
-
+    private fun installGlobalProtobufParser() {
         usbHelper.setProtobufCallback { bytes ->
-
             if (bytes.size < 2) return@setProtobufCallback
 
             try {
-                // Nanopb usa length-prefix → parseFrom funciona directo
                 val response = Main.MainResponse.parseFrom(bytes)
+                Log.d("ProtobufRepository", "📩 Respuesta global recibida: $response (messageId: ${response.messageId})")
 
-                Log.d("ProtobufRepository", "📩 Respuesta recibida: $response")
+                if (response.hasAnalyzer()) {
+                    val analyzerData = response.analyzer
+                    val networks = analyzerData.networksList
+                    val totalPackets = analyzerData.totalPacketCount
+                    deviceRepo.wifiNetworks.value = networks
+                    deviceRepo.totalPackets.value = totalPackets
+                    Log.d("ProtobufRepository", "📡 Analyzer actualizado: ${networks.size} redes, ${totalPackets} paquetes")
+                }
 
-                // Estado global
+                // Procesar campos globales
                 deviceRepo.deviceStatus.value = response.status
                 deviceRepo.deviceCounterId.value = response.messageId
 
-                // Entregar respuesta arriba
-                onResponse(response)
-
-                // 🔥 Seguir escuchando después de cada respuesta
-                installProtobufParser(onResponse)
+                // Llamar al callback específico si existe
+                responseCallbacks[response.messageId]?.invoke(response)
+                // Remover el callback después de usarlo (opcional, para evitar leaks)
+                responseCallbacks.remove(response.messageId)
 
             } catch (e: Exception) {
-
-                // Si el frame NO era protobuf → intentar ASCII limpio
-                val ascii = bytes.map { it.toInt().toChar() }
-                    .filter { it.isLetterOrDigit() || it in ". -" }
-                    .joinToString("")
-
-                if (ascii.isNotBlank()) {
-                    usbManager.status.value = ascii
+                Log.e("ProtobufRepository", "ERROR: $e")
+                val ascii = bytes.map { it.toInt().toChar() }.joinToString("")
+                Log.d("ProtobufRepository", "📄 Mensaje ASCII recibido: $ascii")
+                usbManager.status.value = ascii
+                // Workaround: Parsear datos de analyzer desde ASCII si es el caso
+                if (ascii.contains("analyzer_rpc") && ascii.contains("Redes:") && ascii.contains("Paquetes Totales:")) {
+                    val redesMatch = Regex("Redes: (\\d+)").find(ascii)
+                    val paquetesMatch = Regex("Paquetes Totales: (\\d+)").find(ascii)
+                    if (redesMatch != null && paquetesMatch != null) {
+                        val redes = redesMatch.groupValues[1].toIntOrNull() ?: 0
+                        val paquetes = paquetesMatch.groupValues[1].toIntOrNull() ?: 0
+                        // Simular respuesta protobuf (actualizar repositorio)
+                        deviceRepo.totalPackets.value = paquetes
+                        // Para redes, necesitarías una lista simulada o esperar datos reales
+                        Log.d("ProtobufRepository", "🔧 Workaround: Redes=$redes, Paquetes=$paquetes")
+                    }
                 }
-
-                // 🔥 Mantener vivo el parser aunque haya error
-                installProtobufParser(onResponse)
             }
         }
     }
@@ -70,16 +87,18 @@ class ProtobufRepository(
         onResponse: (Main.MainResponse) -> Unit = {}
     ) {
         if (!usbHelper.ensurePortOpen { usbManager.status.value = it }) return
-
-        // Siempre activar parser antes del request
-        installProtobufParser(onResponse)
-
-        // Construir el mensaje
+        // Instalar parser global solo la primera vez
+        if (!parserInstalled) {
+            installGlobalProtobufParser()
+            parserInstalled = true
+        }
+        // Registrar el callback para este messageId
+        responseCallbacks[messageId] = onResponse
+        // Construir y enviar el mensaje
         val request = Main.MainRequest.newBuilder()
             .setMessageId(messageId)
             .apply(requestBuilder)
             .build()
-
         usbHelper.writeToSerial(request) { usbManager.status.value = it }
     }
 
