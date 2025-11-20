@@ -3,11 +3,12 @@ package com.example.munchkin_app.viewmodel.usb
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import minino.rpc.Main
-import com.example.munchkin_app.data.usb.UsbHelper
 import kotlinx.coroutines.delay
+import minino.rpc.Main
 import minino.about.About
 import minino.analyzer.Analyzer
+import minino.deauth.Deauth
+import com.example.munchkin_app.data.usb.UsbHelper
 
 class ProtobufRepository(
     private val usbHelper: UsbHelper,
@@ -16,9 +17,53 @@ class ProtobufRepository(
     private val scope: CoroutineScope
 ) {
 
-    /**
-     * Envia un request Protobuf configurable y maneja su respuesta.
-     */
+    // -------------------------------------------------------
+    // 🔥 Parser robusto (compatible con nanopb)
+    // -------------------------------------------------------
+
+    private fun installProtobufParser(onResponse: (Main.MainResponse) -> Unit) {
+
+        usbHelper.setProtobufCallback { bytes ->
+
+            if (bytes.size < 2) return@setProtobufCallback
+
+            try {
+                // Nanopb usa length-prefix → parseFrom funciona directo
+                val response = Main.MainResponse.parseFrom(bytes)
+
+                Log.d("ProtobufRepository", "📩 Respuesta recibida: $response")
+
+                // Estado global
+                deviceRepo.deviceStatus.value = response.status
+                deviceRepo.deviceCounterId.value = response.messageId
+
+                // Entregar respuesta arriba
+                onResponse(response)
+
+                // 🔥 Seguir escuchando después de cada respuesta
+                installProtobufParser(onResponse)
+
+            } catch (e: Exception) {
+
+                // Si el frame NO era protobuf → intentar ASCII limpio
+                val ascii = bytes.map { it.toInt().toChar() }
+                    .filter { it.isLetterOrDigit() || it in ". -" }
+                    .joinToString("")
+
+                if (ascii.isNotBlank()) {
+                    usbManager.status.value = ascii
+                }
+
+                // 🔥 Mantener vivo el parser aunque haya error
+                installProtobufParser(onResponse)
+            }
+        }
+    }
+
+    // -------------------------------------------------------
+    // 🔥 Request general reutilizable
+    // -------------------------------------------------------
+
     fun sendRequest(
         messageId: Int = 1,
         requestBuilder: Main.MainRequest.Builder.() -> Unit,
@@ -26,32 +71,10 @@ class ProtobufRepository(
     ) {
         if (!usbHelper.ensurePortOpen { usbManager.status.value = it }) return
 
-        // Configurar callback de lectura
-        usbHelper.setProtobufCallback { bytes ->
-            if (bytes.size < 5) return@setProtobufCallback
+        // Siempre activar parser antes del request
+        installProtobufParser(onResponse)
 
-            try {
-                val response = Main.MainResponse.parseFrom(bytes)
-                Log.d("ProtobufRepository", "✅ Respuesta recibida: $response")
-
-                // Actualizar estado general
-                deviceRepo.deviceStatus.value = response.status
-                deviceRepo.deviceCounterId.value = response.messageId
-
-                // Callback para el usuario (UI o lógica externa)
-                onResponse(response)
-
-            } catch (_: Exception) {
-                val ascii = bytes.map { it.toInt().toChar() }
-                    .filter { it.isLetterOrDigit() || it in ". -" }
-                    .joinToString("")
-                if (ascii.isNotBlank()) {
-                    usbManager.status.value = ascii
-                }
-            }
-        }
-
-        // Construir el request
+        // Construir el mensaje
         val request = Main.MainRequest.newBuilder()
             .setMessageId(messageId)
             .apply(requestBuilder)
@@ -60,9 +83,10 @@ class ProtobufRepository(
         usbHelper.writeToSerial(request) { usbManager.status.value = it }
     }
 
-    /**
-     * Ejemplo de uso: request específico para "About"
-     */
+    // -------------------------------------------------------
+    // 🔥 Request: About Info
+    // -------------------------------------------------------
+
     fun requestAboutInfo() {
         sendRequest(
             messageId = 1,
@@ -81,9 +105,7 @@ class ProtobufRepository(
         )
     }
 
-    /**
-     * Ejemplo de reintento automático (idéntico al tuyo actual)
-     */
+    // Igual que la tuya, no se cambia nada
     fun requestAboutInfoRepeatedly() {
         scope.launch {
             if (deviceRepo.deviceName.value != null &&
@@ -92,6 +114,7 @@ class ProtobufRepository(
             var attempts = 0
             while ((deviceRepo.deviceName.value == null ||
                         deviceRepo.deviceVersion.value == null) && attempts < 5) {
+
                 Log.d("UsbViewModel", "Intento #$attempts de obtener AboutInfo")
                 requestAboutInfo()
                 attempts++
@@ -100,6 +123,10 @@ class ProtobufRepository(
         }
     }
 
+    // -------------------------------------------------------
+    // 🔥 Analyzer
+    // -------------------------------------------------------
+
     fun startAnalyzer() {
         sendRequest(
             messageId = 2,
@@ -107,8 +134,7 @@ class ProtobufRepository(
                 setAnalyzerStart(Analyzer.AnalyzerStartRequest.getDefaultInstance())
             },
             onResponse = { response ->
-                Log.d("ProtobufRepository", "✅ Respuesta recibida:\n$response")
-                Log.d("ProtobufRepository", "🧩 whichPayload=${response.payloadCase.name} status=${response.status}")
+                Log.d("ProtobufRepository", "📡 startAnalyzer -> Recibido: ${response.payloadCase}")
             }
         )
     }
@@ -137,18 +163,40 @@ class ProtobufRepository(
                     val analyzerData = response.analyzer
                     val networks = analyzerData.networksList
                     val totalPackets = analyzerData.totalPacketCount
+
                     deviceRepo.wifiNetworks.value = networks
                     deviceRepo.totalPackets.value = totalPackets
-                    Log.d("ProtobufRepository", "📡 Recibidas ${networks.size} redes Wi-Fi")
-                    for (n in networks) {
-                        Log.d("ProtobufRepository", "${n.ssid}")
-                    }
+
+                    Log.d("ProtobufRepository", "📡 Redes: ${networks.size}")
                 } else {
-                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'analyzer'")
+                    Log.w("ProtobufRepository", "⚠️ Respuesta sin 'analyzer'")
                 }
             }
         )
     }
 
+    // -------------------------------------------------------
+    // 🔥 Deauth Scan
+    // -------------------------------------------------------
 
+    fun startDeauthScan() {
+        sendRequest(
+            messageId = 4,
+            requestBuilder = {
+                setDeauthScan(Deauth.DeauthScanRequest.getDefaultInstance())
+            },
+            onResponse = { response ->
+                if (response.hasDeauthScanResults()) {
+                    val results = response.deauthScanResults
+                    val networks = results.apsList
+
+                    deviceRepo.deauthNetworks.value = networks
+
+                    Log.d("ProtobufRepository", "📡 Deauth -> ${networks.size} redes")
+                } else {
+                    Log.w("ProtobufRepository", "⚠️ Respuesta sin campo 'deauth'")
+                }
+            }
+        )
+    }
 }

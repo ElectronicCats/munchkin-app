@@ -3,7 +3,7 @@ package minino.rpc;
 
 import "about/about.proto";
 import "wifi/analyzer/analyzer.proto";
-
+import "wifi/deauth/deauth.proto";
 enum Status {
   STATUS_UNKNOWN = 0;
   STATUS_OK = 1;
@@ -16,10 +16,18 @@ message MainRequest {
   Status status = 101;
 
   oneof payload {
+    // about mesagges
     minino.about.AboutRequest about = 1;
+    // analyzer messages
     minino.analyzer.AnalyzerStartRequest analyzer_start = 2;
     minino.analyzer.AnalyzerStopRequest analyzer_stop = 3;
     minino.analyzer.AnalyzerSetChannelRequest analyzer_set_channel = 4;
+    // deauth mess
+    minino.deauth.DeauthScanRequest deauth_scan = 5;
+    minino.deauth.DeauthSelectTargetRequest deauth_select_target = 6;
+    minino.deauth.DeauthSetAttackRequest deauth_set_attack = 7;
+    minino.deauth.DeauthStartAttackRequest deauth_start = 8;
+    minino.deauth.DeauthStopRequest deauth_stop = 9;
   }
 }
 
@@ -30,5 +38,6 @@ message MainResponse {
   oneof payload {
     minino.about.AboutResponse about = 1;
     minino.analyzer.AnalyzerData analyzer = 2;
+    minino.deauth.DeauthScanResults deauth_scan_results = 5;
   }
 }

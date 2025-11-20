@@ -34,6 +34,7 @@ import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 
 @Composable
@@ -41,6 +42,7 @@ fun DeauthExpandedContent(
     innerPadding: PaddingValues,
     typeOfAttack: List<String>,
     attackIndex: Int,
+    viewModel: UsbViewModel,
     screenViewModel: DeauthViewModel,
     running: Boolean,
     onToggleRunning: () -> Unit,
@@ -126,7 +128,7 @@ fun DeauthExpandedContent(
             )
 
             FloatingActionButton(
-                onClick = { /* Acción */ },
+                onClick = { viewModel.startDeauthScan() },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(x = (-10).dp, y = floatingX)
