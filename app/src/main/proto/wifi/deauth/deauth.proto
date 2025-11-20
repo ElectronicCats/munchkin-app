@@ -1,0 +1,31 @@
+syntax = "proto3";
+package minino.deauth;
+
+
+message DeauthAP {
+  string ssid = 1;
+  string bssid = 2;
+}
+
+message DeauthScanResults {
+  repeated DeauthAP aps = 1;
+  uint32 count = 2;
+}
+message DeauthScanRequest {}
+message DeauthStopRequest {}
+
+message DeauthSelectTargetRequest {
+  string bssid = 1;
+}
+
+enum DeauthAttackType {
+  DEAUTH_TYPE_BROADCAST = 0;
+  DEAUTH_TYPE_ROGUE_AP = 1;
+  DEAUTH_TYPE_COMBINED = 2;
+}
+
+message DeauthSetAttackRequest {
+  DeauthAttackType type = 1;
+}
+
+message DeauthStartAttackRequest {}

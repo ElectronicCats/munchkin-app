@@ -2,6 +2,7 @@ package com.example.munchkin_app.viewmodel.usb
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import minino.analyzer.Analyzer
+import minino.deauth.Deauth
 import minino.rpc.Main
 
 class DeviceRepository {
@@ -11,6 +12,8 @@ class DeviceRepository {
     val deviceCounterId = MutableStateFlow<Int?>(null)
     val wifiNetworks = MutableStateFlow<List<Analyzer.WifiNetwork>>(emptyList())
     val totalPackets = MutableStateFlow(0)
+
+    val apList = MutableStateFlow<List<Deauth.DeauthAP>>(emptyList())
 
 
     fun clear() {

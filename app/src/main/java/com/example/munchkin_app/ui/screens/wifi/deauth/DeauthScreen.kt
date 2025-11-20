@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
@@ -26,6 +27,7 @@ import com.example.munchkin_app.ui.screens.wifi.deauth.layouts.DeauthCompactCont
 import com.example.munchkin_app.ui.screens.wifi.deauth.layouts.DeauthExpandedContent
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 @Composable
 fun DeauthScreen(navController: NavHostController) {
@@ -37,6 +39,7 @@ fun DeauthScreen(navController: NavHostController) {
 @Composable
 fun DeauthContents(
     innerPadding: PaddingValues,
+    viewModel: UsbViewModel = hiltViewModel(),
     screenViewModel: DeauthViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
 ) {
@@ -90,6 +93,7 @@ fun DeauthContents(
                     floatingX = floatingX,
                     typeOfAttack = typeOfAttack,
                     attackIndex = attackIndex,
+                    viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
                     onToggleRunning = { running = !running }

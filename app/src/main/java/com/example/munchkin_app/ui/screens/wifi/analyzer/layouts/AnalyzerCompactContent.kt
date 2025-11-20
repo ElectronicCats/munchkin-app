@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -24,11 +28,12 @@ import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
-import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.common.components.DisplayCardContainer
 import com.example.munchkin_app.ui.screens.wifi.analyzer.formatWifiNetworks
 import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 import minino.analyzer.Analyzer
+import kotlin.text.ifEmpty
 
 @Composable
 fun AnalyzerCompactContent(
@@ -113,10 +118,11 @@ fun AnalyzerCompactContent(
 
         ProportionalSpacer(0.02f)
 
-        InformationLabel(
+        DisplayCardContainer(
             modifier = Modifier,
             loading = running,
-            information = buildString {
+        ) {
+            val information = buildString {
                 when {
                     running -> {
                         appendLine(stringResource(R.string.wifi_analyzer_scanning_networks))
@@ -132,7 +138,17 @@ fun AnalyzerCompactContent(
                     }
                 }
             }
-        )
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                text = information.ifEmpty { "No networks found" },
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+        }
 
         ProportionalSpacer(0.05f)
 

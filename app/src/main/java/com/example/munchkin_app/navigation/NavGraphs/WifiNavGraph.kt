@@ -45,7 +45,7 @@ fun NavGraphBuilder.wifiNavGraph(navController: NavHostController) {
     composable(
         route = "captiveProcess",
     ) { CaptiveProcessScreen(navController = navController) }
-    //Deauth
+    //deauth
     composable(
         route = "deauth",
         enterTransition = scaleIn,
@@ -53,7 +53,7 @@ fun NavGraphBuilder.wifiNavGraph(navController: NavHostController) {
     ) {
         DeauthScreen(navController = navController)
     }
-    //Deauth Scan
+    //deauth Scan
     composable(
         route = "deauthScan",
         enterTransition = scaleIn,

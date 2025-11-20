@@ -74,7 +74,7 @@ fun WifiHome(
             enableOne = true,
             enableTwo = true
         )
-        //Deauth and Deauth Scan
+        //deauth and deauth Scan
         AppCardRow(
             navController = navController,
             titleOne = stringResource(R.string.wifi_card_title_deauth),

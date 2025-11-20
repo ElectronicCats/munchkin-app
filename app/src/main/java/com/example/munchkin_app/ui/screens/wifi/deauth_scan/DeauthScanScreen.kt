@@ -31,7 +31,7 @@ import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
-import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.common.components.DisplayCardContainer
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
 import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
@@ -62,7 +62,7 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
             .padding(innerPaddingValues)
             .verticalScroll(rememberScrollState())
     ) {
-        ApplicationTitle("WiFi", "Deauth Scan")
+        ApplicationTitle("WiFi", "deauth Scan")
 
         ProportionalSpacer(0.03f)
 
@@ -108,10 +108,9 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
 
         ProportionalSpacer(0.03f)
 
-        InformationLabel(
-            information = "Deauth Scan Information",
+        DisplayCardContainer(
             loading = false,
-            loadingText = "Loading Deauth Scan Information..."
+            loadingText = "Loading deauth Scan Information..."
         )
 
         ProportionalSpacer(0.03f)

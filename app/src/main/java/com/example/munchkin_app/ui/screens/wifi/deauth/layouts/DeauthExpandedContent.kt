@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,13 +29,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
-import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.common.components.DisplayCardContainer
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 
 @Composable
@@ -42,11 +46,16 @@ fun DeauthExpandedContent(
     typeOfAttack: List<String>,
     attackIndex: Int,
     screenViewModel: DeauthViewModel,
+    viewModel: UsbViewModel,
     running: Boolean,
     onToggleRunning: () -> Unit,
     floatingX: Dp,
     floatingSize: Dp,
 ) {
+
+    // 💡 CORRECCIÓN 1: Se usa apList (lista de APs de Deauth) en lugar de wifiNetworks (lista de Analyzer)
+    val aps by viewModel.deauthNetworks.collectAsState()
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -119,14 +128,19 @@ fun DeauthExpandedContent(
                 .fillMaxHeight()
                 .padding(16.dp)
         ) {
-            InformationLabel(
+            DisplayCardContainer(
                 modifier = Modifier.fillMaxSize(),
-                information = "Attack is running",
                 loadingText = "Loading..."
-            )
+            ) {
+                // 💡 CORRECCIÓN 1: Se itera sobre 'aps'
+                aps.forEach { n ->
+                    Text(n.ssid + n.bssid,)
+                }
+            }
 
             FloatingActionButton(
-                onClick = { /* Acción */ },
+                // 💡 CORRECCIÓN 2: Se llama a la función correcta de escaneo de Deauth
+                onClick = { viewModel.requestDeauthScan()},
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(x = (-10).dp, y = floatingX)

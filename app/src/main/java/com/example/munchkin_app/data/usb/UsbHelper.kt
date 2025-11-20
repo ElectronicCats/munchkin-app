@@ -39,6 +39,9 @@ class UsbHelper @Inject constructor(@param:ApplicationContext private val contex
 
     var onUsbPermissionGranted: (() -> Unit)? = null
 
+    // 💡 FIX: Variable para almacenar la función de callback de Protobuf
+    private var protobufCallback: ((ByteArray) -> Unit)? = null
+
     // --- Receiver para permisos y eventos USB ---
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -90,7 +93,9 @@ class UsbHelper @Inject constructor(@param:ApplicationContext private val contex
         return drivers.map { DeviceListEntry(it.device, it.device.deviceName) }
     }
 
+    // 💡 FIX: Almacena el callback, y si el manager ya existe, lo aplica
     fun setProtobufCallback(callback: (ByteArray) -> Unit) {
+        this.protobufCallback = callback
         serialManager?.onProtobufReceived = callback
     }
 
@@ -101,7 +106,7 @@ class UsbHelper @Inject constructor(@param:ApplicationContext private val contex
             addAction(ACTION_USB_DETACHED)
         }
         ContextCompat.registerReceiver(context, usbReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
-        Log.d(TAG, "Receiver registrado exitosamente")  // 👈 Agrega este log
+        Log.d(TAG, "Receiver registrado exitosamente")
     }
 
     fun unregisterUsbReceiver() {
@@ -150,6 +155,8 @@ class UsbHelper @Inject constructor(@param:ApplicationContext private val contex
         serialManager = UsbSerialManager(p, conn).apply {
             onStatus = { msg -> onStatusChanged(msg) }
             onError = { err -> onStatusChanged("USB Error: $err") }
+            // 💡 FIX: Asignamos el callback almacenado
+            onProtobufReceived = protobufCallback
             startReading()
         }
 

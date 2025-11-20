@@ -28,11 +28,11 @@ import com.example.munchkin_app.ui.common.ProportionalSpacer
 
 
 @Composable
-fun InformationLabel(
+fun DisplayCardContainer(
     modifier: Modifier = Modifier,
-    information: String,
     loading: Boolean = false,
-    loadingText: String = "Scanning..."
+    loadingText: String = "Scanning...",
+    content: @Composable () -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -91,15 +91,7 @@ fun InformationLabel(
                         )
                     }
                 } else {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
-                        text = information.ifEmpty { "No networks found" },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center
-                    )
+                    content()
                 }
             }
         }

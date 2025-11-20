@@ -20,13 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
-import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.common.components.DisplayCardContainer
+
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 @Composable
 fun DeauthCompactContent(
@@ -35,6 +38,7 @@ fun DeauthCompactContent(
     floatingSize: Dp,
     typeOfAttack: List<String>,
     attackIndex: Int,
+    viewModel: UsbViewModel = hiltViewModel(),
     screenViewModel: DeauthViewModel,
     running: Boolean,
     onToggleRunning: () -> Unit,
@@ -44,7 +48,7 @@ fun DeauthCompactContent(
             .verticalScroll(rememberScrollState())
     ){
 
-        ApplicationTitle("WiFi", "Deauth")
+        ApplicationTitle("WiFi", "deauth")
 
         ProportionalSpacer(0.03f)
 
@@ -67,9 +71,8 @@ fun DeauthCompactContent(
                 .fillMaxWidth()
                 .height(250.dp)
         ){
-            InformationLabel(
+            DisplayCardContainer(
                 modifier = Modifier,
-                information = "Attack is running",
                 loadingText = "Loading..."
             )
 

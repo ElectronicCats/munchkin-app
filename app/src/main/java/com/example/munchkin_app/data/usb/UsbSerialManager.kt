@@ -141,6 +141,8 @@ class UsbSerialManager(
             Log.d(TAG, "📥 Mensaje completo (${msgBytes.size} bytes): ${msgBytes.joinToString(" ") { "%02X".format(it) }}")
             onStatus?.invoke("Connection OK, received [${msgBytes.size} bytes]")
             try {
+
+                // 📞 ¡ESTO AHORA DEBE SER LLAMADO!
                 onProtobufReceived?.invoke(msgBytes)
             } catch (e: Exception) {
                 Log.e(TAG, "Error en onProtobufReceived: ${e.message}", e)
