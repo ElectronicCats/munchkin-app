@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +32,6 @@ import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
 import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
-import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 @Composable
@@ -103,7 +101,7 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
         ChannelDropMenu(
             channels = channels,
             selectedChannel = selectedChannel,
-            handleChannelSelection = {it}
+            handleChannelSelection = {}
             )
 
         ProportionalSpacer(0.03f)
@@ -114,8 +112,7 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
         ) {
             Text(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
+                    .fillMaxWidth(),
                 text = "Deauth Scan Information",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Black,

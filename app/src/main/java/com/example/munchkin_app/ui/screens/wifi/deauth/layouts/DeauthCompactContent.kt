@@ -57,7 +57,7 @@ fun DeauthCompactContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            onSelectionChanged = {index, name ->
+            onSelectionChanged = { index, _ ->
                 screenViewModel.updateAttackIndex(index)
             }
         )

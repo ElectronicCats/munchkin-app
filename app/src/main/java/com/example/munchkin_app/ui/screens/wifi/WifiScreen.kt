@@ -96,7 +96,7 @@ fun WifiHome(
             titleTwo = stringResource(R.string.wifi_card_title_ssid_spammer),
             textTwo = stringResource(R.string.wifi_card_descriptor_ssid_spammer),
             navRouteOne = "welcome",
-            navRouteTwo = "test",
+            navRouteTwo = "ssidspammer",
             iconOne = R.drawable._8_dos,
             iconTwo = R.drawable._9_spammer,
             enableOne = true,

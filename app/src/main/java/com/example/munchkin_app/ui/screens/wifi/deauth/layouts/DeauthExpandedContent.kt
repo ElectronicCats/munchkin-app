@@ -43,7 +43,6 @@ import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.InformationLabel
-import com.example.munchkin_app.ui.screens.wifi.analyzer.formatWifiNetworks
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
@@ -91,7 +90,7 @@ fun DeauthExpandedContent(
                 names = typeOfAttack,
                 selectedIndex = attackIndex,
                 modifier = Modifier.fillMaxWidth(),
-                onSelectionChanged = { index, name ->
+                onSelectionChanged = { index, _ ->
                     viewModel.setAttackType(index)
                     screenViewModel.updateAttackIndex(index)
                 }
@@ -124,7 +123,7 @@ fun DeauthExpandedContent(
             ProportionalSpacer(0.1f)
             StartButton(
                 text = if (running) "Stop" else "Start",
-                command = { onToggleRunning();
+                command = { onToggleRunning()
                     if (!running)
                         viewModel.startDeauthAttack()
                     else viewModel.deauthStopAttackRequest()}
