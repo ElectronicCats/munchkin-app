@@ -13,11 +13,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.R
@@ -69,9 +71,18 @@ fun DeauthCompactContent(
         ){
             InformationLabel(
                 modifier = Modifier,
-                information = "Attack is running",
                 loadingText = "Loading..."
-            )
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    text = "Attack is running",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
 
             FloatingActionButton(
                 onClick = { /* Acción del botón */ },

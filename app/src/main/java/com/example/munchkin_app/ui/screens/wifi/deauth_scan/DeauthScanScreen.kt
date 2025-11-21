@@ -109,10 +109,19 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
         ProportionalSpacer(0.03f)
 
         InformationLabel(
-            information = "Deauth Scan Information",
             loading = false,
             loadingText = "Loading Deauth Scan Information..."
-        )
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                text = "Deauth Scan Information",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+        }
 
         ProportionalSpacer(0.03f)
 

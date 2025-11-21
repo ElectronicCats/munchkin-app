@@ -160,7 +160,7 @@ class ProtobufRepository(
 
     fun setAnalyzerChannel(channel: Int) {
         sendRequest(
-            messageId = 11,
+            messageId = 3,
             requestBuilder = {
                 setAnalyzerSetChannel(
                     Analyzer.AnalyzerSetChannelRequest.newBuilder()
@@ -173,7 +173,7 @@ class ProtobufRepository(
 
     fun stopAnalyzer() {
         sendRequest(
-            messageId = 3,
+            messageId = 4,
             requestBuilder = {
                 setAnalyzerStop(Analyzer.AnalyzerStopRequest.getDefaultInstance())
             },
@@ -200,7 +200,7 @@ class ProtobufRepository(
 
     fun startDeauthScan() {
         sendRequest(
-            messageId = 4,
+            messageId = 5,
             requestBuilder = {
                 setDeauthScan(Deauth.DeauthScanRequest.getDefaultInstance())
             },
@@ -218,4 +218,58 @@ class ProtobufRepository(
             }
         )
     }
+
+    fun setNetwork(bssid: String){
+        sendRequest(
+            messageId = 6,
+            requestBuilder = {
+                setDeauthSelectTarget(Deauth.DeauthSelectTargetRequest.newBuilder()
+                    .setBssid(bssid)
+                    .build()
+                )
+            },
+            onResponse = {Log.d("Deauth", "Network selected $bssid")}
+        )
+    }
+
+    fun setAttackType(index: Int) {
+        val protoType = when (index) {
+            0 -> Deauth.DeauthAttackType.DEAUTH_TYPE_BROADCAST
+            1 -> Deauth.DeauthAttackType.DEAUTH_TYPE_ROGUE_AP
+            2 -> Deauth.DeauthAttackType.DEAUTH_TYPE_COMBINED
+            else -> Deauth.DeauthAttackType.DEAUTH_TYPE_BROADCAST
+        }
+
+        sendRequest(
+            messageId = 7,
+            requestBuilder = {
+                setDeauthSetAttack(Deauth.DeauthSetAttackRequest.newBuilder()
+                    .setType(protoType)
+                    .build()
+                )
+            },
+            onResponse = {Log.d("Deauth", "Attack type set to $protoType")}
+        )
+    }
+
+    fun deauthStartAttackRequest() {
+        sendRequest(
+            messageId = 8,
+            requestBuilder = {
+                setDeauthStart(Deauth.DeauthStartAttackRequest.getDefaultInstance())
+            },
+            onResponse = {Log.d("Deauth", "Attack started")}
+        )
+    }
+
+    fun deauthStopAttackRequest() {
+        sendRequest(
+            messageId = 8,
+            requestBuilder = {
+                setDeauthStop(Deauth.DeauthStopRequest.getDefaultInstance())
+            },
+            onResponse = {Log.d("Deauth", "Attack started")}
+        )
+    }
+
 }

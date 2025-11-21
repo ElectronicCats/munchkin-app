@@ -11,14 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -153,25 +156,33 @@ fun AnalyzerExpandedContent(
                 horizontalAlignment = Alignment.Start
             ) {
                 InformationLabel(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier,
                     loading = running,
-                    information = buildString {
-                        when {
-                            running -> {
-                                appendLine(stringResource(R.string.wifi_analyzer_scanning_networks))
-                            }
-                            wifiNetworks.isEmpty() -> {
-                                appendLine(stringResource(R.string.wifi_analyzer_no_networks))
-                            }
-                            else -> {
-                                appendLine(stringResource(R.string.analyzer_total_packets, totalPackets))
-                                appendLine()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = buildString {
+                            when {
+                                running -> {
+                                    appendLine(stringResource(R.string.wifi_analyzer_scanning_networks))
+                                }
+                                wifiNetworks.isEmpty() -> {
+                                    appendLine(stringResource(R.string.wifi_analyzer_no_networks))
+                                }
+                                else -> {
+                                    appendLine(stringResource(R.string.analyzer_total_packets, totalPackets))
+                                    appendLine()
 
-                                append(formatWifiNetworks(context, wifiNetworks, scanChannel))
+                                    append(formatWifiNetworks(context, wifiNetworks, scanChannel))
+                                }
                             }
-                        }
-                    }
-                )
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
             }
         }

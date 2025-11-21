@@ -1,5 +1,8 @@
 package com.example.munchkin_app.ui.screens.wifi.deauth.layouts
 
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +16,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +43,7 @@ import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.screens.wifi.analyzer.formatWifiNetworks
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
@@ -49,6 +60,10 @@ fun DeauthExpandedContent(
     floatingX: Dp,
     floatingSize: Dp,
 ) {
+    val networks by viewModel.deauthNetworks.collectAsState()
+    var selectedNetwork by remember { mutableStateOf<String?>(null) }
+    var bssidNetwork by remember { mutableStateOf<String?>(null) }
+    
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -77,6 +92,7 @@ fun DeauthExpandedContent(
                 selectedIndex = attackIndex,
                 modifier = Modifier.fillMaxWidth(),
                 onSelectionChanged = { index, name ->
+                    viewModel.setAttackType(index)
                     screenViewModel.updateAttackIndex(index)
                 }
             )
@@ -108,7 +124,10 @@ fun DeauthExpandedContent(
             ProportionalSpacer(0.1f)
             StartButton(
                 text = if (running) "Stop" else "Start",
-                command = { onToggleRunning() }
+                command = { onToggleRunning();
+                    if (!running)
+                        viewModel.startDeauthAttack()
+                    else viewModel.deauthStopAttackRequest()}
             )
 
             ProportionalSpacer(0.1f)
@@ -123,9 +142,41 @@ fun DeauthExpandedContent(
         ) {
             InformationLabel(
                 modifier = Modifier.fillMaxSize(),
-                information = "Attack is running",
                 loadingText = "Loading..."
-            )
+            ) {
+
+                networks.forEach { network ->
+                    val isSelected = selectedNetwork == network.ssid
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedNetwork = network.ssid
+                                bssidNetwork = network.bssid
+                                Log.d("Deauth","$selectedNetwork\n$bssidNetwork")
+                                viewModel.setDeauthTarget(network.bssid)
+                                       },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected) Color(0xFFB2FFB2) else Color(0xfff1f3f4),
+                            contentColor = Color.Black
+                        ),
+                        border = BorderStroke(1.dp, Color.Black),
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            text = network.ssid.drop(2),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    ProportionalSpacer(0.01f)
+                }
+            }
 
             FloatingActionButton(
                 onClick = { viewModel.startDeauthScan() },
