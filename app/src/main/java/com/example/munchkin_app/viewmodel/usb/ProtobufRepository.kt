@@ -233,6 +233,7 @@ class ProtobufRepository(
     }
 
     fun setAttackType(index: Int) {
+        Log.d("Repo", "Repo index = $index")
         val protoType = when (index) {
             0 -> Deauth.DeauthAttackType.DEAUTH_TYPE_BROADCAST
             1 -> Deauth.DeauthAttackType.DEAUTH_TYPE_ROGUE_AP

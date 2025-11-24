@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -55,12 +57,15 @@ fun AnalyzerCompactContent(
 
     val scanChannel by screenViewModel.scanChannel.collectAsState()
 
+    val showStoppedMessage = remember { mutableStateOf(false) }
+
     val context = LocalContext.current
 
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
                 onStopRunning()
+                showStoppedMessage.value = true
                 viewModel.stopAnalyzer()
             }
         }
@@ -70,6 +75,7 @@ fun AnalyzerCompactContent(
         onDispose {
             lifecycle.removeObserver(observer)
             onStopRunning()
+            showStoppedMessage.value = true
             viewModel.stopAnalyzer()
         }
     }
@@ -92,9 +98,8 @@ fun AnalyzerCompactContent(
         OptionsButtonSegment(
             names = storageDestination,
             selectedIndex = selectedDestinationIndex,
-            onSelectionChanged = { index, name ->
+            onSelectionChanged = { index, _ ->
                 onDestinationChanged(index)
-                handleDestinationSelection(index, name)
             },
             title = stringResource(R.string.wifi_analyzer_storage_destination),
             modifier = Modifier
@@ -111,7 +116,6 @@ fun AnalyzerCompactContent(
                 val number = channel.removePrefix("Channel ").toInt()
                 viewModel.setChannel(number)
                 onChannelChanged(channel)
-                handleChannelSelection(channel)
             }
         )
 
@@ -120,6 +124,7 @@ fun AnalyzerCompactContent(
         InformationLabel(
             modifier = Modifier,
             loading = running,
+            loadingText = "Scanning...\n$totalPackets Packets"
         ) {
             Text(
                 modifier = Modifier
@@ -155,22 +160,28 @@ fun AnalyzerCompactContent(
 
             command = {
                 if (running) {
+                    showStoppedMessage.value = true
                     viewModel.stopAnalyzer()
                 } else {
                     screenViewModel.clearScanChannel()
                     screenViewModel.setScanChannel(selectedChannel)
                     viewModel.startAnalyzer()
+                    showStoppedMessage.value = false
                 }
                 onToggleRunning()
             }
         )
+
+        if (showStoppedMessage.value) {
+            ProportionalSpacer(0.02f)
+
+            Text(
+                text = "Analyzer stopped.\nanalizer.pcap\nStored in SD Card: /apps/analizer/pcaps ",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
-}
-
-private fun handleDestinationSelection(index: Int, name: String) {
-    println("Destination selected: $name (Index: $index)")
-}
-
-private fun handleChannelSelection(channel: String) {
-    println("Channel selected: $channel")
 }

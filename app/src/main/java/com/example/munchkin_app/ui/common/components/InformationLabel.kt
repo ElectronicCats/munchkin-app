@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 
@@ -32,7 +33,8 @@ fun InformationLabel(
     modifier: Modifier = Modifier,
     loading: Boolean = false,
     loadingText: String = "Scanning...",
-    content: @Composable () -> Unit
+    height: Dp = 250.dp,
+    content: @Composable () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -51,7 +53,7 @@ fun InformationLabel(
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .height(250.dp)
+                .height(height)
                 .border(
                     width = 1.dp,
                     color = Color.Black,

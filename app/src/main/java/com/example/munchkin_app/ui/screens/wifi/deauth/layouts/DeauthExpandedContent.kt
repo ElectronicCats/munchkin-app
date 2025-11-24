@@ -2,6 +2,7 @@ package com.example.munchkin_app.ui.screens.wifi.deauth.layouts
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +12,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,8 +39,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.OptionsButtonSegment
@@ -56,13 +62,31 @@ fun DeauthExpandedContent(
     screenViewModel: DeauthViewModel,
     running: Boolean,
     onToggleRunning: () -> Unit,
-    floatingX: Dp,
-    floatingSize: Dp,
+    onStopRunning: () -> Unit,
 ) {
     val networks by viewModel.deauthNetworks.collectAsState()
     var selectedNetwork by remember { mutableStateOf<String?>(null) }
     var bssidNetwork by remember { mutableStateOf<String?>(null) }
-    
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                onStopRunning()
+                viewModel.deauthStopAttackRequest()
+            }
+        }
+
+        lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycle.removeObserver(observer)
+            onStopRunning()
+            viewModel.deauthStopAttackRequest()
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -71,6 +95,7 @@ fun DeauthExpandedContent(
 
         // --- Columna izquierda: controles ---
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .weight(0.45f)
                 .fillMaxHeight()
@@ -83,7 +108,33 @@ fun DeauthExpandedContent(
                 stringResource(R.string.wifi_deauth_application_name)
             )
 
-            ProportionalSpacer(0.1f)
+            ProportionalSpacer(0.03f)
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                text = "Scan Nearby Networks",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+
+            ProportionalSpacer(0.01f)
+
+            FloatingActionButton(
+                onClick = { viewModel.startDeauthScan() },
+                modifier = Modifier,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable._3_refresh),
+                    contentDescription = "Sort/Refresh",
+                    tint = Color.White
+                )
+            }
+
+            ProportionalSpacer(0.03f)
 
             OptionsButtonSegment(
                 title = stringResource(R.string.wifi_deauth_attack_type),
@@ -91,12 +142,14 @@ fun DeauthExpandedContent(
                 selectedIndex = attackIndex,
                 modifier = Modifier.fillMaxWidth(),
                 onSelectionChanged = { index, _ ->
+                    Log.d("UI", "UI index = $index")
                     viewModel.setAttackType(index)
                     screenViewModel.updateAttackIndex(index)
+                    Log.d("UI", "attackIndex = $attackIndex")
                 }
             )
 
-            ProportionalSpacer(0.1f)
+            ProportionalSpacer(0.03f)
 
             if (running) {
                 Column(
@@ -120,7 +173,7 @@ fun DeauthExpandedContent(
                 }
             }
 
-            ProportionalSpacer(0.1f)
+            ProportionalSpacer(0.03f)
             StartButton(
                 text = if (running) "Stop" else "Start",
                 command = { onToggleRunning()
@@ -129,7 +182,7 @@ fun DeauthExpandedContent(
                     else viewModel.deauthStopAttackRequest()}
             )
 
-            ProportionalSpacer(0.1f)
+            ProportionalSpacer(0.03f)
         }
 
         // --- Columna derecha: panel grande ---
@@ -162,35 +215,69 @@ fun DeauthExpandedContent(
                         ),
                         border = BorderStroke(1.dp, Color.Black),
                     ) {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            text = network.ssid.drop(2),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .weight(0.20f),
+                                text = "Ch: ${network.channel}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Text(
+                                modifier = Modifier
+                                    .weight(0.70f)
+                                    .padding(16.dp),
+                                text = network.ssid,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+
+                            WifiStrengthIcon(network.rssi, Modifier.weight(0.10f))
+                        }
+
                     }
 
                     ProportionalSpacer(0.01f)
                 }
             }
+        }
+    }
+}
 
-            FloatingActionButton(
-                onClick = { viewModel.startDeauthScan() },
+
+@Composable
+fun WifiStrengthIcon(rssi: Int, modifier: Modifier = Modifier) {
+    // Determina nivel de señal según RSSI
+    val level = when {
+        rssi >= -50 -> 4
+        rssi >= -60 -> 3
+        rssi >= -70 -> 2
+        rssi >= -80 -> 1
+        else -> 0
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        repeat(4) { index ->
+            val barIndex = index + 1
+            Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = (-10).dp, y = floatingX)
-                    .size(floatingSize),
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable._3_refresh),
-                    contentDescription = "Sort/Refresh",
-                    tint = Color.White
-                )
-            }
+                    .width(6.dp)
+                    .height((barIndex * 6).dp)
+                    .background(
+                        if (barIndex <= level) Color.Black else Color.LightGray,
+                        shape = RoundedCornerShape(2.dp)
+                    )
+            )
         }
     }
 }

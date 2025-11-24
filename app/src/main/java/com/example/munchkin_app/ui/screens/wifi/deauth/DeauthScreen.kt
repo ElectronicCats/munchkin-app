@@ -79,23 +79,24 @@ fun DeauthContents(
                     floatingX = floatingX,
                     typeOfAttack = typeOfAttack,
                     attackIndex = attackIndex,
+                    viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
-                    onToggleRunning = { running = !running }
+                    onToggleRunning = { running = !running },
+                    onStopRunning = {running = false},
                 )
             }
             // Expanded
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
                 DeauthExpandedContent(
                     innerPadding = innerPadding,
-                    floatingSize = floatingSize,
-                    floatingX = floatingX,
                     typeOfAttack = typeOfAttack,
                     attackIndex = attackIndex,
                     viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
-                    onToggleRunning = { running = !running }
+                    onToggleRunning = { running = !running },
+                    onStopRunning = {running = false},
                 )
             }
             // Medium u otro caso
@@ -106,9 +107,11 @@ fun DeauthContents(
                     floatingX = floatingX,
                     typeOfAttack = typeOfAttack,
                     attackIndex = attackIndex,
+                    viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
-                    onToggleRunning = { running = !running }
+                    onToggleRunning = { running = !running },
+                    onStopRunning = {running = false},
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.example.munchkin_app.viewmodel.usb
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.munchkin_app.data.usb.UsbHelper
@@ -65,7 +66,10 @@ class UsbViewModel @Inject constructor(
 
     fun setDeauthTarget(bssid: String) = protobufRepository.setNetwork(bssid)
 
-    fun setAttackType(index: Int) = protobufRepository.setAttackType(index)
+    fun setAttackType(index: Int) {
+        Log.d("VM", "setAttackType index = $index")
+        protobufRepository.setAttackType(index)
+    }
 
     fun startDeauthAttack() = protobufRepository.deauthStartAttackRequest()
 
