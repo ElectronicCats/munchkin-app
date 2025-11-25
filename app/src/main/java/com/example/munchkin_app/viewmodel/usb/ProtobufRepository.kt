@@ -9,6 +9,7 @@ import minino.about.About
 import minino.analyzer.Analyzer
 import minino.deauth.Deauth
 import com.example.munchkin_app.data.usb.UsbHelper
+import minino.wifispam.Wifispam
 
 class ProtobufRepository(
     private val usbHelper: UsbHelper,
@@ -194,10 +195,8 @@ class ProtobufRepository(
         )
     }
 
-    // -------------------------------------------------------
-    // 🔥 Deauth Scan
-    // -------------------------------------------------------
 
+    //  Deauth Scan
     fun startDeauthScan() {
         sendRequest(
             messageId = 5,
@@ -273,4 +272,38 @@ class ProtobufRepository(
         )
     }
 
+    //WifiSpammer
+    fun ssidSpammerSetSsids(index: Int, ssids: List<String>) {
+        sendRequest(
+            messageId = 9,
+            requestBuilder = {
+                setWifispamConfig(Wifispam.WifiSpamSetConfigRequest.newBuilder()
+                    .addAllSsids(ssids)
+                    .setChannel(index)
+                    .build()
+                )
+            },
+            onResponse = {Log.d("SsidSpam", "SSID Spam list received")}
+        )
+    }
+
+    fun ssidSpammerStartRequest() {
+        sendRequest(
+            messageId = 10,
+            requestBuilder = {
+                setWifispamStart(Wifispam.WifiSpamStartRequest.getDefaultInstance())
+            },
+            onResponse = {Log.d("SsidSpam", "SSID Spam started")}
+        )
+    }
+
+    fun ssidSpammerStopRequest() {
+        sendRequest(
+            messageId = 11,
+            requestBuilder = {
+                setWifispamStop(Wifispam.WifiSpamStopRequest.getDefaultInstance())
+            },
+            onResponse = {Log.d("SsidSpam", "SSID Spam stopped")}
+        )
+    }
 }

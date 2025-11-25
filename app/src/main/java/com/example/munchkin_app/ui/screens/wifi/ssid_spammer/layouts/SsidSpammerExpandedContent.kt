@@ -1,5 +1,6 @@
 package com.example.munchkin_app.ui.screens.wifi.ssid_spammer.layouts
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,9 +30,28 @@ import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.SsidDropdownMenu
 import com.example.munchkin_app.ui.common.components.TextFieldWithHint
+import com.example.munchkin_app.viewmodel.screens.wifi.SsidSpamViewModel
+import com.example.munchkin_app.viewmodel.usb.UsbViewModel
+import kotlin.math.log
 
 @Composable
-fun SsidSpammerExpandedContent() {
+fun SsidSpammerExpandedContent(
+    viewModel: UsbViewModel,
+    screenViewModel: SsidSpamViewModel
+) {
+    var ssidListTitle by remember { mutableStateOf("") }
+    var ssidText by remember { mutableStateOf("") }
+    var running by remember { mutableStateOf(false) }
+    val allConfigs by screenViewModel.allConfigs.collectAsState()
+    val configNames = allConfigs.configs.keys.toList()
+
+    var selectedListName by remember {
+        mutableStateOf(configNames.firstOrNull() ?: "")
+    }
+
+    val ssidsForSelectedList: List<String> = allConfigs.configs[selectedListName] ?: emptyList()
+
+
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -61,18 +86,43 @@ fun SsidSpammerExpandedContent() {
 
             ProportionalSpacer(0.03f)
 
-            TextFieldWithHint("Name...", "Type the name of the spammer list.")
+            TextFieldWithHint(
+                name = "Name...",
+                hint = "Type the name of the spammer list.",
+                value = ssidListTitle,
+                onValueChange = { newValue ->
+                    ssidListTitle = newValue
+                }
+            )
 
             ProportionalSpacer(0.015f)
 
             TextFieldWithHint(
-                "SSID's names...",
-                "Type the SSID's for your spammer list."
+                name = "SSID's names...",
+                hint = "Type the SSID's for your spammer list.",
+                value = ssidText,
+                onValueChange = { newValue ->
+                    ssidText = newValue
+                }
             )
 
             ProportionalSpacer(0.025f)
 
-            StartButton("Save SSID's", command = { } )
+            StartButton(
+                text = "Save SSID's",
+                command = {
+                    if (ssidListTitle.isBlank() || ssidText.isBlank()) {
+                        Log.w("SSID_SPAMMER", "El nombre de la lista o los SSIDs no pueden estar vacíos.")
+                    } else {
+                        screenViewModel.saveNewConfig(
+                            name = ssidListTitle,
+                            rawText = ssidText
+                        )
+                        Log.d("SSID_SPAMMER", "Configuración guardada: Nombre='$ssidListTitle'")
+
+                    }
+                }
+            )
         }
 
         // ---- RIGHT PANEL: Lists + Start ---- //
@@ -94,11 +144,33 @@ fun SsidSpammerExpandedContent() {
 
             ProportionalSpacer(0.02f)
 
-            SsidDropdownMenu()
+            SsidDropdownMenu(
+                ssids = configNames,
+                selectedItem = selectedListName
+            ) { newName ->
+                selectedListName = newName
+
+                val listToSpam = allConfigs.configs[newName] ?: emptyList()
+
+                if (listToSpam.isNotEmpty()) {
+                    viewModel.ssidSpammerSetSsids(3, listToSpam)
+                    Log.d("SsidSpammer", "Lista de SSIDs enviada: $newName (${listToSpam.size} SSIDs)")
+                } else {
+                    Log.w("SsidSpammer", "Lista de SSIDs vacía para el nombre: $newName")
+                }
+            }
 
             ProportionalSpacer(0.06f)
 
-            StartButton("Start", command = { })
+            StartButton(
+                text = if (!running) "Start" else "Stop",
+                command = {
+                    if (!running)
+                        viewModel.ssidSpammerStartRequest()
+                    else viewModel.ssidSpammerStopRequest()
+                    running = !running
+                }
+            )
         }
     }
 }

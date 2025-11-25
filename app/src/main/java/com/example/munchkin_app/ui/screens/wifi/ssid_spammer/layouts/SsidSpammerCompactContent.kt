@@ -36,11 +36,11 @@ fun SsidSpammerCompactContent() {
 
     ProportionalSpacer(0.03f)
 
-    TextFieldWithHint("Name...", "Type the name of the spammer list.")
+//    TextFieldWithHint("Name...", "Type the name of the spammer list.")
 
     ProportionalSpacer(0.01f)
 
-    TextFieldWithHint("SSID's names...", "Type the SSID's for your spammer list separated by a coma.")
+    //TextFieldWithHint("SSID's names...", "Type the SSID's for your spammer list separated by a coma.")
 
     ProportionalSpacer(0.02f)
 
@@ -59,7 +59,7 @@ fun SsidSpammerCompactContent() {
 
     ProportionalSpacer(0.02f)
 
-    SsidDropdownMenu()
+    //SsidDropdownMenu()
 
     ProportionalSpacer(0.03f)
 

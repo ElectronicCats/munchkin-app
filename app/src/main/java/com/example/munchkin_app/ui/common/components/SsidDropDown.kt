@@ -28,11 +28,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SsidDropdownMenu() {
-    val ssids = listOf("Shrek", "Ocean Man", "Megalovania")
-
+fun SsidDropdownMenu(
+    ssids: List<String>,
+    selectedItem: String,
+    content: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf("Pick a SSID") }
+    val textToShow = if (ssids.isEmpty()) "No lists saved" else selectedItem
 
     Box(
         modifier = Modifier
@@ -69,7 +71,7 @@ fun SsidDropdownMenu() {
                 Box(modifier = Modifier.weight(0.1f))
 
                 Text(
-                    text = selected,
+                    text = textToShow,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black,
                     textAlign = TextAlign.Center,
@@ -106,7 +108,7 @@ fun SsidDropdownMenu() {
             ssids.forEach { ssid ->
                 DropdownMenuItem(
                     onClick = {
-                        selected = ssid
+                        content(ssid)
                         expanded = false
                     },
                     text = {

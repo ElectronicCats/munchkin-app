@@ -4,6 +4,7 @@ package minino.rpc;
 import "about/about.proto";
 import "wifi/analyzer/analyzer.proto";
 import "wifi/deauth/deauth.proto";
+import "wifi/wifi_spam/wifispam.proto";
 enum Status {
   STATUS_UNKNOWN = 0;
   STATUS_OK = 1;
@@ -28,6 +29,10 @@ message MainRequest {
     minino.deauth.DeauthSetAttackRequest deauth_set_attack = 7;
     minino.deauth.DeauthStartAttackRequest deauth_start = 8;
     minino.deauth.DeauthStopRequest deauth_stop = 9;
+    // wifi spam
+    minino.wifispam.WifiSpamSetConfigRequest wifispam_config = 12;
+    minino.wifispam.WifiSpamStartRequest wifispam_start = 13;
+    minino.wifispam.WifiSpamStopRequest wifispam_stop = 14;
   }
 }
 

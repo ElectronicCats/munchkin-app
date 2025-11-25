@@ -5,6 +5,7 @@ plugins {
     id("com.google.protobuf") version "0.9.5"
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 android {
@@ -77,6 +78,9 @@ protobuf {
 }
 
 dependencies {
+    implementation(libs.androidx.datastore.preferences)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
     implementation(libs.hilt.android)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3.window.size.class1)

@@ -1,0 +1,11 @@
+syntax = "proto3";
+package minino.wifispam;
+
+
+message WifiSpamSetConfigRequest {
+  repeated string ssids = 1;
+  uint32 channel = 2;
+}
+
+message WifiSpamStartRequest {}
+message WifiSpamStopRequest {}

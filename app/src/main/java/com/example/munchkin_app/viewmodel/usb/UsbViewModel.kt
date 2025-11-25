@@ -66,12 +66,15 @@ class UsbViewModel @Inject constructor(
 
     fun setDeauthTarget(bssid: String) = protobufRepository.setNetwork(bssid)
 
-    fun setAttackType(index: Int) {
-        Log.d("VM", "setAttackType index = $index")
-        protobufRepository.setAttackType(index)
-    }
+    fun setAttackType(index: Int) = protobufRepository.setAttackType(index)
 
     fun startDeauthAttack() = protobufRepository.deauthStartAttackRequest()
 
     fun deauthStopAttackRequest() = protobufRepository.deauthStopAttackRequest()
+
+    fun ssidSpammerSetSsids(index: Int, ssids: List<String>) = protobufRepository.ssidSpammerSetSsids(index, ssids)
+
+    fun ssidSpammerStartRequest() = protobufRepository.ssidSpammerStartRequest()
+
+    fun ssidSpammerStopRequest() = protobufRepository.ssidSpammerStopRequest()
 }
