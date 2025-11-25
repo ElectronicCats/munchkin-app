@@ -64,7 +64,7 @@ fun ChannelDropMenu(
                 )
                 .clip(RoundedCornerShape(20.dp)),
             colors = CardDefaults.cardColors(
-                containerColor = if (!disabled) Color.White else Color.Gray
+                containerColor = if (!disabled) Color.White else Color.LightGray
             ),
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)

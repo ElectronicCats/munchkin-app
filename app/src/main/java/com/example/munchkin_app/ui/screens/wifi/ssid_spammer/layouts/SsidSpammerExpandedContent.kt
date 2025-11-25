@@ -72,7 +72,7 @@ fun SsidSpammerExpandedContent() {
 
             ProportionalSpacer(0.025f)
 
-            StartButton("Save SSID's") { }
+            StartButton("Save SSID's", command = { } )
         }
 
         // ---- RIGHT PANEL: Lists + Start ---- //
@@ -98,7 +98,7 @@ fun SsidSpammerExpandedContent() {
 
             ProportionalSpacer(0.06f)
 
-            StartButton("Start") { }
+            StartButton("Start", command = { })
         }
     }
 }

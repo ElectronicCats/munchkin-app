@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -60,7 +61,8 @@ fun OptionsButtonSegment(
     modifier: Modifier = Modifier,
     selectedIndex: Int = 0,
     onSelectionChanged: (Int, String) -> Unit,
-    title: String = "Destination"
+    title: String = "Destination",
+    disabled: Boolean = false
 ) {
     Text(
         text = title,
@@ -78,11 +80,16 @@ fun OptionsButtonSegment(
         names.forEachIndexed { index, name ->
             SegmentedButton(
                 modifier = Modifier.weight(1f),
+                enabled = !disabled,
                 colors = SegmentedButtonDefaults.colors(
                     activeContainerColor = Color(0XFF72BA63),
                     activeContentColor = Color.White,
                     inactiveContainerColor = Color.White,
-                    inactiveContentColor = Color.Black
+                    inactiveContentColor = Color.Black,
+                    disabledInactiveContainerColor = Color.White,
+                    disabledActiveContainerColor = Color.LightGray,
+                    disabledActiveBorderColor = MaterialTheme.colorScheme.primary,
+                    disabledInactiveBorderColor = MaterialTheme.colorScheme.primary
                 ),
                 shape = SegmentedButtonDefaults.itemShape(
                     index = index,
@@ -107,7 +114,8 @@ fun OptionsButtonSegment(
 @Composable
 fun StartButton(
     text: String,
-    command: () -> Unit
+    command: () -> Unit,
+    disabled: Boolean = true
 ){
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -123,7 +131,11 @@ fun StartButton(
         Button(
             modifier = Modifier
                 .weight(0.6f),
-            onClick = { command() }
+            onClick = { command() },
+            enabled = disabled,
+            colors = ButtonDefaults.buttonColors(
+                disabledContainerColor = Color.LightGray,
+            )
         ) {
             Text(
                 modifier = Modifier.padding(4.dp),

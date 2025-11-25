@@ -30,9 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,8 +62,8 @@ fun DeauthExpandedContent(
     onStopRunning: () -> Unit,
 ) {
     val networks by viewModel.deauthNetworks.collectAsState()
-    var selectedNetwork by remember { mutableStateOf<String?>(null) }
-    var bssidNetwork by remember { mutableStateOf<String?>(null) }
+    val selectedNetwork by screenViewModel.selectedNetwork.collectAsState()
+    val networkIsSelected by screenViewModel.isNetworkSelected.collectAsState()
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -123,9 +120,9 @@ fun DeauthExpandedContent(
             ProportionalSpacer(0.01f)
 
             FloatingActionButton(
-                onClick = { viewModel.startDeauthScan() },
+                onClick = { if (!running) viewModel.startDeauthScan()},
                 modifier = Modifier,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = if (!running) MaterialTheme.colorScheme.primary else Color.LightGray
             ) {
                 Icon(
                     painter = painterResource(R.drawable._3_refresh),
@@ -140,6 +137,7 @@ fun DeauthExpandedContent(
                 title = stringResource(R.string.wifi_deauth_attack_type),
                 names = typeOfAttack,
                 selectedIndex = attackIndex,
+                disabled = running || !networkIsSelected,
                 modifier = Modifier.fillMaxWidth(),
                 onSelectionChanged = { index, _ ->
                     Log.d("UI", "UI index = $index")
@@ -176,10 +174,11 @@ fun DeauthExpandedContent(
             ProportionalSpacer(0.03f)
             StartButton(
                 text = if (running) "Stop" else "Start",
+                disabled = networkIsSelected,
                 command = { onToggleRunning()
                     if (!running)
                         viewModel.startDeauthAttack()
-                    else viewModel.deauthStopAttackRequest()}
+                    else viewModel.deauthStopAttackRequest()},
             )
 
             ProportionalSpacer(0.03f)
@@ -196,6 +195,17 @@ fun DeauthExpandedContent(
                 modifier = Modifier.fillMaxSize(),
                 loadingText = "Loading..."
             ) {
+                if (networks.isEmpty()){
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        text = "Scan Networks",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
                 networks.forEach { network ->
                     val isSelected = selectedNetwork == network.ssid
@@ -204,10 +214,11 @@ fun DeauthExpandedContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                selectedNetwork = network.ssid
-                                bssidNetwork = network.bssid
-                                Log.d("Deauth","$selectedNetwork\n$bssidNetwork")
-                                viewModel.setDeauthTarget(network.bssid)
+                                if (!running) {
+                                    screenViewModel.updateIsNetworkSelected(true)
+                                    screenViewModel.updateSelectedNetwork(network.ssid)
+                                    viewModel.setDeauthTarget(network.bssid)
+                                }
                                        },
                         colors = CardDefaults.cardColors(
                             containerColor = if (isSelected) Color(0xFFB2FFB2) else Color(0xfff1f3f4),

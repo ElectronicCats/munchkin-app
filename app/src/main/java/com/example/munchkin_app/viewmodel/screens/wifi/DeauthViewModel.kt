@@ -8,10 +8,32 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DeauthViewModel @Inject constructor(): ViewModel() {
+
+    private val _running = MutableStateFlow(false)
+    val running: StateFlow<Boolean> = _running
+
     private val _attackIndex = MutableStateFlow(0)
     val attackIndex: StateFlow<Int> = _attackIndex
 
+    private val _selectedNetwork = MutableStateFlow("")
+    val selectedNetwork: StateFlow<String> = _selectedNetwork
+
+    private val _isNetworkSelected = MutableStateFlow(false)
+    val isNetworkSelected: StateFlow<Boolean> = _isNetworkSelected
+
+    fun updateRunning(isSelected: Boolean) {
+        _running.value = isSelected
+    }
+
     fun updateAttackIndex(index: Int) {
         _attackIndex.value = index
+    }
+
+    fun updateSelectedNetwork(network: String) {
+        _selectedNetwork.value = network
+    }
+
+    fun updateIsNetworkSelected(isSelected: Boolean) {
+        _isNetworkSelected.value = isSelected
     }
 }

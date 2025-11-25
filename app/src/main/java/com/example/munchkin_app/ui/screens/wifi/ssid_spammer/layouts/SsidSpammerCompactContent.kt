@@ -44,7 +44,7 @@ fun SsidSpammerCompactContent() {
 
     ProportionalSpacer(0.02f)
 
-    StartButton("Save SSID's") { }
+    StartButton("Save SSID's", command = {})
 
     ProportionalSpacer(0.06f)
 
@@ -63,6 +63,6 @@ fun SsidSpammerCompactContent() {
 
     ProportionalSpacer(0.03f)
 
-    StartButton("Start") { }
+    StartButton("Start",  command = { })
 
 }

@@ -1,6 +1,5 @@
 package com.example.munchkin_app.ui.screens.wifi.deauth
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,13 +9,9 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -42,28 +37,13 @@ fun DeauthContents(
     screenViewModel: DeauthViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
 ) {
-    val configuration = LocalConfiguration.current
-    val orientation = configuration.orientation
-
-    val floatingSize = when (orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> 56.dp
-        Configuration.ORIENTATION_PORTRAIT -> 45.dp
-        else -> 56.dp
-    }
-
-    val floatingX = when (orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> 40.dp
-        Configuration.ORIENTATION_PORTRAIT -> 55.dp
-        else -> 56.dp
-    }
-
     val typeOfAttack = remember {
         listOf("Broadcast", "Rogue AP", "Combined")
     }
 
     val attackIndex by screenViewModel.attackIndex.collectAsState()
 
-    var running by remember { mutableStateOf(false) }
+    val running by screenViewModel.running.collectAsState()
 
     Column(
         modifier = Modifier
@@ -75,15 +55,13 @@ fun DeauthContents(
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
                 DeauthCompactContent(
                     innerPadding = innerPadding,
-                    floatingSize = floatingSize,
-                    floatingX = floatingX,
                     typeOfAttack = typeOfAttack,
                     attackIndex = attackIndex,
                     viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
-                    onToggleRunning = { running = !running },
-                    onStopRunning = {running = false},
+                    onToggleRunning = {screenViewModel.updateRunning(!running)},
+                    onStopRunning = {screenViewModel.updateRunning(false)},
                 )
             }
             // Expanded
@@ -95,23 +73,21 @@ fun DeauthContents(
                     viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
-                    onToggleRunning = { running = !running },
-                    onStopRunning = {running = false},
+                    onToggleRunning = {screenViewModel.updateRunning(!running)},
+                    onStopRunning = {screenViewModel.updateRunning(false)},
                 )
             }
             // Medium u otro caso
             else -> {
                 DeauthCompactContent(
                     innerPadding = innerPadding,
-                    floatingSize = floatingSize,
-                    floatingX = floatingX,
                     typeOfAttack = typeOfAttack,
                     attackIndex = attackIndex,
                     viewModel = viewModel,
                     screenViewModel = screenViewModel,
                     running = running,
-                    onToggleRunning = { running = !running },
-                    onStopRunning = {running = false},
+                    onToggleRunning = {screenViewModel.updateRunning(!running)},
+                    onStopRunning = {screenViewModel.updateRunning(false)},
                 )
             }
         }

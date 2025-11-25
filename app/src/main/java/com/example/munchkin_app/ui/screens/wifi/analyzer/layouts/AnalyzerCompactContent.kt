@@ -98,6 +98,7 @@ fun AnalyzerCompactContent(
         OptionsButtonSegment(
             names = storageDestination,
             selectedIndex = selectedDestinationIndex,
+            disabled = running,
             onSelectionChanged = { index, _ ->
                 onDestinationChanged(index)
             },
@@ -112,6 +113,7 @@ fun AnalyzerCompactContent(
         ChannelDropMenu(
             channels = channels,
             selectedChannel = selectedChannel,
+            disabled = running,
             handleChannelSelection = { channel ->
                 val number = channel.removePrefix("Channel ").toInt()
                 viewModel.setChannel(number)

@@ -114,6 +114,7 @@ fun AnalyzerExpandedContent(
                 OptionsButtonSegment(
                     names = storageDestination,
                     selectedIndex = selectedDestinationIndex,
+                    disabled = running,
                     onSelectionChanged = { index, _ ->
                         onDestinationChanged(index)
                     },
