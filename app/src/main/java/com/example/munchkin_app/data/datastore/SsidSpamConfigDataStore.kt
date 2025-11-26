@@ -39,18 +39,25 @@ class SsidSpamConfigDataStore(context: Context) {
 
     suspend fun saveSsids(listName: String, ssids: List<String>) {
         dataStore.edit { preferences ->
-            // 1. Cargar el mapa existente
             val currentMap = getAllConfigs().configs.toMutableMap()
 
-            // 2. Agregar o sobrescribir la nueva entrada
             currentMap[listName] = ssids
 
-            // 3. Guardar el mapa actualizado como un String JSON
             val newJsonString = Json.encodeToString(SsidConfigMap(currentMap))
             preferences[SSID_CONFIG_KEY] = newJsonString
         }
     }
 
+    suspend fun deleteSsidList(listName: String) {
+        dataStore.edit { preferences ->
+            val currentMap = getAllConfigs().configs.toMutableMap()
+
+            currentMap.remove(listName)
+
+            val newJsonString = Json.encodeToString(SsidConfigMap(currentMap))
+            preferences[SSID_CONFIG_KEY] = newJsonString
+        }
+    }
 
     val configsFlow: Flow<SsidConfigMap> = dataStore.data
         .map { preferences ->

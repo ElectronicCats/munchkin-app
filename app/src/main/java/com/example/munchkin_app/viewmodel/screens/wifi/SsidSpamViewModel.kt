@@ -35,4 +35,11 @@ class SsidSpamViewModel @Inject constructor(
         }
     }
 
+    fun deleteConfig(listName: String) {
+        viewModelScope.launch {
+            dataStore.deleteSsidList(listName)
+        }
+    }
+
+
 }

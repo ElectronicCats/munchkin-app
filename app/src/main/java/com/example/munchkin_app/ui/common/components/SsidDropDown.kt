@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,17 +29,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-
+import com.example.munchkin_app.R
 @Composable
 fun SsidDropdownMenu(
     ssids: List<String>,
     selectedItem: String,
-    content: (String) -> Unit
+    content: (String) -> Unit,
+    onDelete: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val textToShow = if (ssids.isEmpty()) "No lists saved" else selectedItem
+
+    // Necesitamos el ancho de la Card para pasárselo al DropdownMenu
+    var cardWidth by remember { mutableStateOf(0.dp) }
 
     Box(
         modifier = Modifier
@@ -42,24 +54,28 @@ fun SsidDropdownMenu(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.TopCenter
     ) {
+        val localDensity = LocalDensity.current
 
-        // Botón estilo tarjeta (igual que ChannelDropMenu)
         Card(
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = !expanded }
+                .onSizeChanged { size ->
+                    cardWidth = with(localDensity) { size.width.toDp() }
+                }
                 .border(
                     width = 1.dp,
                     color = Color.Black,
                     shape = RoundedCornerShape(20.dp)
                 )
                 .clip(RoundedCornerShape(20.dp)),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+
         ) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,7 +83,7 @@ fun SsidDropdownMenu(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // necesario para centrar texto
+
                 Box(modifier = Modifier.weight(0.1f))
 
                 Text(
@@ -78,7 +94,6 @@ fun SsidDropdownMenu(
                     modifier = Modifier.weight(0.8f)
                 )
 
-                // icono de flecha
                 Box(
                     modifier = Modifier.weight(0.1f),
                     contentAlignment = Alignment.CenterEnd
@@ -91,13 +106,13 @@ fun SsidDropdownMenu(
             }
         }
 
-        // Menú desplegable
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
+                .width(cardWidth)
+                .background(Color.White, RoundedCornerShape(12.dp) )
                 .border(
                     width = 1.dp,
                     color = Color.Black,
@@ -107,16 +122,44 @@ fun SsidDropdownMenu(
         ) {
             ssids.forEach { ssid ->
                 DropdownMenuItem(
+                    modifier = Modifier.background(Color.Transparent),
                     onClick = {
                         content(ssid)
                         expanded = false
                     },
                     text = {
-                        Text(
-                            text = ssid,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = ssid,
+                                modifier = Modifier.weight(0.9f),
+                                textAlign = TextAlign.Center
+                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .weight(0.1f)
+                                    .background(Color.Red, RoundedCornerShape(12.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = Color.Black,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable{
+                                        onDelete(ssid)
+                                    }
+                            ) {
+                                Icon(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    painter = painterResource(R.drawable.icon_delete_forever), // Asumo que este es tu recurso
+                                    contentDescription = "Borrar SSID",
+                                    tint = Color.White
+                                )
+                            }
+
+                        }
                     }
                 )
             }

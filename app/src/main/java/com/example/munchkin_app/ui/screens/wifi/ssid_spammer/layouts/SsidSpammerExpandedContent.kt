@@ -28,6 +28,7 @@ import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
+import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.ui.common.components.SsidDropdownMenu
 import com.example.munchkin_app.ui.common.components.TextFieldWithHint
 import com.example.munchkin_app.viewmodel.screens.wifi.SsidSpamViewModel
@@ -44,13 +45,11 @@ fun SsidSpammerExpandedContent(
     var running by remember { mutableStateOf(false) }
     val allConfigs by screenViewModel.allConfigs.collectAsState()
     val configNames = allConfigs.configs.keys.toList()
+    var listToSpam: List<String> by remember { mutableStateOf(emptyList()) }
 
     var selectedListName by remember {
-        mutableStateOf(configNames.firstOrNull() ?: "")
+        mutableStateOf(configNames.firstOrNull() ?: "Pick a List")
     }
-
-    val ssidsForSelectedList: List<String> = allConfigs.configs[selectedListName] ?: emptyList()
-
 
     Row(
         modifier = Modifier
@@ -59,7 +58,6 @@ fun SsidSpammerExpandedContent(
         horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
 
-        // ---- LEFT PANEL: Creation Form ---- //
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -146,28 +144,46 @@ fun SsidSpammerExpandedContent(
 
             SsidDropdownMenu(
                 ssids = configNames,
-                selectedItem = selectedListName
-            ) { newName ->
-                selectedListName = newName
+                selectedItem = selectedListName,
+                onDelete = { listName ->
+                    screenViewModel.deleteConfig(listName)
 
-                val listToSpam = allConfigs.configs[newName] ?: emptyList()
-
-                if (listToSpam.isNotEmpty()) {
-                    viewModel.ssidSpammerSetSsids(3, listToSpam)
-                    Log.d("SsidSpammer", "Lista de SSIDs enviada: $newName (${listToSpam.size} SSIDs)")
-                } else {
-                    Log.w("SsidSpammer", "Lista de SSIDs vacía para el nombre: $newName")
+                    if (listName == selectedListName) {
+                        // Resetea el nombre a la primera lista restante o a un valor por defecto.
+                        val remainingConfigs = allConfigs.configs.keys.toList().filter { it != listName }
+                        selectedListName = remainingConfigs.firstOrNull() ?: "Pick a List"
+                        listToSpam = allConfigs.configs[selectedListName] ?: emptyList()
+                    }
+                },
+                content = { newName ->
+                    selectedListName = newName
+                    listToSpam = allConfigs.configs[newName] ?: emptyList()
                 }
+            )
+
+            ProportionalSpacer(0.03f)
+
+            InformationLabel(
+                loading = running
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = listToSpam.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
             }
 
-            ProportionalSpacer(0.06f)
+            ProportionalSpacer(0.03f)
 
             StartButton(
                 text = if (!running) "Start" else "Stop",
                 command = {
-                    if (!running)
+                    if (!running) {
+                        viewModel.ssidSpammerSetSsids(3, listToSpam)
                         viewModel.ssidSpammerStartRequest()
-                    else viewModel.ssidSpammerStopRequest()
+                    } else viewModel.ssidSpammerStopRequest()
                     running = !running
                 }
             )
