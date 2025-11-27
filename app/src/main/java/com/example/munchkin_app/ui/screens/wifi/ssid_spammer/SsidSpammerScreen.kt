@@ -1,5 +1,6 @@
 package com.example.munchkin_app.ui.screens.wifi.ssid_spammer
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +33,7 @@ import com.example.munchkin_app.ui.screens.wifi.ssid_spammer.layouts.SsidSpammer
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import com.example.munchkin_app.viewmodel.screens.wifi.SsidSpamViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -74,30 +78,108 @@ fun SsidSpammerContent(
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
     ) {
+        val state = SsidSpammerState(
+            ssidListTitle = ssidListTitle,
+            ssidText = ssidText,
+            running = running,
+            ssidIsSelected = ssidIsSelected,
+            configNames = configNames,
+            listToSpam = listToSpam,
+            selectedListName = selectedListName
+        )
+
+        val onSaveLogic: () -> Unit = {
+            if (ssidListTitle.isBlank() || ssidText.isBlank()) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "You must add a name to your list and SSID's to save the configuration.",
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+                Log.w("SSID_SPAMMER", "El nombre de la lista o los SSIDs no pueden estar vacíos.")
+            } else {
+                screenViewModel.saveNewConfig(
+                    name = ssidListTitle,
+                    rawText = ssidText
+                )
+                Log.d("SSID_SPAMMER", "Configuración guardada: Nombre='$ssidListTitle'")
+                screenViewModel.updateSsidText("")
+                screenViewModel.updateSsidListTitle("")
+
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Configuration Saved Successfully.",
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+            }
+        }
+
+        val onDeleteLogic: (String) -> Unit = { listName ->
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = "Are you sure you want to delete $listName?",
+                    duration = SnackbarDuration.Indefinite,
+                    actionLabel = "Yes",
+                    withDismissAction = true
+                )
+
+                if (result == SnackbarResult.ActionPerformed) {
+                    screenViewModel.deleteConfig(listName)
+                    snackbarHostState.showSnackbar(
+                        message = "'$listName' deleted successfully.",
+                        duration = SnackbarDuration.Short
+                    )
+                } else {
+                    Log.d("SSID_SPAMMER", "Borrado cancelado o ignorado.")
+                }
+            }
+        }
+
+        val onStartStopLogic: () -> Unit = {
+            if (!running) {
+                viewModel.ssidSpammerSetSsids(3, listToSpam)
+                viewModel.ssidSpammerStartRequest()
+            } else viewModel.ssidSpammerStopRequest()
+            screenViewModel.updateRunning(!running)
+        }
+
+        val actions = SsidSpammerActions(
+            viewModel = viewModel,
+            screenViewModel = screenViewModel,
+            snackbarHostState = snackbarHostState,
+            onSave = onSaveLogic,
+            onDelete = { listName ->
+                onDeleteLogic(listName)
+            },
+            onStartStop = {
+                onStartStopLogic()
+            },
+            updateSelectedListName = { newName -> selectedListName = newName }
+        )
 
         when {
             //Compact
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
                 SsidSpammerCompactContent(
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
-                    snackbarHostState = snackbarHostState
+                    state = state,
+                    action = actions
                 )
             }
 
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)  -> {
                 SsidSpammerExpandedContent(
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
-                    snackbarHostState = snackbarHostState
+                    state = state,
+                    action = actions
                 )
             }
 
             else -> {
                 SsidSpammerCompactContent(
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
-                    snackbarHostState = snackbarHostState
+                    state = state,
+                    action = actions
                 )
             }
         }
