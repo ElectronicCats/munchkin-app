@@ -25,7 +25,7 @@ import com.example.munchkin_app.viewmodel.usb.UsbViewModel
 
 @Composable
 fun DeauthScreen(navController: NavHostController) {
-    MunchkinScreens.ApplicationLayout(navController, "wifi") {innerPadding ->
+    MunchkinScreens.ApplicationLayout(navController, "wifi") {innerPadding, _ ->
         DeauthContents(innerPadding)
     }
 }

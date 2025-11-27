@@ -39,7 +39,7 @@ import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 @Composable
 fun DeauthScanScreen(navController: NavHostController) {
-    MunchkinScreens.ApplicationLayout(navController, "wifi") { innerPadding ->
+    MunchkinScreens.ApplicationLayout(navController, "wifi") { innerPadding, _ ->
         DeauthScanContents(innerPadding)
     }
 }

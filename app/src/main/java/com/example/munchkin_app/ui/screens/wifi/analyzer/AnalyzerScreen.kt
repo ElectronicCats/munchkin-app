@@ -1,5 +1,6 @@
 package com.example.munchkin_app.ui.screens.wifi.analyzer
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,6 @@ import com.example.munchkin_app.ui.screens.wifi.analyzer.layouts.AnalyzerCompact
 import com.example.munchkin_app.ui.screens.wifi.analyzer.layouts.AnalyzerExpandedContent
 import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
-import com.google.protobuf.value
-import android.content.Context
 import minino.analyzer.Analyzer
 
 
@@ -39,7 +38,7 @@ fun AnalyzerScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        MunchkinScreens.ApplicationLayout(navRouteBack = "wifi", navController = navController) {innerPadding ->
+        MunchkinScreens.ApplicationLayout(navRouteBack = "wifi", navController = navController) {innerPadding, _ ->
             AnalyzerContent(innerPadding)
         }
     }

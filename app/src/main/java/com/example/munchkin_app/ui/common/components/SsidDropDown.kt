@@ -7,12 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -35,10 +32,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.munchkin_app.R
+
 @Composable
 fun SsidDropdownMenu(
     ssids: List<String>,
     selectedItem: String,
+    disabled: Boolean = false,
     content: (String) -> Unit,
     onDelete: (String) -> Unit,
 ) {
@@ -58,12 +57,12 @@ fun SsidDropdownMenu(
 
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = Color.White,
+                containerColor = if (disabled) Color.LightGray else Color.White,
                 contentColor = Color.Black
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
+                .clickable (enabled = !disabled) { expanded = !expanded }
                 .onSizeChanged { size ->
                     cardWidth = with(localDensity) { size.width.toDp() }
                 }
@@ -148,6 +147,7 @@ fun SsidDropdownMenu(
                                     )
                                     .clip(RoundedCornerShape(12.dp))
                                     .clickable{
+                                        expanded = false
                                         onDelete(ssid)
                                     }
                             ) {

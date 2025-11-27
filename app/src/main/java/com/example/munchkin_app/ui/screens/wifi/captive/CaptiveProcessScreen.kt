@@ -28,7 +28,7 @@ import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 @Composable
 fun CaptiveProcessScreen(navController: NavHostController) {
-    MunchkinScreens.ApplicationLayout(navController, "captive") {innerPadding ->
+    MunchkinScreens.ApplicationLayout(navController, "captive") {innerPadding, _ ->
         CaptiveProcessContents(innerPadding, navController)
     }
 }

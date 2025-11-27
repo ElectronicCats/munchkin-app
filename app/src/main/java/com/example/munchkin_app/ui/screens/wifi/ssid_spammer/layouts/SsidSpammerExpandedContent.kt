@@ -10,12 +10,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,27 +33,33 @@ import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.common.components.InputType
 import com.example.munchkin_app.ui.common.components.SsidDropdownMenu
 import com.example.munchkin_app.ui.common.components.TextFieldWithHint
 import com.example.munchkin_app.viewmodel.screens.wifi.SsidSpamViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
-import kotlin.math.log
+import kotlinx.coroutines.launch
 
 @Composable
 fun SsidSpammerExpandedContent(
     viewModel: UsbViewModel,
-    screenViewModel: SsidSpamViewModel
+    screenViewModel: SsidSpamViewModel,
+    snackbarHostState: SnackbarHostState
 ) {
     var ssidListTitle by remember { mutableStateOf("") }
     var ssidText by remember { mutableStateOf("") }
     var running by remember { mutableStateOf(false) }
+    var ssidSelected by remember { mutableStateOf(false) }
     val allConfigs by screenViewModel.allConfigs.collectAsState()
     val configNames = allConfigs.configs.keys.toList()
     var listToSpam: List<String> by remember { mutableStateOf(emptyList()) }
+    val scope = rememberCoroutineScope()
 
     var selectedListName by remember {
         mutableStateOf(configNames.firstOrNull() ?: "Pick a List")
     }
+
+    if (allConfigs.configs.isEmpty()) ssidSelected = false
 
     Row(
         modifier = Modifier
@@ -97,8 +107,9 @@ fun SsidSpammerExpandedContent(
 
             TextFieldWithHint(
                 name = "SSID's names...",
-                hint = "Type the SSID's for your spammer list.",
+                hint = "Type the SSID's for your spammer list.\nThe SSID's must be separated by a comma",
                 value = ssidText,
+                type = InputType.SSID_LIST,
                 onValueChange = { newValue ->
                     ssidText = newValue
                 }
@@ -109,15 +120,32 @@ fun SsidSpammerExpandedContent(
             StartButton(
                 text = "Save SSID's",
                 command = {
+                    scope.launch {
+                        Log.d("SSID_SPAMMER", "Snackbar lanzado")
+                        snackbarHostState.showSnackbar(
+                            message = "You must add a name to your list and SSID's to save the configuration.",
+                            duration = SnackbarDuration.Short,
+                            withDismissAction = true
+                        )
+                    }
                     if (ssidListTitle.isBlank() || ssidText.isBlank()) {
                         Log.w("SSID_SPAMMER", "El nombre de la lista o los SSIDs no pueden estar vacíos.")
                     } else {
+                        scope.launch {
+                            Log.d("SSID_SPAMMER", "Snackbar lanzado")
+                            snackbarHostState.showSnackbar(
+                                message = "Configuration Saved Successfully.",
+                                duration = SnackbarDuration.Short,
+                                withDismissAction = true
+                            )
+                        }
                         screenViewModel.saveNewConfig(
                             name = ssidListTitle,
                             rawText = ssidText
                         )
                         Log.d("SSID_SPAMMER", "Configuración guardada: Nombre='$ssidListTitle'")
-
+                        ssidText = ""
+                        ssidListTitle = ""
                     }
                 }
             )
@@ -145,17 +173,41 @@ fun SsidSpammerExpandedContent(
             SsidDropdownMenu(
                 ssids = configNames,
                 selectedItem = selectedListName,
+                disabled = running,
                 onDelete = { listName ->
-                    screenViewModel.deleteConfig(listName)
+                    scope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = "Are you sure you want to delete $listName?",
+                            duration = SnackbarDuration.Indefinite,
+                            actionLabel = "Yes",
+                            withDismissAction = true
+                        )
 
-                    if (listName == selectedListName) {
-                        // Resetea el nombre a la primera lista restante o a un valor por defecto.
-                        val remainingConfigs = allConfigs.configs.keys.toList().filter { it != listName }
-                        selectedListName = remainingConfigs.firstOrNull() ?: "Pick a List"
-                        listToSpam = allConfigs.configs[selectedListName] ?: emptyList()
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                screenViewModel.deleteConfig(listName)
+
+                                if (listName == selectedListName) {
+                                    val remainingConfigs = allConfigs.configs.keys.toList().filter { it != listName }
+                                    selectedListName = remainingConfigs.firstOrNull() ?: "Pick a List"
+                                    listToSpam = allConfigs.configs[selectedListName] ?: emptyList()
+                                }
+
+                                snackbarHostState.showSnackbar(
+                                    message = "'$listName' deleted successfully.",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                            SnackbarResult.Dismissed -> {
+                                Log.d("SSID_SPAMMER", "Borrado de '$listName' cancelado o ignorado.")
+                            }
+                        }
                     }
+
+
                 },
                 content = { newName ->
+                    ssidSelected = true
                     selectedListName = newName
                     listToSpam = allConfigs.configs[newName] ?: emptyList()
                 }
@@ -179,6 +231,7 @@ fun SsidSpammerExpandedContent(
 
             StartButton(
                 text = if (!running) "Start" else "Stop",
+                disabled = ssidSelected,
                 command = {
                     if (!running) {
                         viewModel.ssidSpammerSetSsids(3, listToSpam)
