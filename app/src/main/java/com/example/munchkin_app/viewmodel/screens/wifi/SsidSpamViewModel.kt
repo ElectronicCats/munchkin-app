@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.munchkin_app.data.datastore.SsidConfigMap
 import com.example.munchkin_app.data.datastore.SsidSpamConfigDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -17,6 +18,42 @@ class SsidSpamViewModel @Inject constructor(
     private val dataStore: SsidSpamConfigDataStore
 ): ViewModel() {
 
+    private val _ssidListTitle = MutableStateFlow("")
+    val ssidListTitle : StateFlow<String> = _ssidListTitle
+
+    private val _ssidText = MutableStateFlow("")
+    val ssidText : StateFlow<String> = _ssidText
+
+    private val _running = MutableStateFlow(false)
+    val running : StateFlow<Boolean> = _running
+
+    private val _ssidIsSelected = MutableStateFlow(false)
+    val ssidIsSelected : StateFlow<Boolean> = _ssidIsSelected
+
+    private val _listToSpam = MutableStateFlow(listOf<String>())
+    val listToSpam : StateFlow<List<String>> = _listToSpam
+
+    fun updateSsidListTitle(title: String) {
+        _ssidListTitle.value = title
+    }
+
+    fun updateSsidText(text: String) {
+        _ssidText.value = text
+    }
+
+    fun updateRunning(running: Boolean) {
+        _running.value = running
+    }
+
+    fun updateSsidIsSelected(selected: Boolean) {
+        _ssidIsSelected.value = selected
+    }
+
+    fun updateListToSpam(list: List<String>) {
+        _listToSpam.value = list
+    }
+
+    //DataStore Functions
     val allConfigs: StateFlow<SsidConfigMap> = dataStore.configsFlow
         .stateIn(
             // 🔑 ARGUMENTO 1: El ámbito donde se ejecuta (ViewModel)

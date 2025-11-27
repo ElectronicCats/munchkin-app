@@ -46,20 +46,21 @@ fun SsidSpammerExpandedContent(
     screenViewModel: SsidSpamViewModel,
     snackbarHostState: SnackbarHostState
 ) {
-    var ssidListTitle by remember { mutableStateOf("") }
-    var ssidText by remember { mutableStateOf("") }
-    var running by remember { mutableStateOf(false) }
-    var ssidSelected by remember { mutableStateOf(false) }
+    val ssidListTitle by screenViewModel.ssidListTitle.collectAsState()
+    val ssidText by screenViewModel.ssidText.collectAsState()
+    val running by screenViewModel.running.collectAsState()
+    val ssidIsSelected by screenViewModel.ssidIsSelected.collectAsState()
     val allConfigs by screenViewModel.allConfigs.collectAsState()
     val configNames = allConfigs.configs.keys.toList()
-    var listToSpam: List<String> by remember { mutableStateOf(emptyList()) }
+    val listToSpam: List<String> by screenViewModel.listToSpam.collectAsState()
+
     val scope = rememberCoroutineScope()
 
     var selectedListName by remember {
         mutableStateOf(configNames.firstOrNull() ?: "Pick a List")
     }
 
-    if (allConfigs.configs.isEmpty()) ssidSelected = false
+    if (allConfigs.configs.isEmpty()) screenViewModel.updateSsidIsSelected(false)
 
     Row(
         modifier = Modifier
@@ -99,7 +100,7 @@ fun SsidSpammerExpandedContent(
                 hint = "Type the name of the spammer list.",
                 value = ssidListTitle,
                 onValueChange = { newValue ->
-                    ssidListTitle = newValue
+                    screenViewModel.updateSsidListTitle(newValue)
                 }
             )
 
@@ -111,7 +112,7 @@ fun SsidSpammerExpandedContent(
                 value = ssidText,
                 type = InputType.SSID_LIST,
                 onValueChange = { newValue ->
-                    ssidText = newValue
+                    screenViewModel.updateSsidText(newValue)
                 }
             )
 
@@ -144,8 +145,8 @@ fun SsidSpammerExpandedContent(
                             rawText = ssidText
                         )
                         Log.d("SSID_SPAMMER", "Configuración guardada: Nombre='$ssidListTitle'")
-                        ssidText = ""
-                        ssidListTitle = ""
+                        screenViewModel.updateSsidText("")
+                        screenViewModel.updateSsidListTitle("")
                     }
                 }
             )
@@ -190,7 +191,7 @@ fun SsidSpammerExpandedContent(
                                 if (listName == selectedListName) {
                                     val remainingConfigs = allConfigs.configs.keys.toList().filter { it != listName }
                                     selectedListName = remainingConfigs.firstOrNull() ?: "Pick a List"
-                                    listToSpam = allConfigs.configs[selectedListName] ?: emptyList()
+                                    screenViewModel.updateListToSpam(allConfigs.configs[selectedListName] ?: emptyList())
                                 }
 
                                 snackbarHostState.showSnackbar(
@@ -207,9 +208,9 @@ fun SsidSpammerExpandedContent(
 
                 },
                 content = { newName ->
-                    ssidSelected = true
+                    screenViewModel.updateSsidIsSelected(true)
                     selectedListName = newName
-                    listToSpam = allConfigs.configs[newName] ?: emptyList()
+                    screenViewModel.updateListToSpam(allConfigs.configs[newName] ?: emptyList())
                 }
             )
 
@@ -231,13 +232,13 @@ fun SsidSpammerExpandedContent(
 
             StartButton(
                 text = if (!running) "Start" else "Stop",
-                disabled = ssidSelected,
+                disabled = ssidIsSelected,
                 command = {
                     if (!running) {
                         viewModel.ssidSpammerSetSsids(3, listToSpam)
                         viewModel.ssidSpammerStartRequest()
                     } else viewModel.ssidSpammerStopRequest()
-                    running = !running
+                    screenViewModel.updateRunning(!running)
                 }
             )
         }

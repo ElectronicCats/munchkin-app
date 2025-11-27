@@ -25,6 +25,7 @@ enum class InputType {
 
 @Composable
 fun TextFieldWithHint(
+    modifier: Modifier = Modifier,
     name: String,
     hint: String,
     value: String,
