@@ -1,6 +1,5 @@
 package com.example.munchkin_app.viewmodel.usb
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.munchkin_app.data.usb.UsbHelper
@@ -63,6 +62,8 @@ class UsbViewModel @Inject constructor(
     fun setChannel(channel: Int) = protobufRepository.setAnalyzerChannel(channel)
     fun stopAnalyzer() = protobufRepository.stopAnalyzer()
     fun startDeauthScan() = protobufRepository.startDeauthScan()
+
+    fun clearDeauthNetworks() {deviceRepository.deauthNetworks.value = emptyList()}
 
     fun setDeauthTarget(bssid: String) = protobufRepository.setNetwork(bssid)
 

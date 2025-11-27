@@ -30,6 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,6 +69,9 @@ fun DeauthExpandedContent(
     val networkIsSelected by screenViewModel.isNetworkSelected.collectAsState()
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    var scanAttempted by remember { mutableStateOf(false) } // 🚨 Estado local
+    val scanLoading = scanAttempted && networks.isEmpty()
 
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -120,7 +126,8 @@ fun DeauthExpandedContent(
             ProportionalSpacer(0.01f)
 
             FloatingActionButton(
-                onClick = { if (!running) viewModel.startDeauthScan()},
+                onClick = { if (!running)
+                    viewModel.startDeauthScan(); scanAttempted = true; viewModel.clearDeauthNetworks() },
                 modifier = Modifier,
                 containerColor = if (!running) MaterialTheme.colorScheme.primary else Color.LightGray
             ) {
@@ -193,7 +200,8 @@ fun DeauthExpandedContent(
         ) {
             InformationLabel(
                 modifier = Modifier.fillMaxSize(),
-                loadingText = "Loading..."
+                loadingText = "Scanning for Nearby Networks...",
+                loading = scanLoading
             ) {
                 if (networks.isEmpty()){
                     Text(
