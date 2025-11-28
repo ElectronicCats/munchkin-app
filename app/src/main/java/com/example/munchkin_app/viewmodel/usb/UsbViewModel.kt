@@ -31,6 +31,8 @@ class UsbViewModel @Inject constructor(
     //Analyzer
     val wifiNetworks = deviceRepository.wifiNetworks.asStateFlow()
     val totalPackets = deviceRepository.totalPackets.asStateFlow()
+
+    //Deauth
     val deauthNetworks = deviceRepository.deauthNetworks.asStateFlow()
 
     //ProtobufRepository
@@ -58,9 +60,13 @@ class UsbViewModel @Inject constructor(
     fun detectDevices() = usbManager.detect()
     fun registerReceiver() = usbHelper.registerReceiver()
     fun unregisterReceiver() = usbHelper.unregisterUsbReceiver()
+
+    //Analyzer
     fun startAnalyzer() = protobufRepository.startAnalyzer()
     fun setChannel(channel: Int) = protobufRepository.setAnalyzerChannel(channel)
     fun stopAnalyzer() = protobufRepository.stopAnalyzer()
+
+    //Deauth
     fun startDeauthScan() = protobufRepository.startDeauthScan()
 
     fun clearDeauthNetworks() {deviceRepository.deauthNetworks.value = emptyList()}
@@ -73,6 +79,7 @@ class UsbViewModel @Inject constructor(
 
     fun deauthStopAttackRequest() = protobufRepository.deauthStopAttackRequest()
 
+    //SSID SPAMMER
     fun ssidSpammerSetSsids(index: Int, ssids: List<String>) = protobufRepository.ssidSpammerSetSsids(index, ssids)
 
     fun ssidSpammerStartRequest() = protobufRepository.ssidSpammerStartRequest()

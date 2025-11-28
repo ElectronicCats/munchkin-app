@@ -1,13 +1,10 @@
 package com.example.munchkin_app.ui.screens.wifi.deauth.layouts
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,12 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,60 +28,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
+import com.example.munchkin_app.ui.common.WifiStrengthIcon
 import com.example.munchkin_app.ui.common.components.InformationLabel
-import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
-import com.example.munchkin_app.viewmodel.usb.UsbViewModel
+import com.example.munchkin_app.ui.common.components.OptionsButtonSegment
+import com.example.munchkin_app.ui.screens.wifi.deauth.DeauthActions
+import com.example.munchkin_app.ui.screens.wifi.deauth.DeauthState
 
 @Composable
 fun DeauthCompactContent(
-    innerPadding: PaddingValues,
-    typeOfAttack: List<String>,
-    attackIndex: Int,
-    viewModel: UsbViewModel,
-    screenViewModel: DeauthViewModel,
-    running: Boolean,
-    onToggleRunning: () -> Unit,
-    onStopRunning: () -> Unit,
+    state: DeauthState,
+    action: DeauthActions,
 ){
-    val networks by viewModel.deauthNetworks.collectAsState()
-    val selectedNetwork by screenViewModel.selectedNetwork.collectAsState()
-    val networkIsSelected by screenViewModel.isNetworkSelected.collectAsState()
-
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-
-
-    var scanAttempted by remember { mutableStateOf(false) } // 🚨 Estado local
-    val scanLoading = scanAttempted && networks.isEmpty()
-
-    DisposableEffect(lifecycle) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                onStopRunning()
-                viewModel.deauthStopAttackRequest()
-            }
-        }
-
-        lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycle.removeObserver(observer)
-            onStopRunning()
-            viewModel.deauthStopAttackRequest()
-        }
-    }
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(innerPadding)
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.verticalScroll(rememberScrollState())
     ){
 
         ApplicationTitle(
@@ -113,10 +69,14 @@ fun DeauthCompactContent(
         ProportionalSpacer(0.01f)
 
         FloatingActionButton(
-            onClick = { if (!running)
-                viewModel.startDeauthScan(); scanAttempted = true; viewModel.clearDeauthNetworks() },
+            onClick = {
+                if (!state.running)
+                    action.viewModel.startDeauthScan()
+                    action.screenViewModel.updateScanAttempted(true)
+                    action.viewModel.clearDeauthNetworks()
+            },
             modifier = Modifier,
-            containerColor = if (!running) MaterialTheme.colorScheme.primary else Color.LightGray
+            containerColor = if (!state.running) MaterialTheme.colorScheme.primary else Color.LightGray
         ) {
             Icon(
                 painter = painterResource(R.drawable._3_refresh),
@@ -135,15 +95,13 @@ fun DeauthCompactContent(
 
         OptionsButtonSegment(
             title = stringResource(R.string.wifi_deauth_attack_type),
-            names = typeOfAttack,
-            disabled = running || !networkIsSelected,
-            selectedIndex = attackIndex,
+            names = state.typeOfAttack,
+            disabled = state.running || !state.networkIsSelected,
+            selectedIndex = state.attackIndex,
             modifier = Modifier.fillMaxWidth(),
             onSelectionChanged = { index, _ ->
-                Log.d("UI", "UI index = $index")
-                viewModel.setAttackType(index)
-                screenViewModel.updateAttackIndex(index)
-                Log.d("UI", "attackIndex = $attackIndex")
+                action.viewModel.setAttackType(index)
+                action.screenViewModel.updateAttackIndex(index)
             },
             getTooltipText = { index ->
                 attackDescriptions.getOrElse(index) { "" }
@@ -161,9 +119,9 @@ fun DeauthCompactContent(
             InformationLabel(
                 modifier = Modifier.fillMaxSize(),
                 loadingText = "Scanning for Nearby Networks...",
-                loading = scanLoading
+                loading = state.scanLoading
             ) {
-                if (networks.isEmpty()){
+                if (state.networks.isEmpty()){
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -175,17 +133,16 @@ fun DeauthCompactContent(
                     )
                 }
 
-                networks.forEach { network ->
-                    val isSelected = selectedNetwork == network.ssid
-
+                state.networks.forEach { network ->
+                    val isSelected = state.selectedNetwork == network.ssid
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                if (!running) {
-                                    screenViewModel.updateIsNetworkSelected(true)
-                                    screenViewModel.updateSelectedNetwork(network.ssid)
-                                    viewModel.setDeauthTarget(network.bssid)
+                                if (!state.running) {
+                                    action.screenViewModel.updateIsNetworkSelected(true)
+                                    action.screenViewModel.updateSelectedNetwork(network.ssid)
+                                    action.viewModel.setDeauthTarget(network.bssid)
                                 }
                             },
                         colors = CardDefaults.cardColors(
@@ -227,7 +184,7 @@ fun DeauthCompactContent(
             }
         }
 
-        if (running) {
+        if (state.running) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -252,13 +209,13 @@ fun DeauthCompactContent(
         ProportionalSpacer(0.02f)
 
         StartButton(
-            text = if (running) "Stop" else "Start",
-            command = { onToggleRunning()
-                if (!running)
-                    viewModel.startDeauthAttack()
-                else viewModel.deauthStopAttackRequest()}
+            text = if (state.running) "Stop" else "Start",
+            command = {
+                action.screenViewModel.updateRunning(false)
+                if (!state.running)
+                    action.viewModel.startDeauthAttack()
+                else action.viewModel.deauthStopAttackRequest()
+            }
         )
-
-
     }
 }

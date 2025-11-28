@@ -21,6 +21,4 @@ object AppModule {
         return UsbHelper(context)
     }
 
-
-
 }

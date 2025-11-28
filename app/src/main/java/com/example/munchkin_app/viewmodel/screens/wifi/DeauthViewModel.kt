@@ -21,6 +21,10 @@ class DeauthViewModel @Inject constructor(): ViewModel() {
     private val _isNetworkSelected = MutableStateFlow(false)
     val isNetworkSelected: StateFlow<Boolean> = _isNetworkSelected
 
+    private val _scanAttempted = MutableStateFlow(false)
+    val scanAttempted: StateFlow<Boolean> = _scanAttempted
+
+
     fun updateRunning(isSelected: Boolean) {
         _running.value = isSelected
     }
@@ -35,5 +39,9 @@ class DeauthViewModel @Inject constructor(): ViewModel() {
 
     fun updateIsNetworkSelected(isSelected: Boolean) {
         _isNetworkSelected.value = isSelected
+    }
+
+    fun updateScanAttempted(attempted: Boolean) {
+        _scanAttempted.value = attempted
     }
 }
