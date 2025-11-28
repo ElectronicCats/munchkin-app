@@ -140,6 +140,12 @@ fun DeauthExpandedContent(
 
             ProportionalSpacer(0.03f)
 
+            val attackDescriptions = listOf(
+                "Disrupts communication between routers and devices.",
+                "Access point installed on a network without authorization.",
+                "Merges Broadcast and Rogue AP attacks."
+            )
+
             OptionsButtonSegment(
                 title = stringResource(R.string.wifi_deauth_attack_type),
                 names = typeOfAttack,
@@ -151,6 +157,9 @@ fun DeauthExpandedContent(
                     viewModel.setAttackType(index)
                     screenViewModel.updateAttackIndex(index)
                     Log.d("UI", "attackIndex = $attackIndex")
+                },
+                getTooltipText = { index ->
+                    attackDescriptions.getOrElse(index) { "" }
                 }
             )
 

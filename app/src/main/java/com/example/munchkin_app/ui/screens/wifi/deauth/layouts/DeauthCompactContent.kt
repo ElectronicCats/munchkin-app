@@ -3,6 +3,7 @@ package com.example.munchkin_app.ui.screens.wifi.deauth.layouts
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -126,6 +127,12 @@ fun DeauthCompactContent(
 
         ProportionalSpacer(0.03f)
 
+        val attackDescriptions = listOf(
+            "Disrupts communication between routers and devices.",
+            "Access point installed on a network without authorization.",
+            "Merges Broadcast and Rogue AP attacks."
+        )
+
         OptionsButtonSegment(
             title = stringResource(R.string.wifi_deauth_attack_type),
             names = typeOfAttack,
@@ -137,6 +144,9 @@ fun DeauthCompactContent(
                 viewModel.setAttackType(index)
                 screenViewModel.updateAttackIndex(index)
                 Log.d("UI", "attackIndex = $attackIndex")
+            },
+            getTooltipText = { index ->
+                attackDescriptions.getOrElse(index) { "" }
             }
         )
 
