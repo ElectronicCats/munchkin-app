@@ -6,18 +6,25 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.window.core.layout.WindowSizeClass
 import com.example.munchkin_app.R
@@ -53,26 +60,63 @@ fun AnalyzerContent(
 ){
     val wifiNetworks by viewModel.wifiNetworks.collectAsState()
     val totalPackets by viewModel.totalPackets.collectAsState()
-
     val sdCard = stringResource(R.string.wifi_analyzer_sd_card)
     val internal = stringResource(R.string.wifi_analyzer_internal)
-
     val storageDestination = remember { listOf(sdCard, internal) }
-
     val selectedDestinationIndex by screenViewModel.selectedDestinationIndex.collectAsState()
     var running by remember { mutableStateOf(false)}
-
     val channelsArray = stringArrayResource(R.array.wifi_analyzer_channels).toList()
-    // Lista de canales para el dropdown
     val channels = remember {
         channelsArray
     }
     val selectedChannel by screenViewModel.selectedChannel.collectAsState()
+
+
+    val scanChannel by screenViewModel.scanChannel.collectAsState()
+
+    val showStoppedMessage by screenViewModel.showStoppedMessage.collectAsState()
+
+    val context = LocalContext.current
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                screenViewModel.updateRunning(false)
+                screenViewModel.updateShowStoppedMessage(true)
+                viewModel.stopAnalyzer()
+            }
+        }
+
+        lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycle.removeObserver(observer)
+            screenViewModel.updateRunning(false)
+            screenViewModel.updateShowStoppedMessage(true)
+            viewModel.stopAnalyzer()
+        }
+    }
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .padding(innerPaddingValues)
             .fillMaxSize(),
     ) {
+        val state = AnalyzerState(
+            wifiNetworks = wifiNetworks,
+            totalPackets = totalPackets,
+            selectedChannel = selectedChannel,
+            selectedDestinationIndex = selectedDestinationIndex,
+            storageDestination = storageDestination,
+            channels = channels,
+            running = running,
+            scanChannel = scanChannel,
+            context = context,
+            showStoppedMessage = showStoppedMessage
+        )
+
         when {
             // Compact
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
@@ -96,20 +140,12 @@ fun AnalyzerContent(
             // Expanded
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
                 AnalyzerExpandedContent(
-                    innerPaddingValues = innerPaddingValues,
-                    storageDestination = storageDestination,
-                    selectedDestinationIndex = selectedDestinationIndex,
+                    state = state,
                     onDestinationChanged = { screenViewModel.updateDestinationIndex(it)},
-                    wifiNetworks = wifiNetworks,
-                    channels = channels,
-                    selectedChannel = selectedChannel,
                     onChannelChanged = { screenViewModel.updateChannel(it) },
-                    running = running,
                     onToggleRunning = { running = !running },
-                    onStopRunning = {running = false},
                     viewModel = viewModel,
                     screenViewModel = screenViewModel,
-                    totalPackets = totalPackets
                 )
             }
             // Medium u otro caso
@@ -135,25 +171,41 @@ fun AnalyzerContent(
     }
 }
 
+data class AnalyzerState (
+    val wifiNetworks: List<Analyzer.WifiNetwork>,
+    val channels: List<String>,
+    val selectedChannel: String,
+    val running: Boolean,
+    val storageDestination: List<String>,
+    val selectedDestinationIndex: Int,
+    val totalPackets: Int,
+    val scanChannel: String?,
+    val context: Context,
+    val showStoppedMessage: Boolean
+)
+
+
+
+
+
+
 fun formatWifiNetworks(
     context: Context,
     wifiNetworks: List<Analyzer.WifiNetwork>,
     scanChannel: String?
 ): String {
-    // 1. Obtener la plantilla de string del XML
+
     val template = context.getString(R.string.wifi_network_template)
 
-    // 2. Usar joinToString para procesar la lista
+
     return wifiNetworks.joinToString("\n\n") { net ->
-        // 3. Aplicar la lógica de manejo de nulos/vacíos
+
         val ssid = net.ssid.ifBlank { "(No SSID)" }
         val channel = scanChannel ?: "(No channel)"
         val bssid = net.bssid.ifBlank { "(No BSSID)" }
         val destination = net.destination.ifBlank { "(No Destination)" }
         val source = net.source.ifBlank { "(No Source)" }
 
-        // 4. Formatear la plantilla con los valores dinámicos
-        // Usamos String.format() con la plantilla XML y los 5 argumentos
         String.format(
             template,
             ssid,
@@ -164,6 +216,7 @@ fun formatWifiNetworks(
         )
     }
 }
+
 /*
 @Preview(
     name = "Phone Preview",
