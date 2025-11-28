@@ -14,7 +14,6 @@ class DeviceRepository {
     val totalPackets = MutableStateFlow(0)
     val deauthNetworks = MutableStateFlow<List<Deauth.DeauthAP>>(emptyList())
 
-    val apList = MutableStateFlow<List<Deauth.DeauthAP>>(emptyList())
 
 
     fun clear() {

@@ -31,8 +31,6 @@ class UsbViewModel @Inject constructor(
     //Analyzer
     val wifiNetworks = deviceRepository.wifiNetworks.asStateFlow()
     val totalPackets = deviceRepository.totalPackets.asStateFlow()
-    val deauthNetworks = deviceRepository.apList.asStateFlow()
-
     //Deauth
     val deauthNetworks = deviceRepository.deauthNetworks.asStateFlow()
 
@@ -66,7 +64,6 @@ class UsbViewModel @Inject constructor(
     fun startAnalyzer() = protobufRepository.startAnalyzer()
     fun setChannel(channel: Int) = protobufRepository.setAnalyzerChannel(channel)
     fun stopAnalyzer() = protobufRepository.stopAnalyzer()
-    fun requestDeauthScan() = protobufRepository.requestDeauthScan()
 
     //Deauth
     fun startDeauthScan() = protobufRepository.startDeauthScan()
