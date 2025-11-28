@@ -14,6 +14,7 @@ import com.example.munchkin_app.ui.screens.wifi.captive.CaptivePortalScreen
 import com.example.munchkin_app.ui.screens.wifi.captive.CaptiveProcessScreen
 import com.example.munchkin_app.ui.screens.wifi.deauth.DeauthScreen
 import com.example.munchkin_app.ui.screens.wifi.deauth_scan.DeauthScanScreen
+import com.example.munchkin_app.ui.screens.wifi.ssid_spammer.SsidSpammerScreen
 
 fun NavGraphBuilder.wifiNavGraph(navController: NavHostController) {
     // Pantalla principal WiFi
@@ -60,5 +61,14 @@ fun NavGraphBuilder.wifiNavGraph(navController: NavHostController) {
         exitTransition = scaleOut
     ) {
         DeauthScanScreen(navController = navController)
+    }
+
+    //SSID SPAMMER
+    composable(
+        route = "ssidSpammer",
+        enterTransition = scaleIn,
+        exitTransition = scaleOut
+    ) {
+        SsidSpammerScreen(navController = navController)
     }
 }

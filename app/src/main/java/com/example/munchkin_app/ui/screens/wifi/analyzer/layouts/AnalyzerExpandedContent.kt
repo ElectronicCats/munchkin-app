@@ -2,7 +2,6 @@ package com.example.munchkin_app.ui.screens.wifi.analyzer.layouts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,76 +12,31 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
-import com.example.munchkin_app.ui.common.components.DisplayCardContainer
+import com.example.munchkin_app.ui.common.components.InformationLabel
+import com.example.munchkin_app.ui.common.components.OptionsButtonSegment
+import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerAction
+import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerState
 import com.example.munchkin_app.ui.screens.wifi.analyzer.formatWifiNetworks
-import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
-import com.example.munchkin_app.viewmodel.usb.UsbViewModel
-import minino.analyzer.Analyzer
 
 @Composable
 fun AnalyzerExpandedContent(
-    innerPaddingValues: PaddingValues,
-    storageDestination: List<String>,
-    selectedDestinationIndex: Int,
-    onDestinationChanged: (Int) -> Unit,
-    wifiNetworks: List<Analyzer.WifiNetwork>,
-    channels: List<String>,
-    selectedChannel: String,
-    onChannelChanged: (String) -> Unit,
-    viewModel: UsbViewModel,
-    screenViewModel: AnalyzerViewModel,
-    running: Boolean,
-    onToggleRunning: () -> Unit,
-    onStopRunning: () -> Unit,
-    totalPackets: Int
+    state: AnalyzerState,
+    action: AnalyzerAction
 ) {
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-
-    val scanChannel by screenViewModel.scanChannel.collectAsState()
-
-    val context = LocalContext.current
-
-    DisposableEffect(lifecycle) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                onStopRunning()
-                viewModel.stopAnalyzer()
-            }
-        }
-
-        lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycle.removeObserver(observer)
-            onStopRunning()
-            viewModel.stopAnalyzer()
-        }
-    }
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPaddingValues)
             .background(MaterialTheme.colorScheme.background)
     ) {
         Row(
@@ -106,11 +60,11 @@ fun AnalyzerExpandedContent(
                 ProportionalSpacer(0.03f)
 
                 OptionsButtonSegment(
-                    names = storageDestination,
-                    selectedIndex = selectedDestinationIndex,
-                    onSelectionChanged = { index, name ->
-                        onDestinationChanged(index)
-                        handleDestinationSelection(index, name)
+                    names = state.storageDestination,
+                    selectedIndex = state.selectedDestinationIndex,
+                    disabled = state.running,
+                    onSelectionChanged = { index, _ ->
+                        action.screenViewModel.updateDestinationIndex(index)
                     },
                     title = stringResource(R.string.wifi_analyzer_storage_destination),
                     modifier = Modifier.fillMaxWidth()
@@ -119,33 +73,46 @@ fun AnalyzerExpandedContent(
                 ProportionalSpacer(0.03f)
 
                 ChannelDropMenu(
-                    channels = channels,
-                    selectedChannel = selectedChannel,
+                    channels = state.channels,
+                    selectedChannel = state.selectedChannel,
+                    disabled = state.running,
                     handleChannelSelection = { channel ->
                         val number = channel.removePrefix("Channel ").toInt()
-                        viewModel.setChannel(number)
-                        onChannelChanged(channel)
-                        handleChannelSelection(channel)
-                    }
+                        action.viewModel.setChannel(number)
+                        action.screenViewModel.updateChannel(channel)
+                    },
                 )
 
                 ProportionalSpacer(0.05f)
 
                 StartButton(
-                    text = if (running)
-                        stringResource(R.string.analyzer_stop)
-                    else stringResource(R.string.analyzer_start),
+                    text = if (state.running) stringResource(R.string.analyzer_stop) else stringResource(R.string.analyzer_start),
                     command = {
-                        if (running) {
-                            viewModel.stopAnalyzer()
+                        if (state.running) {
+                            action.viewModel.stopAnalyzer()
+                            action.screenViewModel.updateShowStoppedMessage(true)
                         } else {
-                            screenViewModel.clearScanChannel()
-                            screenViewModel.setScanChannel(selectedChannel)
-                            viewModel.startAnalyzer()
+                            action.screenViewModel.clearScanChannel()
+                            action.screenViewModel.setScanChannel(state.selectedChannel)
+                            action.viewModel.startAnalyzer()
+                            action.screenViewModel.updateShowStoppedMessage(false)
                         }
-                        onToggleRunning()
+                        action.screenViewModel.updateRunning(!state.running)
                     }
                 )
+
+                if (state.showStoppedMessage) {
+                    ProportionalSpacer(0.02f)
+
+                    Text(
+                        text = "Analyzer stopped.\nanalizer.pcap\nStored in SD Card: /apps/analizer/pcaps ",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
             }
 
             // Panel derecho
@@ -155,32 +122,30 @@ fun AnalyzerExpandedContent(
                     .fillMaxHeight(),  // ✅ Scroll aquí
                 horizontalAlignment = Alignment.Start
             ) {
-                DisplayCardContainer(
+                InformationLabel(
                     modifier = Modifier,
-                    loading = running,
+                    loading = state.running,
+                    loadingText = "Scanning...\n${state.totalPackets} Packets"
                 ) {
-                    val information = buildString {
-                        when {
-                            running -> {
-                                appendLine(stringResource(R.string.wifi_analyzer_scanning_networks))
-                            }
-                            wifiNetworks.isEmpty() -> {
-                                appendLine(stringResource(R.string.wifi_analyzer_no_networks))
-                            }
-                            else -> {
-                                appendLine(stringResource(R.string.analyzer_total_packets, totalPackets))
-                                appendLine()
-
-                                append(formatWifiNetworks(context, wifiNetworks, scanChannel))
-                            }
-                        }
-                    }
-
                     Text(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
-                        text = information.ifEmpty { "No networks found" },
+                            .fillMaxWidth(),
+                        text = buildString {
+                            when {
+                                state.running -> {
+                                    appendLine(stringResource(R.string.wifi_analyzer_scanning_networks))
+                                }
+                                state.wifiNetworks.isEmpty() -> {
+                                    appendLine(stringResource(R.string.wifi_analyzer_no_networks))
+                                }
+                                else -> {
+                                    appendLine(stringResource(R.string.analyzer_total_packets, state.totalPackets))
+                                    appendLine()
+
+                                    append(formatWifiNetworks(state.context, state.wifiNetworks, state.scanChannel))
+                                }
+                            }
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Black,
                         textAlign = TextAlign.Center
@@ -190,12 +155,4 @@ fun AnalyzerExpandedContent(
             }
         }
     }
-}
-
-private fun handleDestinationSelection(index: Int, name: String) {
-    println("Destination selected: $name (Index: $index)")
-}
-
-private fun handleChannelSelection(channel: String) {
-    println("Channel selected: $channel")
 }

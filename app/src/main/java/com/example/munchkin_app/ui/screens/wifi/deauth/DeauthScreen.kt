@@ -1,24 +1,25 @@
 package com.example.munchkin_app.ui.screens.wifi.deauth
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass
@@ -28,10 +29,11 @@ import com.example.munchkin_app.ui.screens.wifi.deauth.layouts.DeauthExpandedCon
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 import com.example.munchkin_app.viewmodel.screens.wifi.DeauthViewModel
 import com.example.munchkin_app.viewmodel.usb.UsbViewModel
+import minino.deauth.Deauth
 
 @Composable
 fun DeauthScreen(navController: NavHostController) {
-    MunchkinScreens.ApplicationLayout(navController, "wifi") {innerPadding ->
+    MunchkinScreens.ApplicationLayout(navController, "wifi") {innerPadding, _ ->
         DeauthContents(innerPadding)
     }
 }
@@ -43,80 +45,109 @@ fun DeauthContents(
     screenViewModel: DeauthViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
 ) {
-    val configuration = LocalConfiguration.current
-    val orientation = configuration.orientation
-
-    val floatingSize = when (orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> 56.dp
-        Configuration.ORIENTATION_PORTRAIT -> 45.dp
-        else -> 56.dp
-    }
-
-    val floatingX = when (orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> 40.dp
-        Configuration.ORIENTATION_PORTRAIT -> 55.dp
-        else -> 56.dp
-    }
-
     val typeOfAttack = remember {
         listOf("Broadcast", "Rogue AP", "Combined")
     }
-
+    val attackDescriptions = listOf(
+        "Disrupts communication between routers and devices.",
+        "Access point installed on a network without authorization.",
+        "Merges Broadcast and Rogue AP attacks."
+    )
     val attackIndex by screenViewModel.attackIndex.collectAsState()
+    val running by screenViewModel.running.collectAsState()
+    val networks by viewModel.deauthNetworks.collectAsState()
+    val selectedNetwork by screenViewModel.selectedNetwork.collectAsState()
+    val networkIsSelected by screenViewModel.isNetworkSelected.collectAsState()
 
-    var running by remember { mutableStateOf(false) }
+    val scanAttempted by screenViewModel.scanAttempted.collectAsState()
+    val scanLoading = scanAttempted && networks.isEmpty()
+
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                screenViewModel.updateRunning(false)
+                viewModel.deauthStopAttackRequest()
+            }
+        }
+
+        lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycle.removeObserver(observer)
+            screenViewModel.updateRunning(false)
+            viewModel.deauthStopAttackRequest()
+        }
+    }
+
+    val state = DeauthState(
+        typeOfAttack = typeOfAttack,
+        attackIndex = attackIndex,
+        running = running,
+        networks = networks,
+        selectedNetwork = selectedNetwork,
+        networkIsSelected = networkIsSelected,
+        scanAttempted = scanAttempted,
+        scanLoading = scanLoading,
+        attackDescriptions = attackDescriptions
+    )
+
+    val action = DeauthActions(
+        viewModel = viewModel,
+        screenViewModel = screenViewModel
+    )
+
 
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .padding(innerPadding)
             .fillMaxSize(),
     ) {
         when {
             // Compact
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
                 DeauthCompactContent(
-                    innerPadding = innerPadding,
-                    floatingSize = floatingSize,
-                    floatingX = floatingX,
-                    typeOfAttack = typeOfAttack,
-                    attackIndex = attackIndex,
-                    screenViewModel = screenViewModel,
-                    running = running,
-                    onToggleRunning = { running = !running }
+                    state = state,
+                    action = action,
                 )
             }
             // Expanded
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
                 DeauthExpandedContent(
-                    innerPadding = innerPadding,
-                    floatingSize = floatingSize,
-                    floatingX = floatingX,
-                    typeOfAttack = typeOfAttack,
-                    attackIndex = attackIndex,
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
-                    running = running,
-                    onToggleRunning = { running = !running }
+                    state = state,
+                    action = action,
                 )
             }
             // Medium u otro caso
             else -> {
                 DeauthCompactContent(
-                    innerPadding = innerPadding,
-                    floatingSize = floatingSize,
-                    floatingX = floatingX,
-                    typeOfAttack = typeOfAttack,
-                    attackIndex = attackIndex,
-                    screenViewModel = screenViewModel,
-                    running = running,
-                    onToggleRunning = { running = !running }
+                    state = state,
+                    action = action,
                 )
             }
         }
     }
 }
 
+data class DeauthState(
+    val typeOfAttack: List<String>,
+    val attackIndex: Int,
+    val running: Boolean,
+    val networks: List<Deauth.DeauthAP>,
+    val selectedNetwork: String,
+    val networkIsSelected: Boolean,
+    val scanAttempted: Boolean,
+    val scanLoading: Boolean,
+    val attackDescriptions: List<String>,
+)
 
+data class DeauthActions (
+    val viewModel: UsbViewModel,
+    val screenViewModel: DeauthViewModel,
+)
 
 
 

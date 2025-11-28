@@ -33,6 +33,9 @@ class UsbViewModel @Inject constructor(
     val totalPackets = deviceRepository.totalPackets.asStateFlow()
     val deauthNetworks = deviceRepository.apList.asStateFlow()
 
+    //Deauth
+    val deauthNetworks = deviceRepository.deauthNetworks.asStateFlow()
+
     //ProtobufRepository
     private val protobufRepository = ProtobufRepository(
         usbHelper = usbHelper,
@@ -58,9 +61,30 @@ class UsbViewModel @Inject constructor(
     fun detectDevices() = usbManager.detect()
     fun registerReceiver() = usbHelper.registerReceiver()
     fun unregisterReceiver() = usbHelper.unregisterUsbReceiver()
+
+    //Analyzer
     fun startAnalyzer() = protobufRepository.startAnalyzer()
     fun setChannel(channel: Int) = protobufRepository.setAnalyzerChannel(channel)
     fun stopAnalyzer() = protobufRepository.stopAnalyzer()
     fun requestDeauthScan() = protobufRepository.requestDeauthScan()
 
+    //Deauth
+    fun startDeauthScan() = protobufRepository.startDeauthScan()
+
+    fun clearDeauthNetworks() {deviceRepository.deauthNetworks.value = emptyList()}
+
+    fun setDeauthTarget(bssid: String) = protobufRepository.setNetwork(bssid)
+
+    fun setAttackType(index: Int) = protobufRepository.setAttackType(index)
+
+    fun startDeauthAttack() = protobufRepository.deauthStartAttackRequest()
+
+    fun deauthStopAttackRequest() = protobufRepository.deauthStopAttackRequest()
+
+    //SSID SPAMMER
+    fun ssidSpammerSetSsids(index: Int, ssids: List<String>) = protobufRepository.ssidSpammerSetSsids(index, ssids)
+
+    fun ssidSpammerStartRequest() = protobufRepository.ssidSpammerStartRequest()
+
+    fun ssidSpammerStopRequest() = protobufRepository.ssidSpammerStopRequest()
 }

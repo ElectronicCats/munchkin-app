@@ -1,7 +1,7 @@
 package com.example.munchkin_app.di
 
 import android.content.Context
-import com.example.munchkin_app.data.usb.UsbHelper
+import com.example.munchkin_app.data.datastore.SsidSpamConfigDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,14 +11,11 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object DataStoreModule {
 
-    @Provides
     @Singleton
-    fun provideUsbHelper (
-        @ApplicationContext context: Context
-    ): UsbHelper {
-        return UsbHelper(context)
+    @Provides
+    fun provideSsidSpamConfigDataStore(@ApplicationContext context: Context): SsidSpamConfigDataStore {
+        return SsidSpamConfigDataStore(context)
     }
-
 }

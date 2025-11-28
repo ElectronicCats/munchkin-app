@@ -20,10 +20,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.munchkin_app.ui.common.ApplicationTitle
-import com.example.munchkin_app.ui.common.OptionsButtonSegment
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
+import com.example.munchkin_app.ui.common.components.OptionsButtonSegment
 import com.example.munchkin_app.ui.screens.wifi.captive.components.PortalAndRedirect
 
 @Composable
@@ -40,7 +40,6 @@ fun CaptiveExpandedContent(
     onChannelSelection: (String) -> Unit,
     navController: NavHostController
 ) {
-    // Un único ScrollState compartido
     val sharedScroll = rememberScrollState()
 
     Column(

@@ -1,5 +1,6 @@
 package com.example.munchkin_app.ui.common.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +32,8 @@ import androidx.compose.ui.unit.dp
 fun ChannelDropMenu(
     channels: List<String>,
     selectedChannel: String,
-    handleChannelSelection: (String) -> Unit
+    handleChannelSelection: (String) -> Unit,
+    disabled: Boolean = false
 ){
     var expanded by remember { mutableStateOf(false) }
 
@@ -52,7 +54,9 @@ fun ChannelDropMenu(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
+                .clickable {
+                    if (!disabled) expanded = !expanded else Log.d("ChannelDropMenu", "Channel selection is disabled")
+                }
                 .border(
                     width = 1.dp,
                     color = Color.Black,
@@ -60,7 +64,7 @@ fun ChannelDropMenu(
                 )
                 .clip(RoundedCornerShape(20.dp)),
             colors = CardDefaults.cardColors(
-                containerColor = Color.White
+                containerColor = if (!disabled) Color.White else Color.LightGray
             ),
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)

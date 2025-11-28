@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -12,8 +13,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,23 +28,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowSizeClass
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.ProportionalSpacer
 import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
-import com.example.munchkin_app.ui.common.components.DisplayCardContainer
+import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.ui.common.components.MunchkinScreens
-import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerScreen
 import com.example.munchkin_app.ui.theme.MunchkinappTheme
 
 @Composable
 fun DeauthScanScreen(navController: NavHostController) {
-    MunchkinScreens.ApplicationLayout(navController, "wifi") { innerPadding ->
+    MunchkinScreens.ApplicationLayout(navController, "wifi") { innerPadding, _ ->
         DeauthScanContents(innerPadding)
     }
 }
 @Composable
-fun DeauthScanContents(innerPaddingValues: PaddingValues){
+fun DeauthScanContents(
+    innerPaddingValues: PaddingValues,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+){
     var checked by remember { mutableStateOf(true) }
     var running by remember { mutableStateOf(false) }
 
@@ -56,13 +60,72 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
     }
 
     val selectedChannel by remember { mutableStateOf(channels.first())}
+
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(innerPaddingValues)
+            .fillMaxSize()
+    ) {
+
+        when {
+            !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
+                DeauthScanCompactContent(
+                    selectedChannel = selectedChannel,
+                    channels = channels,
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                    running = running,
+                    onToggleRunning = { running = !running },
+                    onChannelChanged = {}
+                )
+            }
+            
+            windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
+                DeauthScanExpandedContent(
+                    selectedChannel = selectedChannel,
+                    channels = channels,
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                    running = running,
+                    onToggleRunning = { running = !running },
+                    onChannelChanged = {}
+                )
+            }
+            
+            else -> {
+                DeauthScanCompactContent(
+                    selectedChannel = selectedChannel,
+                    channels = channels,
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                    running = running,
+                    onToggleRunning = { running = !running },
+                    onChannelChanged = {}
+                )
+            }
+        }
+
+
+    }
+}
+
+@Composable
+fun DeauthScanCompactContent(
+    channels: List<String>,
+    selectedChannel: String,
+    onChannelChanged: (String) -> Unit,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit = {},
+    running: Boolean,
+    onToggleRunning: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        ApplicationTitle("WiFi", "deauth Scan")
+        ApplicationTitle("WiFi", "Deauth Scan")
 
         ProportionalSpacer(0.03f)
 
@@ -85,7 +148,7 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
         ) {
             Switch(
                 checked = checked,
-                onCheckedChange = { checked = it }
+                onCheckedChange = { onCheckedChange(it) }
             )
 
             Box(modifier = Modifier.padding(horizontal = 8.dp))
@@ -103,33 +166,141 @@ fun DeauthScanContents(innerPaddingValues: PaddingValues){
         ChannelDropMenu(
             channels = channels,
             selectedChannel = selectedChannel,
-            handleChannelSelection = {it}
-            )
-
-        ProportionalSpacer(0.03f)
-
-        DisplayCardContainer(
-            loading = false,
-            loadingText = "Loading deauth Scan Information..."
+            handleChannelSelection = { channel ->
+                onChannelChanged(channel)
+            },
+            disabled = checked
         )
 
         ProportionalSpacer(0.03f)
 
-        if (running) {
-            StartButton(
-                text = "Stop",
-                command = { running = false }
-            )
-        } else {
-            StartButton(
-                text = "Start",
-                command = { running = true }
+        InformationLabel(
+            loading = false,
+            loadingText = "Loading Deauth Scan Information..."
+        ) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = "Deauth Scan Information",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black,
+                textAlign = TextAlign.Center
             )
         }
 
         ProportionalSpacer(0.03f)
+
+        StartButton(
+            text = if (running) "Stop" else "Start",
+            command = { onToggleRunning() }
+        )
+
+        ProportionalSpacer(0.03f)
     }
 }
+
+@Composable
+fun DeauthScanExpandedContent(
+    channels: List<String>,
+    selectedChannel: String,
+    onChannelChanged: (String) -> Unit,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit = {},
+    running: Boolean,
+    onToggleRunning: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+
+        // ------- LEFT COLUMN -------
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            ApplicationTitle("WiFi", "Deauth Scan")
+
+            ProportionalSpacer(0.03f)
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = "Channel Settings",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Black,
+                textAlign = TextAlign.Center
+            )
+
+            ProportionalSpacer(0.01f)
+
+            Row (
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Switch(
+                    checked = checked,
+                    onCheckedChange = { onCheckedChange(it) }
+                )
+
+                Box(modifier = Modifier.padding(horizontal = 8.dp))
+
+                Text(
+                    text = "Channel Hopping",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            ProportionalSpacer(0.03f)
+
+            ChannelDropMenu(
+                channels = channels,
+                selectedChannel = selectedChannel,
+                handleChannelSelection = { channel ->
+                    onChannelChanged(channel)
+                },
+                disabled = checked
+            )
+
+            ProportionalSpacer(0.03f)
+
+            StartButton(
+                text = if (running) "Stop" else "Start",
+                command = { onToggleRunning() }
+            )
+        }
+
+        // ------- RIGHT COLUMN -------
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            InformationLabel(
+                loading = false,
+                loadingText = "Loading Deauth Scan Information..."
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = "Deauth Scan Information",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            ProportionalSpacer(0.03f)
+        }
+    }
+}
+
+
+
 
 @Preview(
     name = "Phone Preview",

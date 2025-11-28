@@ -59,5 +59,8 @@
     <string name="wifi_deauth_application_name">Deauth</string>
     <string name="wifi_deauth_attack_type">Type of Attack</string>
     <string name="deauth_inprocess">Attack is being executed...</string>
+    <string name="wifi_ssidspam_application_title">WiFi</string>
+    <string name="wifi_ssidspam_title">SSID Spammer</string>
+    <string name="wifi_ssid_spammer_add_ssid">Add SSID</string>
 
 </resources>

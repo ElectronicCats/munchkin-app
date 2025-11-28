@@ -31,7 +31,7 @@ fun CaptivePortalScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        MunchkinScreens.ApplicationLayout(navController, "wifi") { innerPadding ->
+        MunchkinScreens.ApplicationLayout(navController, "wifi") { innerPadding, _ ->
             CaptivePortalContents(innerPadding, navController)
         }
     }

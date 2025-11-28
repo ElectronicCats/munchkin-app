@@ -1,6 +1,7 @@
 package com.example.munchkin_app.ui.common
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,12 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,50 +56,30 @@ fun ApplicationTitle(
 }
 
 @Composable
-fun OptionsButtonSegment(
-    names: List<String>,
-    modifier: Modifier = Modifier,
-    selectedIndex: Int = 0,
-    onSelectionChanged: (Int, String) -> Unit,
-    title: String = "Destination"
-) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.bodyLarge,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+fun WifiStrengthIcon(rssi: Int, modifier: Modifier = Modifier) {
+    val level = when {
+        rssi >= -50 -> 4
+        rssi >= -60 -> 3
+        rssi >= -70 -> 2
+        rssi >= -80 -> 1
+        else -> 0
+    }
 
-    SingleChoiceSegmentedButtonRow(
-        space = (-4).dp,
-        modifier = modifier
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        names.forEachIndexed { index, name ->
-            SegmentedButton(
-                modifier = Modifier.weight(1f),
-                colors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = Color(0XFF72BA63),
-                    activeContentColor = Color.White,
-                    inactiveContainerColor = Color.White,
-                    inactiveContentColor = Color.Black
-                ),
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index,
-                    count = names.size
-                ),
-                onClick = {
-                    onSelectionChanged(index, name)
-                },
-                selected = index == selectedIndex,
-                label = {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+        repeat(4) { index ->
+            val barIndex = index + 1
+            Box(
+                modifier = Modifier
+                    .width(6.dp)
+                    .height((barIndex * 6).dp)
+                    .background(
+                        if (barIndex <= level) Color.Black else Color.LightGray,
+                        shape = RoundedCornerShape(2.dp)
                     )
-                },
             )
         }
     }
@@ -107,7 +88,8 @@ fun OptionsButtonSegment(
 @Composable
 fun StartButton(
     text: String,
-    command: () -> Unit
+    command: () -> Unit,
+    disabled: Boolean = true
 ){
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -123,7 +105,11 @@ fun StartButton(
         Button(
             modifier = Modifier
                 .weight(0.6f),
-            onClick = { command() }
+            onClick = { command() },
+            enabled = disabled,
+            colors = ButtonDefaults.buttonColors(
+                disabledContainerColor = Color.LightGray,
+            )
         ) {
             Text(
                 modifier = Modifier.padding(4.dp),
@@ -145,7 +131,6 @@ fun IndeterminateCircularIndicator(loading: Boolean, fraction: Float, stroke: Fl
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
 
-    // 🔧 Usa el lado más corto
     val baseSize = if (screenWidth < screenHeight) screenWidth else screenHeight
     val circleSize = baseSize * fraction
 

@@ -5,6 +5,8 @@ package minino.deauth;
 message DeauthAP {
   string ssid = 1;
   string bssid = 2;
+  int32 rssi = 3;
+  uint32 channel = 4;
 }
 
 message DeauthScanResults {
@@ -13,6 +15,7 @@ message DeauthScanResults {
 }
 message DeauthScanRequest {}
 message DeauthStopRequest {}
+
 
 message DeauthSelectTargetRequest {
   string bssid = 1;
