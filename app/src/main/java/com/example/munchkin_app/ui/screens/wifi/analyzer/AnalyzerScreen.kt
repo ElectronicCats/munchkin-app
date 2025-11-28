@@ -11,12 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
@@ -64,20 +61,15 @@ fun AnalyzerContent(
     val internal = stringResource(R.string.wifi_analyzer_internal)
     val storageDestination = remember { listOf(sdCard, internal) }
     val selectedDestinationIndex by screenViewModel.selectedDestinationIndex.collectAsState()
-    var running by remember { mutableStateOf(false)}
+    val running by screenViewModel.running.collectAsState()
     val channelsArray = stringArrayResource(R.array.wifi_analyzer_channels).toList()
     val channels = remember {
         channelsArray
     }
     val selectedChannel by screenViewModel.selectedChannel.collectAsState()
-
-
     val scanChannel by screenViewModel.scanChannel.collectAsState()
-
     val showStoppedMessage by screenViewModel.showStoppedMessage.collectAsState()
-
     val context = LocalContext.current
-
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     DisposableEffect(lifecycle) {
@@ -117,54 +109,31 @@ fun AnalyzerContent(
             showStoppedMessage = showStoppedMessage
         )
 
+        val action = AnalyzerAction(
+            viewModel = viewModel,
+            screenViewModel = screenViewModel
+        )
+
         when {
             // Compact
             !windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) -> {
                 AnalyzerCompactContent(
-                    innerPaddingValues = innerPaddingValues,
-                    storageDestination = storageDestination,
-                    selectedDestinationIndex = selectedDestinationIndex,
-                    onDestinationChanged = { screenViewModel.updateDestinationIndex(it) },
-                    wifiNetworks = wifiNetworks,
-                    channels = channels,
-                    selectedChannel = selectedChannel,
-                    onChannelChanged = { screenViewModel.updateChannel(it) },
-                    running = running,
-                    onStopRunning = {running = false},
-                    onToggleRunning = { running = !running },
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
-                    totalPackets = totalPackets
+                    state = state,
+                    action = action,
                 )
             }
             // Expanded
             windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) -> {
                 AnalyzerExpandedContent(
                     state = state,
-                    onDestinationChanged = { screenViewModel.updateDestinationIndex(it)},
-                    onChannelChanged = { screenViewModel.updateChannel(it) },
-                    onToggleRunning = { running = !running },
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
+                    action = action,
                 )
             }
             // Medium u otro caso
             else -> {
                 AnalyzerCompactContent(
-                    innerPaddingValues = innerPaddingValues,
-                    storageDestination = storageDestination,
-                    selectedDestinationIndex = selectedDestinationIndex,
-                    onDestinationChanged = { screenViewModel.updateDestinationIndex(it) },
-                    wifiNetworks = wifiNetworks,
-                    channels = channels,
-                    selectedChannel = selectedChannel,
-                    onChannelChanged = { screenViewModel.updateChannel(it) },
-                    running = running,
-                    onStopRunning = {running = false},
-                    onToggleRunning = { running = !running },
-                    viewModel = viewModel,
-                    screenViewModel = screenViewModel,
-                    totalPackets = totalPackets
+                    state = state,
+                    action = action,
                 )
             }
         }
@@ -184,10 +153,10 @@ data class AnalyzerState (
     val showStoppedMessage: Boolean
 )
 
-
-
-
-
+data class AnalyzerAction(
+    val viewModel: UsbViewModel,
+    val screenViewModel: AnalyzerViewModel,
+)
 
 fun formatWifiNetworks(
     context: Context,

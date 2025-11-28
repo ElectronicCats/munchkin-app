@@ -2,7 +2,6 @@ package com.example.munchkin_app.ui.screens.wifi.analyzer.layouts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,21 +12,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.munchkin_app.R
 import com.example.munchkin_app.ui.common.ApplicationTitle
 import com.example.munchkin_app.ui.common.ProportionalSpacer
@@ -35,20 +25,14 @@ import com.example.munchkin_app.ui.common.StartButton
 import com.example.munchkin_app.ui.common.components.ChannelDropMenu
 import com.example.munchkin_app.ui.common.components.InformationLabel
 import com.example.munchkin_app.ui.common.components.OptionsButtonSegment
+import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerAction
 import com.example.munchkin_app.ui.screens.wifi.analyzer.AnalyzerState
 import com.example.munchkin_app.ui.screens.wifi.analyzer.formatWifiNetworks
-import com.example.munchkin_app.viewmodel.screens.wifi.AnalyzerViewModel
-import com.example.munchkin_app.viewmodel.usb.UsbViewModel
-import minino.analyzer.Analyzer
 
 @Composable
 fun AnalyzerExpandedContent(
-    onDestinationChanged: (Int) -> Unit,
-    onChannelChanged: (String) -> Unit,
-    viewModel: UsbViewModel,
-    screenViewModel: AnalyzerViewModel,
-    onToggleRunning: () -> Unit,
-    state: AnalyzerState
+    state: AnalyzerState,
+    action: AnalyzerAction
 ) {
     Column(
         modifier = Modifier
@@ -80,7 +64,7 @@ fun AnalyzerExpandedContent(
                     selectedIndex = state.selectedDestinationIndex,
                     disabled = state.running,
                     onSelectionChanged = { index, _ ->
-                        onDestinationChanged(index)
+                        action.screenViewModel.updateDestinationIndex(index)
                     },
                     title = stringResource(R.string.wifi_analyzer_storage_destination),
                     modifier = Modifier.fillMaxWidth()
@@ -94,28 +78,26 @@ fun AnalyzerExpandedContent(
                     disabled = state.running,
                     handleChannelSelection = { channel ->
                         val number = channel.removePrefix("Channel ").toInt()
-                        viewModel.setChannel(number)
-                        onChannelChanged(channel)
+                        action.viewModel.setChannel(number)
+                        action.screenViewModel.updateChannel(channel)
                     },
                 )
 
                 ProportionalSpacer(0.05f)
 
                 StartButton(
-                    text = if (state.running)
-                        stringResource(R.string.analyzer_stop)
-                    else stringResource(R.string.analyzer_start),
+                    text = if (state.running) stringResource(R.string.analyzer_stop) else stringResource(R.string.analyzer_start),
                     command = {
                         if (state.running) {
-                            viewModel.stopAnalyzer()
-                            screenViewModel.updateShowStoppedMessage(true)
+                            action.viewModel.stopAnalyzer()
+                            action.screenViewModel.updateShowStoppedMessage(true)
                         } else {
-                            screenViewModel.clearScanChannel()
-                            screenViewModel.setScanChannel(state.selectedChannel)
-                            viewModel.startAnalyzer()
-                            screenViewModel.updateShowStoppedMessage(false)
+                            action.screenViewModel.clearScanChannel()
+                            action.screenViewModel.setScanChannel(state.selectedChannel)
+                            action.viewModel.startAnalyzer()
+                            action.screenViewModel.updateShowStoppedMessage(false)
                         }
-                        onToggleRunning()
+                        action.screenViewModel.updateRunning(!state.running)
                     }
                 )
 
