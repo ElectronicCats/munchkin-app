@@ -72,10 +72,13 @@ fun DeauthCompactContent(
 
         FloatingActionButton(
             onClick = {
-                if (!state.running)
+                if (!state.running) {
                     action.viewModel.startDeauthScan()
                     action.screenViewModel.updateScanAttempted(true)
                     action.viewModel.clearDeauthNetworks()
+                } else {
+                    print("You can't do anything with this button at the moment")
+                }
             },
             modifier = Modifier,
             containerColor = if (!state.running) MaterialTheme.colorScheme.primary else Color.LightGray

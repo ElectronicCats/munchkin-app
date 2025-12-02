@@ -52,17 +52,12 @@ android {
     }
 }
 
-// 🔥 CONFIGURACIÓN CORRECTA PARA ANDROID
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:3.25.1"
     }
-
-    // 🔥 ESTO LE DICE DÓNDE BUSCAR LOS ARCHIVOS .proto
     plugins {
-        // No necesitas plugins adicionales para Kotlin básico
     }
-
     generateProtoTasks {
         all().forEach { task ->
             task.builtins {

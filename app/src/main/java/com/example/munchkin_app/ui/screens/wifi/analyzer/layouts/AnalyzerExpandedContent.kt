@@ -119,7 +119,7 @@ fun AnalyzerExpandedContent(
             Column(
                 modifier = Modifier
                     .weight(0.6f)
-                    .fillMaxHeight(),  // ✅ Scroll aquí
+                    .fillMaxHeight(),
                 horizontalAlignment = Alignment.Start
             ) {
                 InformationLabel(
