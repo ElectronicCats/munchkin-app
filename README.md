@@ -7,35 +7,50 @@ In addition to its innovative integration of an Android application for device m
 
 This project is based on **[usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android)** by **mik3y**, which enables serial device communication via Android, with robust and reliable tools for data transmission.
 
-The application was developed with the Android Studio IDE using Kotlin and Jetpack Compose as the main programming tools. In addition, certain implementations were made to facilitate the development of the application, such as Dagger Hilt. These changes were made in the build.gradle (app) of the document.
+The application was developed with the Android Studio IDE (Android Studio Otter | 2025.2.1) using Kotlin and Jetpack Compose as the main programming tools. In addition, certain implementations were made to facilitate the development of the application, such as Dagger Hilt. These changes were made in the build.gradle (app) of the document.
 
 > IMPORTANT:
 > Please use an OTG Adapter or an USB-C to USB-C Cable for the development of this project.
 
-
-
-
 ## Start developing
 
-To begin developing this project, you must follow this steps.
+To begin developing this project, you must follow theses steps.
 
   
 
 ### 1. Download Android Studio
 
-The first step is to download and install **[Android Studio](https://developer.android.com/studio?hl=es-419)**.
+The first step is to download, install and execute **[Android Studio](https://developer.android.com/studio?hl=es-419)**.
 
-Once installed you should see something like this:
+Once installed and executed you should see something like this:
 
+<img width="774" height="628" alt="image" src="https://github.com/user-attachments/assets/5cf017d7-f0b3-48c3-8237-18e32059d515" />
+
+To import this repository into Android Studio you must do the following steps:
+
+&nbsp;&nbsp;&nbsp;&nbsp;**I)** Click on "Get from VCS".
+
+&nbsp;&nbsp;&nbsp;&nbsp;**II)** Once opened, copy one of the following URL's and paste it into the URL text field, then press enter on your keyboard or click the blue button that says "clone" on the bottom right to start cloning this repository.
   
+  **HTTPS**
+  ```bash
+  https://github.com/ElectronicCats/munchkin-app.git
+  ```
+  **SSH**
+  ```bash
+  git@github.com:ElectronicCats/munchkin-app.git
+  ```
+>NOTE: Remember that, to use the SSH URL you must first synchronize your ssh key from your PC to your GitHub account. Here are some [videos](https://www.youtube.com/results?search_query=how+to+activate+ssh+on+github) that explain you how
 
-- nombre_del_proyecto.kicad_pro
+&nbsp;&nbsp;&nbsp;&nbsp;**III)** Now wait for the project to be cloned, once it finishes, allow Android Studio to import the project. Be patient, because it may take a while to import.
 
-- nombre_de_la_pcb.kicad_pcb
+After Android Studio finished importing the project files, the Android Studio project must look like this.
 
-- nombre_del_esquematico.kicad_sch
 
-  
+
+Now that your screen looks like this, you can continue to the next step to develop on this project.
+
+### 2. Explore munchkin-app in Android Studio
 
 Además de archivos temporales, los cuales Git ignora al momento de cualquier push.
 
