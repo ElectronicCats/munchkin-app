@@ -1,7 +1,9 @@
 
-# Munchkin
+# Munchkin Android Application
 
 **Munchkin** is a multi-protocol, multi-band device designed for sniffing, communication, and attacking IoT devices. Munchkin was designed to be controlled via **RPC (Remote Procedure Call)** through an Android device via **USB-Serial**.
+
+[![](https://electroniccats.com/wp-content/uploads/2018/01/fav.png)](https://www.electroniccats.com)
 
 In addition to its innovative integration of an Android application for device management, Protocol Buffers serialization technology, designed and developed by Google, was implemented, allowing for compact, fast, and efficient information transfer.
 
@@ -12,11 +14,12 @@ The application was developed with the Android Studio IDE (Android Studio Otter 
 > IMPORTANT:
 > Please use an OTG Adapter or an USB-C to USB-C Cable for the development of this project.
 
+> NOTE:
+>It is highly recommended to compile this project on an Android 11+ device. The reason is that it allows wireless ADB (Android Debug Bridge), a perfect tool to debug USB-Serial.
+
 ## Start developing
 
-To begin developing this project, you must follow theses steps.
-
-  
+To begin developing this project, you must follow these steps.
 
 ### 1. Download Android Studio
 
@@ -40,53 +43,195 @@ To import this repository into Android Studio you must do the following steps:
   ```bash
   git@github.com:ElectronicCats/munchkin-app.git
   ```
->NOTE: Remember that, to use the SSH URL you must first synchronize your ssh key from your PC to your GitHub account. Here are some [videos](https://www.youtube.com/results?search_query=how+to+activate+ssh+on+github) that explain you how
+> NOTE: Remember that, to use the SSH URL you must first synchronize your SSH key from your PC to your GitHub account. Here are some [videos](https://www.youtube.com/results?search_query=how+to+activate+ssh+on+github) that explain you how
 
-&nbsp;&nbsp;&nbsp;&nbsp;**III)** Now wait for the project to be cloned, once it finishes, allow Android Studio to import the project. Be patient, because it may take a while to import.
+&nbsp;&nbsp;&nbsp;&nbsp;**III)** Now wait for the project to be cloned. Once it finishes, allow Android Studio to import the project. Be patient, because it may take a while to import.
 
 After Android Studio finished importing the project files, the Android Studio project must look like this.
 
-
+<img width="1366" height="727" alt="image" src="https://github.com/user-attachments/assets/6528af15-9bab-4cd6-a236-ac66a37eaeb7" />
 
 Now that your screen looks like this, you can continue to the next step to develop on this project.
 
 ### 2. Explore munchkin-app in Android Studio
 
-Además de archivos temporales, los cuales Git ignora al momento de cualquier push.
+To know how the code of the munchkin-app works, we must explore the files of the project.
 
-[Archivos ignorados](.gitignore)
+#### Protocol Buffers
 
-  
+Protocol Buffers (protobuf) is one of the main implementations made in this project, to see where are the .proto files stored in your project you must set your project files view to "project", then navigate to the following directory route.
 
-Estos archivos deberán ser guardados dentro de la carpeta de [hardware](hardware/).
+**~\munchkin-app\app\src\main\proto**
 
-  
+<img width="431" height="373" alt="image" src="https://github.com/user-attachments/assets/7c3afabe-a226-4a85-a782-c962a6c00f6c" />
 
-### Configuración de automatización
+In these folders you will observe the different **.proto** files that allows the compilation of the protobuf code for Kotlin. For instance: When you open the **main.proto** file, you will see something just like this.
 
-Una vez terminado el proyecto, antes de hacer el primer Release, se deberán realizar algunos cambios para la automatización de archivos.
+> NOTE: Recommended to install a plugin for Android Studio that supports .proto file syntax.
 
-En la carpeta [.github/workflows](.github/workflows/) se encuentra el archivo kicad_kibot.yml, en donde los siguientes campos deberán ser modificados
+  ```proto
+syntax = "proto3";
+package minino.rpc;
 
-  
+import "about/about.proto";
+import "wifi/analyzer/analyzer.proto";
+import "wifi/deauth/deauth.proto";
+import "wifi/wifi_spam/wifispam.proto";
+enum Status {
+      STATUS_UNKNOWN = 0;
+      STATUS_OK = 1;
+      STATUS_ERROR = 2;
+}
 
-```yaml
+message MainRequest {
 
-# optional - schematic file
+      uint32 message_id = 100;
+      Status status = 101;
+    
+      oneof payload {
+        // about mesagges
+        minino.about.AboutRequest about = 1;
+        // analyzer messages
+        minino.analyzer.AnalyzerStartRequest analyzer_start = 2;
+        minino.analyzer.AnalyzerStopRequest analyzer_stop = 3;
+        minino.analyzer.AnalyzerSetChannelRequest analyzer_set_channel = 4;
+        // deauth mess
+        minino.deauth.DeauthScanRequest deauth_scan = 5;
+        minino.deauth.DeauthSelectTargetRequest deauth_select_target = 6;
+        minino.deauth.DeauthSetAttackRequest deauth_set_attack = 7;
+        minino.deauth.DeauthStartAttackRequest deauth_start = 8;
+        minino.deauth.DeauthStopRequest deauth_stop = 9;
+        // wifi spam
+        minino.wifispam.WifiSpamSetConfigRequest wifispam_config = 12;
+        minino.wifispam.WifiSpamStartRequest wifispam_start = 13;
+        minino.wifispam.WifiSpamStopRequest wifispam_stop = 14;
+      }
+}
 
-schema: 'hardware/Template-KiCAD-Project-CI.kicad_sch'
+message MainResponse {
+      uint32 message_id = 100;
+      Status status = 101;
+    
+      oneof payload {
+        minino.about.AboutResponse about = 1;
+        minino.analyzer.AnalyzerData analyzer = 2;
+        minino.deauth.DeauthScanResults deauth_scan_results = 5;
+      }
+}
+  ```
 
-# optional - pcb file
+This code is meant to be **the center of all the .proto files** that are already into the project, additioning the posterior codes that are planned to be integrated for future modules.
 
-board: 'hardware/Template-KiCAD-Project-CI.kicad_pcb'
+In the next code snippet you will observe the first part of the code, this sets the syntax of the protobuf version that you will use and some imports from the different gathered **.proto** files.
 
-```
+  ```proto
+syntax = "proto3";
+package minino.rpc;
 
-Se deberá reemplazar el nombre del archivo "Template-KiCAD-Project-CI" por el nombre del proyecto diseñado.
+import "about/about.proto";
+import "wifi/analyzer/analyzer.proto";
+import "wifi/deauth/deauth.proto";
+import "wifi/wifi_spam/wifispam.proto";
+ ```
 
-Es importante conservar las extensiones de archivo .kicad_sch y .kicad_pcb.
+As you can observe on the code there is a status enum, which indicates if the request was successful or not.
 
-  
+  ```proto
+enum Status {
+      STATUS_UNKNOWN = 0;
+      STATUS_OK = 1;
+      STATUS_ERROR = 2;
+}
+ ```
+
+There is also a MainRequest that has an unique identifier, and the integration of the status enum previously mentioned; now the part that you must pay the most attention, it is that the code also includes a **one of** payload that indicates that only one command at the time can be executed.
+
+  ```proto
+message MainRequest {
+
+      uint32 message_id = 100;
+      Status status = 101;
+    
+      oneof payload {
+        // about mesagges
+        minino.about.AboutRequest about = 1;
+        // analyzer messages
+        minino.analyzer.AnalyzerStartRequest analyzer_start = 2;
+        minino.analyzer.AnalyzerStopRequest analyzer_stop = 3;
+        minino.analyzer.AnalyzerSetChannelRequest analyzer_set_channel = 4;
+        ...
+ ```
+> NOTE: If you wish to know more about the protobuf documentation, structure and logic; it is a good idea to visit **[the oficial webpage](https://protobuf.dev/)**. 
+
+Now that you know the basic functionality of the code, you must learn how to compile the .proto files in this project. The only thing you must do is to press the "run 'app'" button or the "Assemble 'app' Run Configuration" button. 
+
+<img width="76" height="79" alt="image" src="https://github.com/user-attachments/assets/ed11d5bb-870b-4d4f-a02d-80e32f188290" />
+
+<img width="232" height="70" alt="image" src="https://github.com/user-attachments/assets/d6421c1a-3c21-472a-8160-d8c6145f5eaa" />
+
+Once you press the button, Android Studio will compile the code for Kotlin automatically, this is done thanks to a build.gradle (app) configuration. This configuration is showcased in the next code snippet.
+
+
+  ```gradle
+//plugins
+...
+id("com.google.protobuf") version "0.9.5"
+...
+
+//after Android code section
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.1"
+    }
+    plugins {
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+...
+
+//dependencies
+implementation("com.google.protobuf:protobuf-kotlin:4.33.1")
+ ```
+Once you build your program, all the compiled code will be built on the following directory:
+
+**~\munchkin-app\app\build\generated\sources\proto\debug**
+
+In this folder you will see two additional directories, one for Java and another for Kotlin, both are necessary for the correct functionality of the code. **DO NOT MODIFY OR DELETE THEM**, since the code is autogenerated and any change you do, will be lost; and if you delete it, the protobuf commands will not work. 
+
+The functions that allow protobuf serialization are on these folder. It is fundamental to know the package destination to import the codes from these functions, in this case the main package is **minino** and from this one it divides 5 more packages, **about, analyzer, deauth, rpc, wifispam**
+
+#### Project Structure
+
+You must understand the project structure of the project to understand how the coding flow works. First, you will need to navigate to **com.example.munchkin_app**, so navigate to the next directory.
+
+**~\munchkin-app\app\src\main\java\com.example.munchkin-app**
+
+And once you opened the directory, you will see something like this.
+
+<img width="430" height="474" alt="image" src="https://github.com/user-attachments/assets/b6d92919-0a8b-43dd-845f-b871c07a3815" />
+
+In the image we can appreciate 5 packages: **data, di, navigation, ui and viewmodel**. It is a must to understand what is in each one to fully understand what is inside and what are their functions.
+
+##### Data
+
+After you open this package you will be received with 2 subpackages: **datastore and usb**.
+
+In datastore you will find the configuration CRUD (Create, Read, Update and Delete) for the **SSID Spammer**, this code allows you to save configurations for your SSID Spammer inside the storage of your smartphone.
+
+> NOTE: The actual code saves the information on JSON, but it can be configured to save it in protobuf.
+
+In **usb** you will find the configuration **UsbHelper** that triggers the USB connection, disconnection, ask for permission for USB usage and allow the **UsbSerialManager** to **receive information, process the buffer** from Munchkin and also **write into the serial port** of the usb.
 
 ### Activar/desactivar DRC y ERC
 
