@@ -212,8 +212,8 @@ fun DeauthCompactContent(
 
         StartButton(
             text = if (state.running) "Stop" else "Start",
+            disabled = state.networkIsSelected,
             command = {
-
                 if (!state.running) {
                     action.viewModel.startDeauthAttack()
                     action.screenViewModel.updateRunning(true)
@@ -223,5 +223,7 @@ fun DeauthCompactContent(
                 }
             }
         )
+
+        ProportionalSpacer(0.03f)
     }
 }

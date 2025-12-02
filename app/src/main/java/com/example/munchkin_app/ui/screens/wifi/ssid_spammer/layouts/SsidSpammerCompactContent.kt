@@ -123,5 +123,7 @@ fun SsidSpammerCompactContent(
             disabled = state.ssidIsSelected,
             command = action.onStartStop
         )
+
+        ProportionalSpacer(0.03f)
     }
 }

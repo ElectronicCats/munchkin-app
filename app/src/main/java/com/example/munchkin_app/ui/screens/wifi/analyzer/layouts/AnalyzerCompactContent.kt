@@ -133,6 +133,7 @@ fun AnalyzerCompactContent(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
+            ProportionalSpacer(0.02f)
         }
     }
 }
