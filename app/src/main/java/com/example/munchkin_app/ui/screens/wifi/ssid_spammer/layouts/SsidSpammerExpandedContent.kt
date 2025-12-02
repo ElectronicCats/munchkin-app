@@ -130,7 +130,8 @@ fun SsidSpammerExpandedContent(
             ProportionalSpacer(0.03f)
 
             InformationLabel(
-                loading = state.running
+                loading = state.running,
+                loadingText = "Spamming..."
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),

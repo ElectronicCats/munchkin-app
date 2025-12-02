@@ -26,12 +26,6 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="usbSerialExamples">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="ScreenOne">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
     </selectionStates>
   </component>
 </project>

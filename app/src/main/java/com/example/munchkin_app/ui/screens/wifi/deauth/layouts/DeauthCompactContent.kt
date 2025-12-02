@@ -1,5 +1,6 @@
 package com.example.munchkin_app.ui.screens.wifi.deauth.layouts
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import com.example.munchkin_app.ui.common.components.OptionsButtonSegment
 import com.example.munchkin_app.ui.screens.wifi.deauth.DeauthActions
 import com.example.munchkin_app.ui.screens.wifi.deauth.DeauthState
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun DeauthCompactContent(
     state: DeauthState,
@@ -211,10 +213,14 @@ fun DeauthCompactContent(
         StartButton(
             text = if (state.running) "Stop" else "Start",
             command = {
-                action.screenViewModel.updateRunning(false)
-                if (!state.running)
+
+                if (!state.running) {
                     action.viewModel.startDeauthAttack()
-                else action.viewModel.deauthStopAttackRequest()
+                    action.screenViewModel.updateRunning(true)
+                } else {
+                    action.screenViewModel.updateRunning(false)
+                    action.viewModel.deauthStopAttackRequest()
+                }
             }
         )
     }
