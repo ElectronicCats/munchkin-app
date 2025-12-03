@@ -1,15 +1,57 @@
 
 # Munchkin Android Application
 
-**Munchkin** is a multi-protocol, multi-band device designed for sniffing, communication, and attacking IoT devices. Munchkin was designed to be controlled via **RPC (Remote Procedure Call)** through an Android device via **USB-Serial**.
+**Munchkin** is a multi-protocol, multi-band device designed for sniffing, communication, and attacking IoT devices. Munchkin was designed to be controlled via **RPC (Remote Procedure Call)** through an Android device via **USB-Serial**. This repository belongs to the Munchkin Android Application, if you wish to explore more about the hardware or the firmware, feel free to visit the [Munchkin Repository](https://github.com/ElectronicCats/munchkin)
 
-[![](https://electroniccats.com/wp-content/uploads/2018/01/fav.png)](https://www.electroniccats.com)
+
+![GitHub actions](https://img.shields.io/github/actions/workflow/status/ElectronicCats/Minino/builds.yml)
+![Static Badge](https://img.shields.io/badge/made-with_love-blue?color=%23008000)
+
+<p align="center">
+  <img height="400" alt="image" src="https://github.com/user-attachments/assets/4955df6c-2e94-49a3-9b7b-ed0002cba6fb" />
+</p>
+
+Works correctly in this applications.
+
+| - - - WiFi - - - |
+- [x] Analyzer
+- [x] Deauth
+- [x] SSID Spammer
+
+Work in progress.
+
+| - - - WiFi - - - |
+- [ ] Captive Portal
+- [ ] Deauth Scan
+- [ ] Denial of Service
+- [ ] Modbus TCP
+
+| - - - Bluetooth - - - |
+- [ ] Trackers Scan
+- [ ] BLE Spam
+- [ ] HiD
+      
+| - - - Others - - - |
+- [ ] Zigbee 
+- [ ] Thread
+- [ ] SubGHz
+- [ ] GPIO
+- [ ] Plugins
+     
 
 In addition to its innovative integration of an Android application for device management, Protocol Buffers serialization technology, designed and developed by Google, was implemented, allowing for compact, fast, and efficient information transfer.
 
 This project is based on **[usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android)** by **mik3y**, which enables serial device communication via Android, with robust and reliable tools for data transmission.
 
+<p align="center">
+  <a href="https://www.electroniccats.com">
+    <img src="https://electroniccats.com/wp-content/uploads/2018/01/fav.png">
+  </a>
+</p>
+
+
 The application was developed with the Android Studio IDE (Android Studio Otter | 2025.2.1) using Kotlin and Jetpack Compose as the main programming tools. In addition, certain implementations were made to facilitate the development of the application, such as Dagger Hilt. These changes were made in the build.gradle (app) of the document.
+
 
 > IMPORTANT:
 > Please use an OTG Adapter or an USB-C to USB-C Cable for the development of this project.
@@ -27,7 +69,9 @@ The first step is to download, install and execute **[Android Studio](https://de
 
 Once installed and executed you should see something like this:
 
-<img width="774" height="628" alt="image" src="https://github.com/user-attachments/assets/5cf017d7-f0b3-48c3-8237-18e32059d515" />
+<p align="center">
+  <img width="774" height="628" alt="image" src="https://github.com/user-attachments/assets/5cf017d7-f0b3-48c3-8237-18e32059d515" />
+</p>
 
 To import this repository into Android Studio you must do the following steps:
 
@@ -49,9 +93,17 @@ To import this repository into Android Studio you must do the following steps:
 
 After Android Studio finished importing the project files, the Android Studio project must look like this.
 
-<img width="1366" height="727" alt="image" src="https://github.com/user-attachments/assets/6528af15-9bab-4cd6-a236-ac66a37eaeb7" />
+<p align="center">
+  <img width="1366" height="727" alt="image" src="https://github.com/user-attachments/assets/6528af15-9bab-4cd6-a236-ac66a37eaeb7" />
+</p>
 
-Now that your screen looks like this, you can continue to the next step to develop on this project.
+To compile the code into your Android device be sure that your ADB(Android Debug Bridge) is connected either by USB or WiFi, once you are conected and your screen looks like this, you can press on the green play button on the top that says "Run 'app'".
+
+<p align="center">
+  <img width="334" height="41" alt="image" src="https://github.com/user-attachments/assets/db80302b-5f20-4134-a1a2-626ab03a7618" />
+</p>
+
+You can continue to the next step to develop on this project.
 
 ### 2. Explore munchkin-app in Android Studio
 
@@ -63,7 +115,9 @@ Protocol Buffers (protobuf) is one of the main implementations made in this proj
 
 **~\munchkin-app\app\src\main\proto**
 
-<img width="431" height="373" alt="image" src="https://github.com/user-attachments/assets/7c3afabe-a226-4a85-a782-c962a6c00f6c" />
+<p align="center">
+  <img width="431" height="373" alt="image" src="https://github.com/user-attachments/assets/7c3afabe-a226-4a85-a782-c962a6c00f6c" />
+</p>
 
 In these folders you will observe the different **.proto** files that allows the compilation of the protobuf code for Kotlin. For instance: When you open the **main.proto** file, you will see something just like this.
 
@@ -165,9 +219,10 @@ message MainRequest {
 
 Now that you know the basic functionality of the code, you must learn how to compile the .proto files in this project. The only thing you must do is to press the "run 'app'" button or the "Assemble 'app' Run Configuration" button. 
 
-<img width="76" height="79" alt="image" src="https://github.com/user-attachments/assets/ed11d5bb-870b-4d4f-a02d-80e32f188290" />
-
-<img width="232" height="70" alt="image" src="https://github.com/user-attachments/assets/d6421c1a-3c21-472a-8160-d8c6145f5eaa" />
+<p align="center">
+  <img width="76" height="79" alt="image" src="https://github.com/user-attachments/assets/ed11d5bb-870b-4d4f-a02d-80e32f188290" />
+  <img width="232" height="79" alt="image" src="https://github.com/user-attachments/assets/d6421c1a-3c21-472a-8160-d8c6145f5eaa" />
+</p>
 
 Once you press the button, Android Studio will compile the code for Kotlin automatically, this is done thanks to a build.gradle (app) configuration. This configuration is showcased in the next code snippet.
 
@@ -219,9 +274,11 @@ You must understand the project structure of the project to understand how the c
 
 And once you opened the directory, you will see something like this.
 
-<img width="430" height="474" alt="image" src="https://github.com/user-attachments/assets/b6d92919-0a8b-43dd-845f-b871c07a3815" />
+<p align="center">
+  <img width="430" height="474" alt="image" src="https://github.com/user-attachments/assets/b6d92919-0a8b-43dd-845f-b871c07a3815" />
+</p>
 
-In the image we can appreciate 5 packages: **data, di, navigation, ui and viewmodel**. It is a must to understand what is in each one to fully understand what is inside and what are their functions.
+In the image we can appreciate 5 packages: **data, di, navigation, ui and viewmodel**. It is a must to understand what is inside each one to fully comprehend how the project works.
 
 ##### Data
 
@@ -231,60 +288,77 @@ In datastore you will find the configuration CRUD (Create, Read, Update and Dele
 
 > NOTE: The actual code saves the information on JSON, but it can be configured to save it in protobuf.
 
-In **usb** you will find the configuration **UsbHelper** that triggers the USB connection, disconnection, ask for permission for USB usage and allow the **UsbSerialManager** to **receive information, process the buffer** from Munchkin and also **write into the serial port** of the usb.
+In **usb** you will find the configuration **UsbHelper** that triggers the USB connection, disconnection, ask for permission for USB usage and allows the **UsbSerialManager** to **receive information, process the buffer** from Munchkin and also **write into the serial port** of the usb.
 
-### Activar/desactivar DRC y ERC
+##### DI
 
-Las opciones de DRC y ERC están siempre activas predeterminadamente, para desactivarlas se deberá de eliminar las siguientes líneas del archivo [electroniccats_sch.kibot.yaml](hardware/electroniccats_sch.kibot.yaml).
+Inside DI you will find the modules from Dagger Hilt, modules which sostain the code of UsbHelper and DataStore
 
-```yaml
+##### Navigation
 
-run_erc: true
+Inside navigation you will find the different files that allow the navigation between screens to work.
 
-run_drc: true
+Here you can observe the package NavGraphs, this tools are used to set the different navigation routes from all the application. You will find the navigation route for every module, **Home, WiFi, BLE, IoT and Scripts**. 
 
-```
+**NavigationController.kt** is the main heart of navigation, this is the host and all the NavGraphs are inherited from this file.
 
-Esta acción solo correrá cada vez que se haga un release.
+As the name explains, **Transitions.kt** are the transitions for every screen. In Android, a transition is the process or period of change between a screen and another.
 
-Si, además, se busca desactivar el DRC y el ERC cuando se haga push o pull request, es necesario eliminar el archivo [action_drc.yml](.github/workflows/action_drc.yml).
+##### UI
 
-## Creación de Release
+The UI package is one of the most complex of this application, here you will find everything that is related to **User Interface (UI)**, this package is divided in 3 subpackages: **Common, Screens and Theme**.
 
-Al terminar el proyecto y su revisión, se publicará el primer Release.
+Once you open the UI package inside you will find something like this:
 
-Para crear un nuevo Release, presiona el botón de "Create a new release".
+<p align="center">
+  <img width="421" height="94" alt="image" src="https://github.com/user-attachments/assets/40e6e6bf-13b0-43c7-aa1d-1824222dbc33" />
+</p>
 
-Una vez creado el Release, podrás ver la creación de los archivos en la sección de Actions.
+Inside the common package you will find a subpackage named **components** and a Kotlin file named **Utils.kt**. 
 
-Al terminar, los archivos serán generados en el mismo release.
+**Components** contains reusable composable functions that you can implement, for instance: **ChannelDropMenu.kt, DisplayCardContainer.kt, OptionsButtonSegment.kt** and so many others. 
+
+**Utils.kt** contains also reusable composable functions, however, these functions are not as complex as the **components** ones.
+
+The next subpackage to explore is **screens**, in this package you can observe the different modules that integrates the Munchkin application.
+
+<p align="center">
+  <img width="316" height="213" alt="image" src="https://github.com/user-attachments/assets/c3c9fbb8-57bd-4be2-8e85-3e1359f40a2b" />
+</p>
+
+Most of the content at the moment is not developed yet, so we are going to focus on **home** and **wifi**.  
+
+The package **home** also contains a components folder which serves to store composable functions that are only specific for home, such as **ConnectionSegmentedButton.kt and UsbDeviceCard.kt**. **Home** also contains **HomeScreen** which acts as the main screen for this module.
+
+The package **WiFi** contains all the applications of the WiFi module, for example: **analyzer, deauth and ssid_spammer**, inside each module are the codelines that lets the UI work. Lets explore analyzer for instance: Inside you will find the **layouts** package, which contain the expanded and compacted view of the UI (For tablets and smartphones) and next to this package is the AnalyzerScreen which acts as the main file of this application.
+
+> NOTE: Every application code follows the same structure, a main file that leads into a layout package that stores the compact and expanded view.
+
+> NOTE: It is important to understand, that the intermediary which stores the code for Munchkin is the UsbViewModel and the UI functionality is the ViewModel designed for each screen.
+
+And lastly, the **UI** package also contains the **theme** package which contains the theme settings that come by default, even though, you can modify as you need it. In this case, the modifications were to the colors: **primary, secondary and background**, the importation of some fonts, responsivity of the font sizes and configurations to the fonts.
+
+##### ViewModel
+
+ViewModels are the intermediary between the business code and the UI. It is necessary because it prevents failures due to recomposition of the screen, since it stores the cache for the status of the activity, for example: When you rotate the screen of your mobile device, the options you selected stay the same thanks to the viewmodel.
+
+In this package are stored all the viewModels for the project, when you first open the viewmodel package, you can observe the packages **screens and usb**. 
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1eb3ed55-cda4-41ea-a900-f482fdc3c8bc" width="307" height="72" alt="imagen centrada">
+</p>
+
+In the **screens** package remains the ViewModel for every application of each module, at the moment, the only function of these ViewModels is to store the cache of the states for the UI, but later you can add more implementations inside.
+
+As for the **usb** package, inside you will find the **ProtobufRepository.kt** for all the protobuf requests, and also the callback to receive and deserialize the protobuf code in real time. In addition, there is the **DeviceRepository.kt** which creates some variables that store information about the device that is connected. Furthermore, there is the **UsbManager.kt**, this file stores the commands related to the management of the USB. And finally, the **UsbViewModel.kt**, where all the commands related to the bussines logic are stored.
+
+
+This is an overview explanation for the developing part of Munchkin app, any suggestion or improvement feel free to create an issue or a pull request to improve it.` 
 
 ## Elementos para mejorar tu `Readme.md`
 
 Los archivos `Readme.md` se crean con el propósito de hacer visualmente agradable un repositorio para los usuarios que visiten nuestro proyecto, puedes utilizar algunos de los siguientes elementos.
 
-### Código
-Quoting code, como lo dice su nombre, se utiliza para añadir código y que se separe del texto plano. Debes de agregar el codigo dentro de ` ``` ```` ` , ademas si agregas el nombre del lenguaje inmediatamente despues de las primeras ` ``` ` las funciones se pondran de color diferenciandolas del resto del codigo. Aquí algunos ejemplos. Puedes encontrar los lenguajes aquí:
-https://github.com/github/linguist/blob/master/vendor/README.md
-```sh
-192.168.0.1
-cd Downloads
-```
-  ```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
-```
-
-### Hipervínculos
-
-Usa hipervínculos o links para redirigir a los usuarios a páginas donde puedan conocer más acerca de algún tema o concepto en concreto, hay dos formas de hacer esto:
-
-- [Agregando el link en seguida](https://github.com/ElectronicCats/Template-Project-KiCAD-CI) - Con esta forma deberas de seguir el siguiente formato `[Texto](www.url.com)`. El texto que se mostrará en la página principal del Readme será el que se encuentra dentro de los corchetes y el link de la página deberá de ir de manera inmediata a los corchetes dentro de paréntesis.
-
-- [Agregando el link como referencia] - Al igual que otro tipo de formatos de referencia en este agregas el texto que se mostrará en la página principal del repositorio dentro de corchetes `[Texto]` y al final de tu archivo (de preferencia) agregas la referencia de la siguiente manera: `[Texto]:<www.url.com>`, este no se mostrara en el archivo por lo que es una buena forma de mantener un formato y un orden.  
 
 ### Tablas
 
@@ -296,47 +370,9 @@ Las tablas que todos conocemos con filas y columnas. El formato para estas tabla
 
 Nota: Si agregas en la segunda fila guiones (-) harás que la primera fila se convierta en el encabezado de la tabla.
 
-### Imágenes
-Puedes añadir imágenes siempre y cuando estas estén en Internet, si quieres agregar una nueva imagen tambien la puedes arrastrar y soltar en el cuadro de texto (en caso de que edites tu `Readme.md`) directo desde GitHub, esto hará que se guarde tu imagen en una carpeta oculta dentro de tu repositorio.
-El formato para agregar imagenes es: `![](www.urlimagen.com)`
-Si requieres que al hacer click en tu imagen se redirija a otra pagina usa el siguiente formado `[![](www.urldeimagen.com)](https://www.urlaredirigir.com)`
-Es importante agregar `https://` , si no te enviara a una página de GitHub que probablemente no exista.
-
-[![](https://electroniccats.com/wp-content/uploads/2018/01/fav.png)](https://www.electroniccats.com)
-
-### Referencias
-Es posible que en la wiki hayas visto numeritos como este --->[^1], pero que significan?
-
-No son más que referencias que puedes hacer para hacer saltos de información e ir directo a la referencia haciendo click en el pequeño número.
-[^1]: Soy la referencia :))))
-
 ### Emojis :trollface: :shipit:
 Solo escribe el código del emoji así: `:EMOJICODE:`.
 Aqui la lista de los [EMOJICODEs](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md#github-custom-emoji)
-
-### Listas con checkbox
-Usa este formato:
-```
-- [x] GFM task list 1
-- [x] GFM task list 2
-- [ ] GFM task list 3
-    - [ ] GFM task list 3-1
-    - [ ] GFM task list 3-2
-    - [ ] GFM task list 3-3
-- [ ] GFM task list 4
-    - [ ] GFM task list 4-1
-    - [ ] GFM task list 4-2
-  ```
-  Y tendras algo asi: 
-- [x] GFM task list 1
-- [x] GFM task list 2
-- [ ] GFM task list 3
-    - [ ] GFM task list 3-1
-    - [ ] GFM task list 3-2
-    - [ ] GFM task list 3-3
-- [ ] GFM task list 4
-    - [ ] GFM task list 4-1
-    - [ ] GFM task list 4-2
 
 ### Otros Elementos
 
