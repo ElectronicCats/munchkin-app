@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">munchkin-app</string>
+    
+    //!--------------------------// Welcome Screen \\--------------------------!\\
+    <string name="Welcome_one_title">Welcome to Munchkin</string>
+    <string name="Welcome_one_text">
+        Munchkin is an open-source device which contains functional hardware that allows us to audit
+        different wireless networks, such as WiFi, BLE, and Zigbee. With this application, you can
+        communicate and execute commands with your Munchkin device through different ways of connection.
+    </string>
+    <string name="Welcome_one_image">Electronic Cats Logo</string>
+
+    //Welcome Screen2
+    <string name="Welcome_two_title">It’s time to begin!</string>
+    <string name="Welcome_two_text">
+        Connect your Munchkin device either by Serial, Bluetooth or WiFi\n\n
+        Feel free to check the list of compatible devices with this app.\n\n
+        https://electroniccats.com/
+    </string>
+    <string name="Welcome_two_image">Sam Waving Hand</string>
+
+    //Welcome Screen3
+    <string name="Welcome_three_title">ETHICAL USE NOTICE AND LIMITATION OF LIABILITY</string>
+    <string name="Welcome_three_text">
+        Munchkin has been exclusively designed for the use of defensive cybersecurity, authorized
+        auditions and pentesting, previously approved and consented by the explicit system owner.\n\n
+
+        Electronic Cats does not promote or endorse the use of this device for illegal, unauthorized,
+        or otherwise unlawful activities in violation of applicable laws and regulations. The user is
+        solely responsible for obtaining any necessary authorizations before conducting any security
+        testing or activity.\n\n
+
+        Electronic Cats disclaims all civil, criminal, or administrative liability arising from the
+        misuse of this device. Any unauthorized or illegal use shall be the sole responsibility of
+        the user and may constitute a criminal offense.
+    </string>
+    <string name="Welcome_three_terms">
+        By using this device, you expressly acknowledge and agree to
+        these terms and commit to using it solely for legitimate and authorized purposes.
+    </string>
+
+    //Viewpager
+    <string name="Welcome_skip">Skip</string>
+    <string name="Welcome_next">Next</string>
+    <string name="Welcome_toast">You must accept terms and conditions</string>
+
+    //!--------------------------// Bottom Navigation Bar \\--------------------------!\\
+    <string name="NavBar_home">Home</string>
+    <string name="NavBar_wifi">WiFi</string>
+    <string name="NavBar_ble">BLE</string>
+    <string name="NavBar_iot">IoT</string>
+    <string name="NavBar_scripts">Scripts</string>
+    //Icon descriptions
+    <string name="NavBar_icon_home">Home</string>
+    <string name="NavBar_icon_wifi">WiFi</string>
+    <string name="NavBar_icon_ble">Bluetooth</string>
+    <string name="NavBar_icon_iot">IoT</string>
+    <string name="NavBar_icon_scripts">Scripts</string>
+    <string name="wifi_deauth_application_name">Deauth</string>
+    <string name="wifi_deauth_attack_type">Type of Attack</string>
+    <string name="deauth_inprocess">Attack is being executed...</string>
+    <string name="wifi_ssidspam_application_title">WiFi</string>
+    <string name="wifi_ssidspam_title">SSID Spammer</string>
+    <string name="wifi_ssid_spammer_add_ssid">Add SSID</string>
+
+</resources>

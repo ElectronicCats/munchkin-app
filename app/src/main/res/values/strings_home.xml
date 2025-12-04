@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    //!--------------------------// Home Screen \\--------------------------!\\
+    <string name="home_screen_title">Connection</string>
+    <string name="home_file_manager">File Manager</string>
+    <string name="home_file_manager_description">Access to files in your device</string>
+
+    //Storage
+    <string name="home_local_storage">Local Storage</string>
+    <string name="home_available_local_storage">Available Space: 100GB</string>
+    <string name="home_used_local_storage">Used Space: 50GB</string>
+    <string name="web_storage">Web Storage</string>
+    <string name="home_available_web_storage">Available Space: 100GB</string>
+    <string name="home_used_web_storage">Used Space: 50GB</string>
+
+    //ConnectionSegmentedButton
+    <string name="home_serial">Serial</string>
+    <string name="home_bluetooth">Bluetooth</string>
+    <string name="home_network">Network</string>
+    <string name="home_serial_description">Serial connection</string>
+    <string name="home_bluetooth_description">Bluetooth connection</string>
+    <string name="home_network_description">Network connection</string>
+
+    //ConnectionSettings
+    <string name="home_model_version_empty" />
+    <string name="home_model_version_data">Model: %1$s\nV%2$s</string>
+    <string name="home_loading_name">Loading…</string>
+    <string name="home_null_version">N/A</string>
+    <string name="home_connected_successfully_id">Connected Successfully. ID:%1$d</string>
+    <string name="home_toast_not_connected_default">Not Connected</string>
+    <string name="home_toast_connection_error">Connection Error</string>
+
+</resources>
