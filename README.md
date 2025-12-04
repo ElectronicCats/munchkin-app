@@ -54,12 +54,15 @@ The application was developed with the Android Studio IDE (Android Studio Otter 
 
 
 > IMPORTANT:
-> Please use an OTG Adapter or an USB-C to USB-C Cable for the development of this project.
+> Please use an OTG Adapter or an USB-C to USB-C Cable for the use or development of this application.
+
+> IMPORTANT:
+> If you do not want to explore the [**"Start Developing"**](#start-developing) explanation of the application, then jump to  [**"How to Use the Application"**](#how-to-use-the-application) section.  .
 
 > NOTE:
 >It is highly recommended to compile this project on an Android 11+ device. The reason is that it allows wireless ADB (Android Debug Bridge), a perfect tool to debug USB-Serial.
 
-## Start developing
+## Start Developing
 
 To begin developing this project, you must follow these steps.
 
@@ -355,56 +358,98 @@ As for the **usb** package, inside you will find the **ProtobufRepository.kt** f
 
 This is an overview explanation for the developing part of Munchkin app, any suggestion or improvement feel free to create an issue or a pull request to improve it.` 
 
-## Elementos para mejorar tu `Readme.md`
+## How to Use the Application.
 
-Los archivos `Readme.md` se crean con el propósito de hacer visualmente agradable un repositorio para los usuarios que visiten nuestro proyecto, puedes utilizar algunos de los siguientes elementos.
+### Install the App and Connect to Munchkin
+
+First you must open the application, once you do it the application will receive you with a welcome ViewPager.
+
+<p align="center">
+  <img width="460" height="190" alt="image" src="https://github.com/user-attachments/assets/b78ef73d-326c-4df1-ae1a-332e4a3430bd" />
+</p>
+
+Once you reach the third slide, accept the terms and conditions and it will lead you to the **Home** screen. Here you must connect Munchkin to your smarthphone using one end of the USB to Munchkin and the other to the application. It will detect a **USB device** in the port, click the button that appears with the name of the device and accept the request for USB permission. 
+
+<p align="center">
+  <img height="400" alt="image" src="https://github.com/user-attachments/assets/62baa25b-adbc-4790-ae85-ad1b6a5d6a55" />
+</p>
+
+After you accept the request your screen will look like this.
+
+<p align="center">
+  <img height="400" alt="image" src="https://github.com/user-attachments/assets/e3eefcf5-9ed9-42aa-a211-5c11ee2252ca" />
+</p>
+
+> NOTE: Be aware that the Munchkin board must be correctly turned on. Please be sure that after you connect the USB device the **green LED turns ON**
+
+Once your Munchkin is successfully connected to your smarthphone, you can use the applications that are working. Now navigate to the **WiFi** module on the bottom navigation bar.
+
+<p align="center">
+  <img width="201" height="37" alt="image" src="https://github.com/user-attachments/assets/75d6af28-9f34-4037-9486-bc6e260ac648" />
+</p>
+
+Once you press the button you will see this grid of applications from the WiFi module.
+
+<p align="center">
+  <img width="196" height="406" alt="image" src="https://github.com/user-attachments/assets/60a79b41-27fb-4e6e-8988-79316cbed433" />
+</p>
+
+The modules that are currently working are: **Analyzer, Deauth and SSID Spammer**.
+
+#### Analyzer
+
+Capture Wi-Fi packets from nearby networks, save them to the SD card or internal storage, and visualize the data. The saved information includes details such as data length, SSID, channel, destination, source, and more.
+
+#### Deauth
+
+Deauth its a set of different types of Denial-of-Service attacks.
+
+**- Broadcast:** A deauthentication attack, a type of denial-of-service attack that disrupts communication between routers and devices by sending deauthentication frames to the network, causing disconnections. This attack exploits the IEEE 802.11 wireless standard’s ability to terminate connections.
+
+**- Rogue AP:** A rogue access point is a wireless access point installed on a secure network without authorization from the network administrator.
+
+**- Combine:** The Combine attack is more efficient because it merges the techniques of both the Broadcast and Rogue AP attacks, maximizing impact.
+
+#### SSID Spammer
+
+Create a list of SSID (Service Set Identifier) names, which are the names of wireless networks, and broadcast them to nearby devices as spam. This app allows you to send multiple SSIDs to overload or confuse nearby wireless networks.
+
+### Navigate into an App
+
+Tap one of the different cards to navigate to the application. For instance: Lets tap **"Analyzer"**. After you tap the button it will lead you to the application screen, where you can configurate the different settings for every application. In this case, we have an information label and a button to pick a channel of radiofrequency.
+
+> NOTE: Some networks will send package in a certain channel, so be aware to choose the correct channel from the network you will capture packets
+
+<p align="center">
+  <img width="198" height="412" alt="image" src="https://github.com/user-attachments/assets/dcc5173b-8833-4b63-b4d8-09b0d90054b4" />
+</p>
+
+> NOTE: The SD configuration is a dummy, it is planned to be removed since now Munchkin detects if the board has an SD and if it does not have one, it will store the packages in the internal storage of the ESP32-C6.
+
+To make this application work, be sure that Munchkin is correctly connected and press start. Once you press start and the application is running, the UI will notice you, and Munchkin will blink his green LED constantly. In the process, Munchkin will capture and store packets from nearby networks. Once it finishes, the application shows you in which route the **.pcap files** are being stored, and the different networks Munchkin captured packets with some additional information.
 
 
-### Tablas
+The Deauth application follows a similar principle, but first you must scan for nearby networks, after choosing one you will have to pick one type of attack and then press start to run the script.
 
-Las tablas que todos conocemos con filas y columnas. El formato para estas tablas se basa en el uso del símbolo `|`, entonces debes de encerrar las palabras como esto: `|Columna1|` (sin la posibilidad de dos | seguidos), para agregar más columnas basta con dar un espacio y repetir el formato, sin embargo, para añadir filas debes de hacer un salto de línea y repetir el formato de columnas, dejándonos una tabla como la siguiente:
+However, SSID Spammer is a bit different, first thing you must do is to add a name for your SSID's list and also the SSID's for your list, after you added the list of SSID's you must pick one from the dropdown menu and then you press start to start spamming your SSID List
 
-|Columna1|Columna2|
-|-|-|
-|Fila 1 Columna 1|Fila 2 Columna 2|
-
-Nota: Si agregas en la segunda fila guiones (-) harás que la primera fila se convierta en el encabezado de la tabla.
-
-### Emojis :trollface: :shipit:
-Solo escribe el código del emoji así: `:EMOJICODE:`.
-Aqui la lista de los [EMOJICODEs](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md#github-custom-emoji)
-
-### Otros Elementos
-
-![](https://img.shields.io/github/stars/ElectronicCats/Template-Project-KiCAD-CI?style=for-the-badge)
-![](https://img.shields.io/github/forks/ElectronicCats/Template-Project-KiCAD-CI?color=green&style=for-the-badge)
-
-Este tipo de indicadores nos pueden ayudar a identificar diferente información relacionada al proyecto, solo los debes de agregar como una imagen y en el URL  pegar el link correspondiente. 
-Los ejemplos de arriba fueron generados con la pagina: Shields.io , solo debes de asegurarte que son para GitHub y que tienen el formato `MarkDown`
-
-- Badges,
-En caso de que necesites algun referente a alguna empresa o plataforma puedes usar esta pagina: https://dev.to/envoy_/150-badges-for-github-pnk
-
-[![](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/electroniccats/?originalSubdomain=mx)
-
-- Estadísticas
-Utilizando el projecto de este usuario puedes agregar estadísticas del proyecto como estas:
-
-![This repository Stats](https://github-readme-stats.vercel.app/api/pin?username=ElectronicCats&repo=Template-Project-KiCAD-CI&title_color=fff&icon_color=f9f9f9&text_color=9f9f9f&bg_color=151515)
-
-https://github.com/anuraghazra/github-readme-stats
-
-**NOTA**:Son pocas las tarjetas que puedes utilizar con el proyecto de este usuario para repositorios ya que son más dirigidos a perfiles de GitHub.
  
 ## Maintainer
 
-<a
-href="https://github.com/sponsors/ElectronicCats">
+<p align="center">
+  <a href="https://www.linkedin.com/company/electroniccats/?originalSubdomain=mx">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white">
+  </a>
+</p>
 
-<img  src="https://electroniccats.com/wp-content/uploads/2020/07/Badge_GHS.png"  height="104" />
-
-</a>
+<p align="center">
+  <a
+  href="https://github.com/sponsors/ElectronicCats">
+  
+  <img  src="https://electroniccats.com/wp-content/uploads/2020/07/Badge_GHS.png"  height="104" />
+  
+  </a>
+</p>
 
 Electronic Cats invests time and resources providing this open source design, please support Electronic Cats and open-source hardware by purchasing products from Electronic Cats!
 
-[Agregando el link como referencia]: <https://github.com/ElectronicCats/Template-Project-KiCAD-CI>
